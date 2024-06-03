@@ -1,0 +1,33 @@
+# Maven and Build Artifacts
+target/
+lib/
+pom.xml.*
+release.properties
+*.key
+jwks.*
+
+# IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+.recommenders
+.metadata
+maven-eclipse.xml
+.externalToolBuilders/
+
+# VSCode
+.vscode/
+
+# OS X
+.DS_Store
+
+# Other random *nix artifacts
+hs_err_*
+*~
+.#*
+\#*

@@ -1,0 +1,418 @@
+# JSON Web Token (JWT) Servlet Authentication
+
+This repository provides libraries that allow adding [JSON Web Token (JWT)][Rfc7519] based [Bearer authentication][Rfc6750] into
+Java Servlet applications. Support is provided for both Servlet 3 (`javax.servlet`), Servlet 5 (`jakarta. servlet`) and
+JAX-RS 3 (`jakarta.ws.rs`) based applications.
+
+While some servlet containers provide integrated support for this, others don't, and even where support is provided the
+flexibility of OAuth 2 (the specification that defined Bearer auth) can still leave implementations lacking.
+
+JWT based Bearer Authentication, while very simple at a high level, actually proves to be quite difficult in practise
+because tokens can be issued by a huge variety of issuers using different signature algorithms, key management
+techniques etc. To try and address this the library provides two main abstractions:
+
+- `JwtAuthenticationEngine` - This is an abstract base class that implements the authentication flow with abstract
+  methods provided that perform configurable portions of the flow e.g. selecting the HTTP Header(s) that convey the
+  JWTs, finding the username from the verified token and transforming the request with the authenticated user identity.
+- `JwtVerifier` - This is an interface for verifying tokens.
+
+The aim being to decouple the flow of obtaining a token from verifying it, allowing the core engine to be easily
+repurposed for multiple servlet container runtime versions.
+
+Concrete implementations of both are provided, see [Usage](#usage) for example usage.
+
+# Build
+
+These libraries are built with [Apache Maven][maven]:
+
+```bash
+$ mvn clean install
+```
+
+Building requires JDK 17+ and Apache Maven 3.8.1+
+
+## Dependencies
+
+This library depends on the excellent [`jjwt`][jjwt] libraries. Note that JWKS has a dependency on Guava which we
+**exclude**, thus if you want to use any of its Guava based functionality in your applications then you will need to
+declare that explicitly.
+
+The individual implementation modules have Servlet 3, Servlet 5 and JAX-RS 3 declared as `provided` dependencies,
+meaning you can safely put this in a Java Servlet application based on whichever servlet container runtime version you
+want as long as the correct dependencies are provided at runtime.  If you are using some other runtime version then you
+should be able drop in the most appropriate implementation module.  For example a Servlet 6 application would use the
+Servlet 5 implementation module.
+
+Logging is done via SLF4J, no concrete provider is used so a suitable SLF4J binding should be provided at runtime.
+
+We use the `jjwt-jackson` module meaning that [Jackson][Jackson] is used as the JSON processing library.  As `jjwt`
+provides backwards compatibility for older JDKs it is pinned to old Jackson versions which can lead to runtime
+dependency conflicts if mixed with newer Jackson versions.  To avoid this from `0.8.0` we explicitly declare our own
+dependencies on the latest Jackson release which overrides the `jjwt` declarations as in Maven the closest dependency
+wins.
+
+# Depending on this Library
+
+To depend on this library add the following to your Maven dependencies:
+
+```xml
+<dependency>
+    <groupId>io.telicent.public</groupId>
+    <artifactId>jwt-servlet-auth-IMPLEMENTATION</artifactId>
+    <version>X.Y.Z</version>
+</dependency>
+```
+
+Where `IMPLEMENTATION` is the desired implementation module for your target servlet container runtime and `X.Y.Z` is the
+desired version. The current stable version is `0.13.0`, development snapshots are `1.0.0-SNAPSHOT`.
+
+The following implementation modules are currently provided:
+
+- `jwt-servlet-auth-servlet3` - Implementations for Servlet 3/4 i.e. `javax.servlet` applications.
+- `jwt-servlet-auth-servlet5` - Implementations for Servlet 5/6 i.e. `jakarta.servlet` applications.
+- `jwt-servlet-auth-jaxrs3` - Implementations for JAX-RS 3 i.e. `jakarta.ws.rs` applications.
+
+# Usage
+
+To use this in a servlet application you need to add an appropriate filter implementation to your application. The
+filter is called `JwtAuthFilter` in all cases and should be taken from the appropriate implementation module package:
+
+- `io.telicent.servlet.auth.jwt.jaxrs3.JwtAuthFilter` for JAX-RS 3 i.e. `jakarta.ws.rs` applications.
+- `io.telicent.servlet.auth.jwt.servlet3.JwtAuthFilter` for Servlet 3 i.e. `javax.servlet` applications.
+- `io.telicent.servlet.auth.jwt.servlet5.JwtAuthFilter` for Servlet 5 i.e. `jakarta.servlet` applications.
+
+The filters do not require any direct configuration, they dynamically read the necessary `JwtAuthenticationEngine` and
+`JwtVerifier` on each request. These are configured via Servlet Context attributes which you can inject into your
+application however you see fit, e.g. via a `ServletContextListener`, and the injected configuration will be discovered
+the first time your filter is invoked.  Note that as of `0.9.0` once a filter has been invoked for the first time its
+configuration is fixed and you cannot modify it without restarting the server.
+
+The relevant attributes are as follows:
+
+- `io.telicent.servlet.auth.jwt.engine` - Specifies a `JwtAuthenticationEngine` implementation to use. If not specified
+  then an appropriate default implementation for your runtime environment is used.
+- `io.telicent.servlet.auth.jwt.verifier` - Specifies a `JwtVerifier` implementation to use, **MUST** be provided or
+  **all** requests will be rejected as unauthenticated.
+
+If the filter is not properly configured then it will throw an `AuthenticationConfigurationError`, you may wish to
+configure your servlet containers custom error handling to handle these errors.
+
+## Filter Auto-Configuration
+
+From `0.8.0` we introduced the ability to automatically configure some aspects of behaviour via filter init parameters.
+For example consider the following `web.xml` snippet for a web application intended for deployment in a Servlet 3.x
+compatible runtime:
+
+```xml
+<filter>
+    <filter-name>JWTAuth</filter-name>
+    <filter-class>io.telicent.servlet.auth.jwt.servlet3.JwtAuthFilter</filter-class>
+    <init-param>
+        <param-name>jwt.secret.key</param-name>
+        <param-value>test.key</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>JWTAuth</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+The automatic configuration of filters is driven by the `VerificationFactory` which is `ServiceLoader` based and looks
+for `VerificationProvider` instances defined in the appropriate `META-INF/services` file(s) within your applications
+classpath.  Out of the box there are two implementations provided:
+
+- The `DefaultVerificationProvider` which can configure a `SignedJwtVerifier` from a public/secret key, or a JWKS URL.
+  This requires one of the `jwt.secret.key`, `jwt.public.key` or `jwt.jwks.url` parameters to be present.  If using a
+  public key then `jwt.key.algorithm` must also be present specifying the key algorithm used e.g. `RSA` or `EC`.
+- The `AwsVerificationProvider` which can configure a `AwsElbJwtVerifier` from an AWS region, only available when the
+  extra [AWS](#aws-integration) module is on your Classpath.  This requires the `jwt.aws.region` parameter to be
+  present to specify the AWS region your application is deployed in.
+
+Note that if using the `jaxrs3` implementation module then you cannot configure via filter init params because no such
+concept exists for JAX-RS filters.  Instead you can configure via a `ServletContextListener` like so:
+
+```xml
+<context-param>
+    <param-name>jwt.public.key</param-name>
+    <param-value>public.key</param-value>
+</context-param>
+<context-param>
+    <param-name>jwt.key.algorithm</param-name>
+    <param-value>RSA</param-value>
+</context-param>
+<listener>
+    <listener-class>io.telicent.servlet.auth.jwt.jaxrs3.JaxRs3AutomatedAuthConfigurationListener</listener-class>
+</listener>
+```
+
+In the above example the filter will be configured to verify keys using the given `RSA` public key.
+
+Internally when using the automated configuration it goes via the `AutomatedConfiguration.configure()` method so if you
+want to inject configuration some other way, but still utilise the automated configuration mechanism this library
+provides, then you can do so.
+
+**NB** One limitation of the JAX-RS filter is that because we can only configure it indirectly it's not possible to
+configure multiple filters with different configurations for different parts of your application as we can do with the
+Servlet 3.x/5.x filters via their filter init parameters.  If you need different filter configurations for a JAX-RS
+application consider using the Servlet filters instead of the JAX-RS filter.
+
+**Warning** As of `0.11.0` we limited support for multiple filter configurations to avoid users accidentally configuring
+less security than they intended for some parts of their application.  If you want to allow for multiple configurations
+in your application you must now add `jwt.configs.allow-multiple` with a value of `true` to your configuration
+parameters.
+
+## Path Exclusions
+
+From `0.3.0` onwards you can optionally configure Path exclusions, these allow some paths to bypass the filters, which
+can be useful for special paths such as z-pages e.g. `/healthz` where you want users to be able to make requests without
+authentication.  No path exclusions are configured by default so all paths to which your filter applies require
+authentication out of the box.
+
+You can configure exclusions by setting the `io.telicent.servlet.auth.jwt.path-exclusions` Servlet Context attribute,
+this attribute should have a value that is a `List<PathExclusion>`.  A `PathExclusion` can be either a fixed path, e.g.
+`/healthz`, that matches a single path or can be a wildcard, e.g. `/status/*`, that matches many paths.  You can use the
+static `PathExclusion.parsePathPatterns()` convenience method to generate this list from a comma separated string e.g.
+`/healthz,/status/*`.
+
+A wildcard path uses the `*` character to match zero or more characters, so in the above example `/status/*`, would
+match `/status/`, `/status/health`, `/status/uptime` etc.  To prevent users unintentionally disabling authentication via
+overly broad exclusions any path pattern that consists of only `/`, `*` and whitespace will be rejected.  So you cannot
+have an exclusion of `/*` as that effectively renders applying the filter pointless.
+
+Every time an excluded path is requested the filter will log a warning indicating that this is happened, this helps
+developers and administrators spot cases where the exclusions may have been overly broad.
+
+**IMPORTANT:** Depending on your servlet runtime it may be better to use the filter mapping capabilities of the runtime
+to only apply the filter to the paths you want to protect rather than excluding paths you don't want protected.  Whether
+this is a viable option depends on your runtime and the complexity of paths involved in your application.
+
+### Automatic path exclusion configuration
+
+From `0.8.0` onwards we offer [automatic configuration](#filter-auto-configuration) of filters.  If the
+`jwt.path-exclusions` parameter is supplied as an init parameter then the path exclusions will be automatically
+configured.  This parameter expects a comma separated list of exclusion patterns e.g. `/healthz,/status/*` e.g.
+
+```xml
+<filter>
+    <filter-name>JWTAuth</filter-name>
+    <filter-class>io.telicent.servlet.auth.jwt.servlet3.JwtAuthFilter</filter-class>
+    <init-param>
+        <param-name>jwt.secret.key</param-name>
+        <param-value>test.key</param-value>
+    </init-param>
+    <init-param>
+        <param-name>jwt.path-exclusions</param-name>
+        <param-value>/healthz,/status/*</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>JWTAuth</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+## Engines
+
+The `JwtAuthenticationEngine` has a single public method `authenticate(request, response, verifier)` that takes in the
+request, response and [Verifier](#verifiers) objects. It returns an authenticated request on success, and `null` on
+failure. In the event of failure it calls its protected `sendChallenge()` or `sendError()` methods that derived
+implementations use to convey an authentication challenge or other HTTP error to the client.
+
+The implementation modules provides several concrete implementations of `JwtAuthenticationEngine`:
+
+- `JaxRs3JwtAuthenticationEngine`
+- `Servlet3JwtAuthenticationEngine`
+- `Servlet5JwtAuthenticationEngine`
+
+All of these derive from the same base class in the core module and share the following default behaviours:
+
+1. They assume that the standard HTTP `Authorization` header is used to convey the bearer token in the format
+   `Authorization: Bearer <token>`. If multiple of these headers are present then all the presented tokens are tried in
+   turn.
+2. That the challenge `realm` conveyed in `WWW-Authenticate` headers on rejected requests will be taken from the Request
+   URI.
+3. That the username for a user is contained in the standard `sub` claim of the JWT body.
+
+Upon successful authentication the returned `HttpServletRequest` or `ContainerRequestContext` (depending on which server
+runtime you're using) is a wrapper around the original request with the appropriate methods wrapped to return the
+authenticated user identity.  Additionally the SLF4J logging `MDC` will also have a `JwtUser`
+(`LoggingConstants.JWT_USER`) attribute set indicating the username of the authenticated user, this allows for logging
+configurations that include the username in the output so for multi-user applications you can attribute log lines to the
+requests of specific users.
+
+On authentication failure challenges and errors are conveyed by setting the relevant HTTP Status Codes and Headers on
+the response object. For example you might get a 401 Response with a `WWW-Authenticate: Bearer realm="your-realm",
+error="invalid_token", error_description="Your token has expired"` header. If you want to do a true OAuth 2 flow where
+you instead redirect to the authentication server then you would need to sub-class the appropriate implementation and
+override the `sendChallenge()` implementation.
+
+A constructor is provided for all implementations that allows overriding parts of the default behaviours, for example:
+
+```java
+JwtAuthenticationEngine<?,?> engine = 
+        new Servlet3JwtAuthenticationEngine(List.of(new HeaderSource("X-Custom-Header", null)),
+        "my-secure-domain.com",
+        List.of("preferred_username"));
+```
+
+In the above example the engine is configured to obtain JWTs from `X-Custom-Header` headers (with no header prefix
+expected), challenge with a `realm` of `my-secure-domain.com` and to read the username from the `preferred_username`
+claim of the JWT.
+
+As of `0.4.0` all the concrete engine implementations allow for configuring multiple HTTP Headers in which the JWT may
+be provided.  These are used in the preference order provided, and the first valid token that contains a valid username
+will be considered as the authenticated user identity, even if multiple valid tokens are provided.
+
+As of `0.5.0` all the concrete engine implementations allow for configuring multiple claims within the JWT from which
+the username may be read.  These are used in the preference order provided, and always falls back to reading the
+standard `sub` (subject) claim if none of those contain a non-empty string value.
+
+If you want to customise the authentication flow more then you can do so by deriving from the base
+`JwtAuthenticationEngine`, or one of its derived classes, yourself. Note that the basic flow logic is intentionally
+fixed in order to keep things as secure as possible and can only be modified in limited ways.
+
+### Engine Automatic Configuration
+
+From `0.8.0` we support automated configuration of engines, this is done by supplying appropriate `init-param` values to
+the filter when configuring it e.g.
+
+```xml
+<filter>
+    <filter-name>JWTAuth</filter-name>
+    <filter-class>io.telicent.servlet.auth.jwt.servlet3.JwtAuthFilter</filter-class>
+    <init-param>
+        <param-name>jwt.secret.key</param-name>
+        <param-value>test.key</param-value>
+    </init-param>
+    <init-param>
+        <param-name>jwt.headers.names</param-name>
+        <param-value>X-API-Key,Authorization</param-value>
+    </init-param>
+    <init-param>
+        <param-name>jwt.headers.prefixes</param-name>
+        <param-value>,Bearer</param-value>
+    </init-param>
+    <init-param>
+        <param-name>jwt.username.claims</param-name>
+        <param-value>email</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>JWTAuth</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+Here we configure the engine to expect the JWT to be supplied in either the `X-API-Key` or `Authorization` headers. When
+supplied via `X-API-Key` we expect the JWT to be provided as-is in the header value, and when supplied via
+`Authorization` we expected it to be provided as `Bearer JWT`.  We also configure the engine to extract the username
+from the `email` claim of the JWT.
+
+## Verifiers
+
+A `SignedJwtVerifier` is provided as the default `JwtVerifier` implementation, this requires that you construct an
+appropriate `JwtParser` instance (from the [JJWT][jjwt] library) for your verification setup e.g.
+
+```java
+JwtVerifier verifier =
+        new SignedJwtVerifier(Jwts.parserBuilder()
+        .verifyWith(somePublicKey));
+```
+
+Using the [JJWT][jjwt] library allows you to configure a `JwtParser` in a wide variety of ways including requiring the JWT
+contain certain claims, allowable clock skew, signing key etc.
+
+### JWKS Verification
+
+If you want to use [JSON Web Key Sets (JWKS)][Rfc7517] for verifying your JWTs then you can use the `UrlJwksKeyLocator` for
+your `Locator<Key>` when constructing the `JwtParser`.  We also provide a `CachedJwksKeyLocator`, which we recommend for
+all production usage, as this only loads the underlying JWKS URL periodically when the cache entries expire.
+
+```java
+// Create a JWKS based key locator that caches keys for 15 minutes
+Locator<Key> jwks = 
+    new CachedJwksKeyLocator(yourJwksUrl, Duration.ofMinutes(15));
+JwtVerifier verifier = 
+  new SignedJwtVerifier(Jwts.parserBuilder().keyLocator(jwks));
+```
+
+The JWKS URL **MUST** be either a `http`/`https` URL to identify a URL where the JWKS can be downloaded from, or a
+`file` URL to identify a JWKS file on the local filesystem.
+
+### Customising Verification
+
+You can of course provide a completely custom `JwtVerifier` implementation if you so wish.  However, if providing a
+custom implementation care **MUST** be taken that the verifier does not relax verification to the point where invalid
+tokens are acceptable.
+
+You will see some example custom implementations within our test suite **BUT** these are intended purely for testing and
+**SHOULD** not be used as the basis for a secure verifier implementation.
+
+## AWS Integration
+
+As noted earlier part of the difficulty with Bearer auth is that it gets implemented in a variety of ways, often not
+entirely following the OAuth 2 standard.  For example AWS ELB supports an OAuth2 flow via Cognito for user
+authentication but then attaches the Bearer tokens to traffic flowing through your ELB using [custom Amazon headers][AwsElbAuth].
+It also exposes the public keys needed to verify these tokens in a non-standard way, i.e. it doesn't use [JWKS][Rfc7517],
+rather it simply serves the public keys in PEM format from a well known URL.
+
+To help with AWS integration an additional `jwt-servlet-auth-aws` module is provided with AWS specific implementations
+of our abstractions.  The `AwsElbJwtVerifier` is a `JwtVerifier` that is able to verify tokens signed by the ELB, it
+needs only to know the AWS region in which your application is deployed:
+
+```java
+JwtVerifier verifier = new AwsElbJwtVerifier("eu-west-1");
+```
+
+There is also an associated `AwsElbKeyResolver` which implements the [JJWT][jjwt] `Locator<Key>` interface meaning you
+can use it to directly construct a custom `JwtParser` if you need to.
+
+Finally `AwsConstants` provides useful constants such as the custom AWS Header Names that AWS ELB uses.  In order to
+successfully authenticate users you will also need to configure the [engine](#engines) appropriately with the custom
+header sources.
+
+### Automatic AWS Configuration
+
+As noted in the earlier [Automated Configuration](#filter-auto-configuration) section from `0.8.0` we now support
+automatic verifier configuration.  If the `jwt.aws.region` parameter is supplied with an AWS region then the
+`AwsElbJwtVerifier` will be automatically configured e.g.
+
+```xml
+<filter>
+    <filter-name>JWTAuth</filter-name>
+    <filter-class>io.telicent.servlet.auth.jwt.servlet5.JwtAuthFilter</filter-class>
+    <init-param>
+        <param-name>jwt.aws.region</param-name>
+        <param-value>eu-west-2</param-value>
+    </init-param>
+    <init-param>
+        <param-name>jwt.headers.names</param-name>
+        <param-value>X-Amzn-Oidc-Data</param-value>
+    </init-param>
+    <init-param>
+        <param-name>jwt.username.claims</param-name>
+        <param-value>email</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+    <filter-name>JWTAuth</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+Here we configure the AWS verifier to use keys from the `eu-west-2` region, find the AWS ELB injected JWT in the
+`X-Amzn-Oidc-Data` header and extract the username from the `email` claim.
+
+# License
+
+This code is Copyright Telicent Ltd and licensed under the [Apache License 2.0][ApacheLicense]
+
+[Rfc7519]: https://datatracker.ietf.org/doc/html/rfc7519
+[Rdf6750]: https://datatracker.ietf.org/doc/html/rfc6750
+[jjwt]: https://github.com/jwtk/jjwt
+[Rfc7517]: https://datatracker.ietf.org/doc/html/rfc7517
+[maven]: https://maven.apache.org
+[AwsElbAuth]: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/listener-authenticate-users.html#user-claims-encoding
+[ApacheLicense]: https://www.apache.org/licenses/LICENSE-2.0
+[Jackson]: https://github.com/FasterXML/jackson

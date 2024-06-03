@@ -1,0 +1,7 @@
+JSON Web Token (JWT) Servlet Authentication
+===========================================
+
+Provides JSON Web Token (JWT) based authentication to Java Servlet applications
+
+Copyright (C) 2022-2024 Telicent Ltd
+

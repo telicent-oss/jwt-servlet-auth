@@ -1,0 +1,72 @@
+<!--
+
+    Copyright (C) Telicent Ltd
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<web-app>
+    <display-name>JWT Auth Integration Test</display-name>
+    <!-- In this example we define two filters which are configured differently -->
+    <filter>
+        <filter-name>JWTSecretKey</filter-name>
+        <filter-class>io.telicent.servlet.auth.jwt.servlet3.JwtAuthFilter</filter-class>
+        <!-- If we want to have multiple different configurations have to explicitly state that -->
+        <init-param>
+            <param-name>jwt.configs.allow-multiple</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>jwt.secret.key</param-name>
+            <param-value>test.key</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>JWTPublicKey</filter-name>
+        <filter-class>io.telicent.servlet.auth.jwt.servlet3.JwtAuthFilter</filter-class>
+        <!-- If we want to have multiple different configurations have to explicitly state that -->
+        <init-param>
+            <param-name>jwt.configs.allow-multiple</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <!-- In order to verify JWTs with a public key need to supply both the key and the algorithm -->
+        <init-param>
+            <param-name>jwt.public.key</param-name>
+            <param-value>public.key</param-value>
+        </init-param>
+        <init-param>
+            <param-name>jwt.key.algorithm</param-name>
+            <param-value>RSA</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>JWTSecretKey</filter-name>
+        <url-pattern>/secret-key/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>JWTPublicKey</filter-name>
+        <url-pattern>/public-key/*</url-pattern>
+    </filter-mapping>
+    <servlet>
+        <servlet-name>HelloWorld</servlet-name>
+        <servlet-class>io.telicent.servlet.auth.jwt.servlet3.examples.HelloWorldServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>HelloWorld</servlet-name>
+        <url-pattern>/secret-key/hello</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HelloWorld</servlet-name>
+        <url-pattern>/public-key/hello</url-pattern>
+    </servlet-mapping>
+</web-app>
