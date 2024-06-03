@@ -64,7 +64,7 @@ To depend on this library add the following to your Maven dependencies:
 ```
 
 Where `IMPLEMENTATION` is the desired implementation module for your target servlet container runtime and `X.Y.Z` is the
-desired version. The current stable version is `0.13.0`, development snapshots are `1.0.0-SNAPSHOT`.
+desired version. The current stable version is `0.14.0`, development snapshots are `1.0.0-SNAPSHOT`.
 
 The following implementation modules are currently provided:
 

@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+# 0.14.0
+
+- Initial public release to Maven Central
+
 # 0.13.0
 
 - API Improvements
