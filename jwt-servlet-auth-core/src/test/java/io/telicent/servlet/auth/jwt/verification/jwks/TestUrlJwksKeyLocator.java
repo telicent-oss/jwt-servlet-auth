@@ -15,6 +15,7 @@
  */
 package io.telicent.servlet.auth.jwt.verification.jwks;
 
+import com.beust.ah.A;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Locator;
 import io.jsonwebtoken.security.InvalidKeyException;
@@ -34,6 +35,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.security.Key;
 import java.time.Duration;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,6 +49,9 @@ public class TestUrlJwksKeyLocator {
     private JwksServer server;
     private Object[][] keyIds;
     private URI jwksFile;
+
+    private static final Random RANDOM = new Random();
+    private static final AtomicInteger TEST_PORT = new AtomicInteger(50000 + RANDOM.nextInt(50));
 
     @BeforeClass
     public void setup() throws Exception {
@@ -67,7 +73,7 @@ public class TestUrlJwksKeyLocator {
         }
 
         // Run up a server that provides the JWKS over HTTP
-        this.server = new JwksServer(50000, this.jwks);
+        this.server = new JwksServer(TEST_PORT.getAndIncrement(), this.jwks);
         this.server.start();
     }
 

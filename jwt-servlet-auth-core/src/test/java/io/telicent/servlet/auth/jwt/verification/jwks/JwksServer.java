@@ -71,6 +71,7 @@ public class JwksServer {
     public void stop() throws Exception {
         if (this.server != null) {
             this.server.stop();
+            this.server.destroy();
         }
     }
 
