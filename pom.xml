@@ -77,7 +77,7 @@
         <plugin.jar>3.4.1</plugin.jar>
         <plugin.javadoc>3.7.0</plugin.javadoc>
         <plugin.license>4.3</plugin.license>
-        <plugin.nexus>1.6.7</plugin.nexus>
+	<plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.0.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.3.0</plugin.source>

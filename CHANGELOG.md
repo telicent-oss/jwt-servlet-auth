@@ -3,6 +3,8 @@
 # 0.14.0
 
 - Initial public release to Maven Central
+- Build Improvements
+    - Use Nexus Staging Maven Plugin for deployment
 
 # 0.13.0
 
