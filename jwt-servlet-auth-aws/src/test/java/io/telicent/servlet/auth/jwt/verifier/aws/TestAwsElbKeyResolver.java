@@ -17,13 +17,9 @@ package io.telicent.servlet.auth.jwt.verifier.aws;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.InvalidKeyException;
-import io.jsonwebtoken.security.JwkSet;
-import io.jsonwebtoken.security.Jwks;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.security.Key;

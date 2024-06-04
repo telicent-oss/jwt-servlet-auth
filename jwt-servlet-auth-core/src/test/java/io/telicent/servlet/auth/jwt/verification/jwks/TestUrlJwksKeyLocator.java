@@ -15,7 +15,6 @@
  */
 package io.telicent.servlet.auth.jwt.verification.jwks;
 
-import com.beust.ah.A;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Locator;
 import io.jsonwebtoken.security.InvalidKeyException;
