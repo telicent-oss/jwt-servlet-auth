@@ -6,9 +6,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>Telicent - JWT Servlet Auth - Servlet 3.x (javax.servlet)</name>
-
     <artifactId>jwt-servlet-auth-servlet3</artifactId>
+    <name>Telicent - JWT Servlet Auth - Servlet 3.x (javax.servlet)</name>
+    <description>Servlet 3 implementation of JSON Web Token (JWT) authentication</description>
 
     <properties>
         <license.header.path>${project.parent.basedir}</license.header.path>

@@ -8,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jwt-servlet-auth-aws</artifactId>
     <name>Telicent - JWT Servlet Auth - AWS Integration</name>
+    <description>A helper library that provides support for verifying JSON Web Tokens (JWTs) issued by Amazon Elastic Load Balancer (ELB)</description>
 
     <properties>
         <license.header.path>${project.parent.basedir}</license.header.path>

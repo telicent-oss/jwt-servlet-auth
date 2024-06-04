@@ -6,9 +6,9 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <name>Telicent - JWT Servlet Auth - JAX-RS 3 (jakarta.ws.rs)</name>
-
     <artifactId>jwt-servlet-auth-jaxrs3</artifactId>
+    <name>Telicent - JWT Servlet Auth - JAX-RS 3 (jakarta.ws.rs)</name>
+    <description>JAX-RS 3 implementation of JSON Web Token (JWT) authentication</description>
 
     <properties>
         <license.header.path>${project.parent.basedir}</license.header.path>
