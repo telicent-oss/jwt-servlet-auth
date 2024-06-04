@@ -33,9 +33,7 @@ Building requires JDK 17+ and Apache Maven 3.8.1+
 
 ## Dependencies
 
-This library depends on the excellent [`jjwt`][jjwt] libraries. Note that JWKS has a dependency on Guava which we
-**exclude**, thus if you want to use any of its Guava based functionality in your applications then you will need to
-declare that explicitly.
+This library depends on the excellent [`jjwt`][jjwt] libraries. 
 
 The individual implementation modules have Servlet 3, Servlet 5 and JAX-RS 3 declared as `provided` dependencies,
 meaning you can safely put this in a Java Servlet application based on whichever servlet container runtime version you
@@ -409,7 +407,7 @@ Here we configure the AWS verifier to use keys from the `eu-west-2` region, find
 This code is Copyright Telicent Ltd and licensed under the [Apache License 2.0][ApacheLicense]
 
 [Rfc7519]: https://datatracker.ietf.org/doc/html/rfc7519
-[Rdf6750]: https://datatracker.ietf.org/doc/html/rfc6750
+[Rfc6750]: https://datatracker.ietf.org/doc/html/rfc6750
 [jjwt]: https://github.com/jwtk/jjwt
 [Rfc7517]: https://datatracker.ietf.org/doc/html/rfc7517
 [maven]: https://maven.apache.org
