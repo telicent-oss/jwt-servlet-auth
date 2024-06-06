@@ -15,6 +15,19 @@
     </modules>
     <packaging>pom</packaging>
     <name>Telicent - JWT Servlet Auth - Parent</name>
+    <description>Provides a set of libraries for doing JSON Web Token (JWT) based authentication across different Java
+        Servlet runtimes
+    </description>
+    <url>https://github.com/telicent-oss/jwt-servlet-auth</url>
+
+    <developers>
+        <developer>
+            <name>Telicent Developers</name>
+            <email>opensource@telicent.io</email>
+            <organization>Telicent Ltd</organization>
+            <organizationUrl>https://telicent.io</organizationUrl>
+        </developer>
+    </developers>
 
     <licenses>
         <license>
@@ -26,11 +39,11 @@
     </licenses>
 
     <distributionManagement>
-	<snapshotRepository>
-		<id>sonatype-oss</id>
-		<name>Sonatype OSS Snapshots</name>
-		<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-	</snapshotRepository>
+        <snapshotRepository>
+            <id>sonatype-oss</id>
+            <name>Sonatype OSS Snapshots</name>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <repository>
             <id>sonatype-oss</id>
             <name>Sonatype OSS</name>
@@ -339,6 +352,7 @@
                     <execution>
                         <goals>
                             <goal>javadoc</goal>
+                            <goal>jar</goal>
                         </goals>
                         <phase>package</phase>
                     </execution>
@@ -355,7 +369,7 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>verify</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -375,6 +389,20 @@
                 </executions>
                 <configuration>
                     <outputName>${project.artifactId}-${project.version}-bom</outputName>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>${plugin.nexus}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>sonatype-oss</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+                    <stagingProgressTimeoutMinutes>15</stagingProgressTimeoutMinutes>
                 </configuration>
             </plugin>
 
@@ -479,18 +507,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>${plugin.nexus}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                       <serverId>sonatype-oss</serverId>
-                       <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                       <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    </configuration>
-                  </plugin>
             </plugins>
         </pluginManagement>
     </build>

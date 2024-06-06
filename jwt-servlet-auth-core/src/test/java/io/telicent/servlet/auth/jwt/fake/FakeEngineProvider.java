@@ -17,7 +17,6 @@ package io.telicent.servlet.auth.jwt.fake;
 
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.configuration.AbstractHeaderBasedEngineProvider;
-import io.telicent.servlet.auth.jwt.configuration.EngineFactory;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 
 import java.util.List;

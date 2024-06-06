@@ -8,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>jwt-servlet-auth-core</artifactId>
     <name>Telicent - JWT Servlet Auth - Core API</name>
+    <description>Core API and generic implementation of JSON Web Token (JWT) based authentication</description>
 
     <properties>
         <license.header.path>${project.parent.basedir}</license.header.path>

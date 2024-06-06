@@ -27,6 +27,7 @@ import org.testng.annotations.*;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.telicent.servlet.auth.jwt.verifier.aws.TestAwsElbKeyResolver.TEST_AWS_REGION;
 import static org.mockito.Mockito.mock;
@@ -38,6 +39,8 @@ public class TestAwsElbKeyUrlRegistry {
     private JwkSet jwks;
 
     private Object[][] keyIds;
+
+    private static final AtomicInteger TEST_PORT = new AtomicInteger(35791);
 
     @BeforeClass
     public void setup() throws Exception {
@@ -57,7 +60,7 @@ public class TestAwsElbKeyUrlRegistry {
                     new Object[] { this.jwks.getKeys().stream().skip(i).map(k -> k.getId()).findFirst().orElse(null) };
         }
 
-        this.keyServer = new AwsElbServer(35791, publicJwks.build());
+        this.keyServer = new AwsElbServer(TEST_PORT.getAndIncrement(), publicJwks.build());
         this.keyServer.start();
     }
 
