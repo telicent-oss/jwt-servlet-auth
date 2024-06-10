@@ -101,7 +101,7 @@
         <dependency.commons-io>2.16.1</dependency.commons-io>
         <dependency.commons-lang>3.14.0</dependency.commons-lang>
         <dependency.jackson>2.17.1</dependency.jackson>
-        <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
+        <dependency.jaxrs3>3.1.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
         <dependency.jersey3>3.1.7</dependency.jersey3>
         <dependency.jjwt>0.12.5</dependency.jjwt>
