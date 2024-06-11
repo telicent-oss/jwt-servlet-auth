@@ -19,8 +19,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -75,19 +77,21 @@ public class Servlet5JwtAuthenticationEngine extends
     }
 
     @Override
-    protected HttpServletRequest prepareRequest(HttpServletRequest request, Jws<Claims> jws, String username) {
-        return new AuthenticatedHttpServletRequest(request, jws, username);
+    protected HttpServletRequest prepareRequest(HttpServletRequest request, VerifiedToken jws, String username) {
+        request.setAttribute(JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT, jws.rawToken());
+        request.setAttribute(JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
+        return new AuthenticatedHttpServletRequest(request, jws.verifiedToken(), username);
     }
 
     @Override
     protected void sendChallenge(HttpServletRequest request, HttpServletResponse response, Challenge challenge) {
         String realm = selectRealm(request.getRequestURI());
-        Map<String, String> additionalParams = buildChallengeParameters(challenge.getErrorCode(),
-                                                                        challenge.getErrorDescription());
+        Map<String, String> additionalParams = buildChallengeParameters(challenge.errorCode(),
+                                                                        challenge.errorDescription());
         response.addHeader(JwtHttpConstants.HEADER_WWW_AUTHENTICATE,
                            buildAuthorizationHeader(realm, additionalParams));
         try {
-            response.sendError(challenge.getStatusCode());
+            response.sendError(challenge.statusCode());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

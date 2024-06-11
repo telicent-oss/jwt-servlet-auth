@@ -34,4 +34,14 @@ public class JwtServletConstants {
      * Context attribute used to hold Path Exclusions
      */
     public static final String ATTRIBUTE_PATH_EXCLUSIONS = "io.telicent.servlet.auth.jwt.path-exclusions";
+
+    /**
+     * Request attribute used to hold the raw JWT that authenticated the user
+     */
+    public static final String REQUEST_ATTRIBUTE_RAW_JWT = "io.telicent.servlet.auth.jwt.raw";
+
+    /**
+     * Request attribute used to hold the verified JWT that authenticated the user
+     */
+    public static final String REQUEST_ATTRIBUTE_VERIFIED_JWT = "io.telicent.servlet.auth.jwt.verified";
 }

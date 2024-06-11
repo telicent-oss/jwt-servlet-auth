@@ -74,10 +74,10 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
 
     @Override
     protected void sendChallenge(FakeRequest fakeRequest, FakeResponse fakeResponse, Challenge challenge) {
-        fakeResponse.status = challenge.getStatusCode();
+        fakeResponse.status = challenge.statusCode();
         String realm = this.selectRealm(this.getRequestUrl(fakeRequest));
         Map<String, String> challengeParams =
-                buildChallengeParameters(challenge.getErrorCode(), challenge.getErrorDescription());
+                buildChallengeParameters(challenge.errorCode(), challenge.errorDescription());
         fakeResponse.headers.put(JwtHttpConstants.HEADER_WWW_AUTHENTICATE,
                                  Collections.singletonList(buildAuthorizationHeader(realm, challengeParams)));
     }

@@ -20,6 +20,7 @@ import io.jsonwebtoken.security.KeyException;
 import io.jsonwebtoken.security.SignatureException;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      */
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {
-            MDC.put(LoggingConstants.MDC_JWT_USER, null);
+            MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
             if (!hasRequiredParameters(request)) {
                 // No authentication parameters provided so abort immediately
                 sendChallenge(request, response, new Challenge(401, "", ""));
@@ -77,18 +78,18 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
             // Consider each candidate token and try and verify it
             List<Challenge> challenges = new ArrayList<>();
-            List<Jws<Claims>> validTokens = new ArrayList<>();
+            List<VerifiedToken> validTokens = new ArrayList<>();
             for (TokenCandidate candidateToken : rawTokens) {
                 // Verify the token and record a challenge if it fails verification
                 try {
-                    String rawToken = candidateToken.getSource().getRawToken(candidateToken.getValue());
+                    String rawToken = candidateToken.source().getRawToken(candidateToken.value());
                     if (StringUtils.isBlank(rawToken)) {
                         challenges.add(new Challenge(400, OAuth2Constants.ERROR_INVALID_REQUEST,
                                                      "No Bearer token(s) provided"));
                         continue;
                     }
                     Jws<Claims> jws = verifier.verify(rawToken);
-                    validTokens.add(jws);
+                    validTokens.add(new VerifiedToken(rawToken, jws));
                 } catch (KeyException keyErr) {
                     challenges.add(new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN,
                                                  "Invalid/weak key: " + keyErr.getMessage()));
@@ -116,9 +117,9 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
             // Consider all the valid tokens to try and extract a valid username
             String username = null;
-            Jws<Claims> jws = null;
-            for (Jws<Claims> validToken : validTokens) {
-                username = extractUsername(validToken);
+            VerifiedToken jws = null;
+            for (VerifiedToken validToken : validTokens) {
+                username = extractUsername(validToken.verifiedToken());
                 if (StringUtils.isBlank(username)) {
                     challenges.add(new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN,
                                                  "Failed to find a username for the user"));
@@ -140,7 +141,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
             // If we reach here then at least one token was considered valid, so we go ahead and prepare an
             // authenticated request that records the authenticated user identity
-            MDC.put(LoggingConstants.MDC_JWT_USER, username);
+            MDC.put(JwtLoggingConstants.MDC_JWT_USER, username);
             LOGGER.info("Request to {} successfully authenticated as {}", getRequestUrl(request), username);
             return prepareRequest(request, jws, username);
         } catch (Throwable e) {
@@ -190,7 +191,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      * @param username Username
      * @return Authenticated request
      */
-    protected abstract TRequest prepareRequest(TRequest request, Jws<Claims> jws, String username);
+    protected abstract TRequest prepareRequest(TRequest request, VerifiedToken jws, String username);
 
     /**
      * Sends an authentication challenge

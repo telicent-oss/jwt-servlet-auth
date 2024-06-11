@@ -22,10 +22,7 @@ import java.util.Objects;
 /**
  * A candidate authentication token
  */
-public class TokenCandidate {
-
-    private final TokenSource source;
-    private final String value;
+public record TokenCandidate(TokenSource source, String value) {
 
     /**
      * Creates a new token candidate
@@ -33,10 +30,8 @@ public class TokenCandidate {
      * @param source Token source
      * @param value  Raw value
      */
-    public TokenCandidate(TokenSource source, String value) {
+    public TokenCandidate {
         Objects.requireNonNull(source, "Token Source cannot be null");
-        this.source = source;
-        this.value = value;
     }
 
     /**
@@ -44,7 +39,8 @@ public class TokenCandidate {
      *
      * @return Token source
      */
-    public TokenSource getSource() {
+    @Override
+    public TokenSource source() {
         return source;
     }
 
@@ -53,7 +49,8 @@ public class TokenCandidate {
      *
      * @return Value
      */
-    public String getValue() {
+    @Override
+    public String value() {
         return value;
     }
 
