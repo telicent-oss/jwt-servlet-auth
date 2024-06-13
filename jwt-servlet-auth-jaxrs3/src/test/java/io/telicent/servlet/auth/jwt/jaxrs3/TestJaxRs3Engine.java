@@ -183,4 +183,13 @@ public class TestJaxRs3Engine
         SecurityContext context = captor.getValue();
         return context.getUserPrincipal().getName();
     }
+
+    @Override
+    protected Object verifyRequestAttribute(ContainerRequestContext containerRequestContext, String attribute) {
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(containerRequestContext).setProperty(eq(attribute), captor.capture());
+        Object value = captor.getValue();
+        Assert.assertNotNull(value, "Attribute " + attribute + " had unexpected null value");
+        return value;
+    }
 }

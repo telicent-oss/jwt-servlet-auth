@@ -15,7 +15,7 @@
     </properties>
 
     <modules>
-        <module>jwt-servlet3-auth-integration-tests</module>
+        <module>jwt-servlet-auth-servlet3-integration-tests</module>
         <module>jwt-servlet-auth-servlet5-integration-tests</module>
         <module>jwt-servlet-auth-common-integration-tests</module>
         <module>jwt-servlet-auth-jaxrs3-integration-tests</module>

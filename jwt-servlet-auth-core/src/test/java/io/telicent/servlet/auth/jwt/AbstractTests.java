@@ -151,4 +151,25 @@ public abstract class AbstractTests<TRequest, TResponse> {
             }
         }
     }
+
+    /**
+     * Verifies that the request contains a non-null value for an attribute and returns that value
+     *
+     * @param request   Request
+     * @param attribute Attribute
+     * @return Attribute Value
+     */
+    protected abstract Object verifyRequestAttribute(TRequest request, String attribute);
+
+    /**
+     * Verifies that the authenticated request contains a given attribute
+     *
+     * @param request       Authenticated request
+     * @param attribute     Request attribute
+     * @param expectedValue Expected value that <strong>MUST</strong> match the request attribute value
+     */
+    protected void verifyRequestAttribute(TRequest request, String attribute, Object expectedValue) {
+        Object value = verifyRequestAttribute(request, attribute);
+        Assert.assertEquals(value, expectedValue);
+    }
 }

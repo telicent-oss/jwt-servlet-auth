@@ -82,10 +82,8 @@ public class JaxRs3JwtAuthenticationEngine
     }
 
     @Override
-    protected ContainerRequestContext prepareRequest(ContainerRequestContext request, VerifiedToken jws,
+    protected ContainerRequestContext prepareRequest(ContainerRequestContext request, Jws<Claims> jws,
                                                      String username) {
-        request.setProperty(JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT, jws.rawToken());
-        request.setProperty(JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
         request.setSecurityContext(new SecurityContext() {
             @Override
             public Principal getUserPrincipal() {
@@ -150,5 +148,11 @@ public class JaxRs3JwtAuthenticationEngine
     @Override
     protected String getRequestUrl(ContainerRequestContext request) {
         return request.getUriInfo().getRequestUri().toString();
+    }
+
+    @Override
+    protected void setRequestAttribute(ContainerRequestContext request, String attribute,
+                                       Object value) {
+        request.setProperty(attribute, value);
     }
 }

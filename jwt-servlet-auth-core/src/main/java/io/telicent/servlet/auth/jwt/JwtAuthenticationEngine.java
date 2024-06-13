@@ -89,7 +89,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
                         continue;
                     }
                     Jws<Claims> jws = verifier.verify(rawToken);
-                    validTokens.add(new VerifiedToken(rawToken, jws));
+                    validTokens.add(new VerifiedToken(candidateToken, jws));
                 } catch (KeyException keyErr) {
                     challenges.add(new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN,
                                                  "Invalid/weak key: " + keyErr.getMessage()));
@@ -142,8 +142,13 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             // If we reach here then at least one token was considered valid, so we go ahead and prepare an
             // authenticated request that records the authenticated user identity
             MDC.put(JwtLoggingConstants.MDC_JWT_USER, username);
+            setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_SOURCE, jws.candidateToken().source());
+            setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT,
+                                jws.candidateToken().source().getRawToken(jws.candidateToken().value()));
+            setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT,
+                                jws.verifiedToken());
             LOGGER.info("Request to {} successfully authenticated as {}", getRequestUrl(request), username);
-            return prepareRequest(request, jws, username);
+            return prepareRequest(request, jws.verifiedToken(), username);
         } catch (Throwable e) {
             sendError(response, e);
         }
@@ -184,14 +189,23 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
     protected abstract String extractUsername(Jws<Claims> jws);
 
     /**
+     * Sets a request attribute
+     *
+     * @param request   Request
+     * @param attribute Attribute
+     * @param value     Attribute value
+     */
+    protected abstract void setRequestAttribute(TRequest request, String attribute, Object value);
+
+    /**
      * Prepares the authenticated request
      *
      * @param request  Request
-     * @param jws      JSON Web Token
+     * @param jws      Verified JSON Web Token
      * @param username Username
      * @return Authenticated request
      */
-    protected abstract TRequest prepareRequest(TRequest request, VerifiedToken jws, String username);
+    protected abstract TRequest prepareRequest(TRequest request, Jws<Claims> jws, String username);
 
     /**
      * Sends an authentication challenge
@@ -204,7 +218,8 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
     /**
      * Builds the Authorization header
-     * @param realm Realm
+     *
+     * @param realm            Realm
      * @param additionalParams Map of extra parameters to potentailly apply
      * @return Authorization header
      */

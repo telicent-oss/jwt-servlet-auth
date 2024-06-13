@@ -18,10 +18,12 @@ package io.telicent.servlet.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.RequiredTypeException;
+import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * A JWT authentication engine that uses HTTP Headers to find the authentication token

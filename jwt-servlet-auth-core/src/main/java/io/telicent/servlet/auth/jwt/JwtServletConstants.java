@@ -20,7 +20,8 @@ package io.telicent.servlet.auth.jwt;
  */
 public class JwtServletConstants {
 
-    private JwtServletConstants() { }
+    private JwtServletConstants() {
+    }
 
     /**
      * Context attribute used to hold a JWT Authentication engine
@@ -34,6 +35,12 @@ public class JwtServletConstants {
      * Context attribute used to hold Path Exclusions
      */
     public static final String ATTRIBUTE_PATH_EXCLUSIONS = "io.telicent.servlet.auth.jwt.path-exclusions";
+
+    /**
+     * Request attribute used to hold the {@link io.telicent.servlet.auth.jwt.sources.TokenSource} from which the token
+     * was obtained
+     */
+    public static final String REQUEST_ATTRIBUTE_SOURCE = "io.telicent.servlet.auth.jwt.source";
 
     /**
      * Request attribute used to hold the raw JWT that authenticated the user

@@ -15,8 +15,8 @@
  */
 package io.telicent.servlet.auth.jwt.configuration;
 
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.PathExclusion;
-import io.telicent.servlet.auth.jwt.ServletConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,19 +46,19 @@ public class AutomatedConfiguration {
                                      Boolean::parseBoolean, false);
 
         // Configure the JWT Verifier
-        if (adaptor.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER) == null || allowMultiple) {
+        if (adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER) == null || allowMultiple) {
             VerificationFactory.configure(x -> adaptor.getParameter(x),
-                                          v -> adaptor.setAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER, v));
+                                          v -> adaptor.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, v));
         } else {
             LOGGER.warn("JWT Verifier already configured, skipping additional attempt to automatically configure.");
         }
 
         // Configure the Path Exclusions
-        if (adaptor.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS) == null || allowMultiple) {
+        if (adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS) == null || allowMultiple) {
             String rawExclusions = adaptor.getParameter(ConfigurationParameters.PARAM_PATH_EXCLUSIONS);
             if (StringUtils.isNotBlank(rawExclusions)) {
                 adaptor
-                        .setAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS,
+                        .setAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS,
                                       PathExclusion.parsePathPatterns(rawExclusions));
             }
         } else {
@@ -66,9 +66,9 @@ public class AutomatedConfiguration {
         }
 
         // Configure the Authentication Engine
-        if (adaptor.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE) == null || allowMultiple) {
+        if (adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE) == null || allowMultiple) {
             EngineFactory.configure(x -> adaptor.getParameter(x),
-                                    e -> adaptor.setAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE, e));
+                                    e -> adaptor.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE, e));
         } else {
             LOGGER.warn(
                     "JWT Authentication Engine already configured, skipping additional attempt to automatically configure.");

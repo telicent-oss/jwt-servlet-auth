@@ -15,15 +15,13 @@
  */
 package io.telicent.servlet.auth.jwt.jaxrs3;
 
-import io.telicent.servlet.auth.jwt.AbstractFilterTests;
-import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
-import io.telicent.servlet.auth.jwt.PathExclusion;
-import io.telicent.servlet.auth.jwt.ServletConstants;
+import io.telicent.servlet.auth.jwt.*;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import jakarta.servlet.ServletContext;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.net.URI;
@@ -104,9 +102,9 @@ public class TestJaxRs3Filter
             JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> engine, JwtVerifier verifier,
             List<PathExclusion> exclusions) {
         ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(eq(ServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
-        when(context.getAttribute(eq(ServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
-        when(context.getAttribute(eq(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
+        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
+        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
+        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
 
         JwtAuthFilter filter = new JwtAuthFilter();
         filter.setContext(context);
@@ -121,5 +119,12 @@ public class TestJaxRs3Filter
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    protected Object verifyRequestAttribute(ContainerRequestContext containerRequestContext, String attribute) {
+        Object value = containerRequestContext.getProperty(attribute);
+        Assert.assertNotNull(value);
+        return value;
     }
 }

@@ -75,6 +75,13 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
         return authenticatedRequest.username;
     }
 
+    @Override
+    protected Object verifyRequestAttribute(FakeRequest fakeRequest, String attribute) {
+        Object value = fakeRequest.getAttribute(attribute);
+        Assert.assertNotNull(value);
+        return value;
+    }
+
     private static final class NoHeadersFakeEngine extends FakeEngine {
         public NoHeadersFakeEngine() {
             super(List.of(), null, null);

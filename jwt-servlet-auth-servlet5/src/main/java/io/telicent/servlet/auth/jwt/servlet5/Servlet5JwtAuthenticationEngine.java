@@ -77,10 +77,8 @@ public class Servlet5JwtAuthenticationEngine extends
     }
 
     @Override
-    protected HttpServletRequest prepareRequest(HttpServletRequest request, VerifiedToken jws, String username) {
-        request.setAttribute(JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT, jws.rawToken());
-        request.setAttribute(JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
-        return new AuthenticatedHttpServletRequest(request, jws.verifiedToken(), username);
+    protected HttpServletRequest prepareRequest(HttpServletRequest request, Jws<Claims> jws, String username) {
+        return new AuthenticatedHttpServletRequest(request, jws, username);
     }
 
     @Override
@@ -109,5 +107,10 @@ public class Servlet5JwtAuthenticationEngine extends
     @Override
     protected String getRequestUrl(HttpServletRequest request) {
         return request.getRequestURI();
+    }
+
+    @Override
+    protected void setRequestAttribute(HttpServletRequest request, String attribute, Object value) {
+        request.setAttribute(attribute, value);
     }
 }

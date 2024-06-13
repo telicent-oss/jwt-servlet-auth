@@ -17,8 +17,8 @@ package io.telicent.servlet.auth.jwt.configuration;
 
 import io.jsonwebtoken.Jwts;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.PathExclusion;
-import io.telicent.servlet.auth.jwt.ServletConstants;
 import io.telicent.servlet.auth.jwt.fake.FakeEngine;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import org.testng.Assert;
@@ -40,9 +40,9 @@ public class TestAutomatedConfiguration extends AbstractFactoryTests {
         AutomatedConfiguration.configure(config);
 
         // Then
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
     }
 
     @Test
@@ -58,9 +58,9 @@ public class TestAutomatedConfiguration extends AbstractFactoryTests {
         AutomatedConfiguration.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
     }
 
     @Test
@@ -72,17 +72,17 @@ public class TestAutomatedConfiguration extends AbstractFactoryTests {
                 new SignedJwtVerifier(Jwts.parser().verifyWith(Jwts.SIG.HS256.key().build()).build());
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns("/status/*");
         JwtAuthenticationEngine<?, ?> engine = new FakeEngine();
-        config.setAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER, jwtVerifier);
-        config.setAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, exclusions);
-        config.setAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE, engine);
+        config.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, jwtVerifier);
+        config.setAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, exclusions);
+        config.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE, engine);
 
         // When
         AutomatedConfiguration.configure(config);
 
         // Then
-        Assert.assertEquals(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER), jwtVerifier);
-        Assert.assertEquals(config.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS), exclusions);
-        Assert.assertEquals(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE), engine);
+        Assert.assertEquals(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER), jwtVerifier);
+        Assert.assertEquals(config.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS), exclusions);
+        Assert.assertEquals(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE), engine);
     }
 
     @Test
@@ -97,16 +97,16 @@ public class TestAutomatedConfiguration extends AbstractFactoryTests {
                 new SignedJwtVerifier(Jwts.parser().verifyWith(Jwts.SIG.HS256.key().build()).build());
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns("/status/*");
         JwtAuthenticationEngine<?, ?> engine = new FakeEngine();
-        config.setAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER, jwtVerifier);
-        config.setAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, exclusions);
-        config.setAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE, engine);
+        config.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, jwtVerifier);
+        config.setAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, exclusions);
+        config.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE, engine);
 
         // When
         AutomatedConfiguration.configure(config);
 
         // Then
-        Assert.assertNotEquals(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER), jwtVerifier);
-        Assert.assertNotEquals(config.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS), exclusions);
-        Assert.assertNotEquals(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE), engine);
+        Assert.assertNotEquals(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER), jwtVerifier);
+        Assert.assertNotEquals(config.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS), exclusions);
+        Assert.assertNotEquals(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE), engine);
     }
 }

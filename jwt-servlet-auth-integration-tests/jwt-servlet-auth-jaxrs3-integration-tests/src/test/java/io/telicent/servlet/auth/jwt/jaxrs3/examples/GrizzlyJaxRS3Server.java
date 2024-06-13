@@ -44,7 +44,7 @@ public class GrizzlyJaxRS3Server extends AbstractServer {
     @Override
     public void stop() {
         try {
-            this.server.stop();
+            this.server.shutdownNow();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
