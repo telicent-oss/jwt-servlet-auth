@@ -3,7 +3,11 @@
 # 0.15.0
 
 - API Improvements
+    - **BREAKING** Some internal focused model classes were converted to record classes to simplify implementation but
+      this has changed their field accessor method names
     - **BREAKING** Added `addRequestAttribute()` method to `JwtAuthenticationEngine`
+    - Authentication engine now populates additional request attributes to allow applications to better understand how a
+      user was authenticated, and to use the JWT for further work, e.g. authorization, if needed.
     - New `VerifiedToken` class used to track which token was used to authenticate the request better and in populating
       the new request attributes:
         - `io.telicent.servlet.auth.jwt.source` with the `TokenSource` from which the JWT was obtained

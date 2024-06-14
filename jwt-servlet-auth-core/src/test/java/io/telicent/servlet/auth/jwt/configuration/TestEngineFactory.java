@@ -67,4 +67,13 @@ public class TestEngineFactory extends AbstractFactoryTests {
         // Then
         Assert.assertNotNull(configured);
     }
+
+    @Test
+    public void givenEngineFactory_whenQueryingAvailable_thenNonZeroValueIsReturned() {
+        // Given and When
+        int available = EngineFactory.available();
+
+        // Then
+        Assert.assertNotEquals(available, 0);
+    }
 }

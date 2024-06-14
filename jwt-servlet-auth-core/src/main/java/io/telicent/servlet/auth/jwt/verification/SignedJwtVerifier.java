@@ -67,7 +67,7 @@ public class SignedJwtVerifier implements JwtVerifier {
      * @param parser A JWT parser
      */
     public SignedJwtVerifier(JwtParser parser) {
-        this(parser, null);
+        this(parser, "verificationMethod=CustomParser");
     }
 
     /**
@@ -118,10 +118,6 @@ public class SignedJwtVerifier implements JwtVerifier {
 
     @Override
     public String toString() {
-        if (this.debugString != null) {
-            return this.debugString;
-        } else {
-            return this.getClass().getSimpleName();
-        }
+        return this.debugString;
     }
 }
