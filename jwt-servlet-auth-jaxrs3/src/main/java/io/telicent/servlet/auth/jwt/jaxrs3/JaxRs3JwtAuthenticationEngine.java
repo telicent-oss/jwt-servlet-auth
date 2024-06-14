@@ -19,8 +19,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -111,7 +113,7 @@ public class JaxRs3JwtAuthenticationEngine
                                  Challenge challenge) {
         String realm = selectRealm(getRequestUrl(request));
         Map<String, String> additionalParams =
-                buildChallengeParameters(challenge.getErrorCode(), challenge.getErrorDescription());
+                buildChallengeParameters(challenge.errorCode(), challenge.errorDescription());
         String authChallenge = buildAuthorizationHeader(realm, additionalParams);
 
         // Explicitly abort the request with the relevant status and HTTP Authentication challenge
@@ -127,7 +129,7 @@ public class JaxRs3JwtAuthenticationEngine
      * @return Challenge response
      */
     protected Response buildChallengeResponse(String authChallenge, Challenge challenge) {
-        return Response.status(Response.Status.fromStatusCode(challenge.getStatusCode()))
+        return Response.status(Response.Status.fromStatusCode(challenge.statusCode()))
                        .header(JwtHttpConstants.HEADER_WWW_AUTHENTICATE, authChallenge)
                        .build();
     }
@@ -146,5 +148,11 @@ public class JaxRs3JwtAuthenticationEngine
     @Override
     protected String getRequestUrl(ContainerRequestContext request) {
         return request.getUriInfo().getRequestUri().toString();
+    }
+
+    @Override
+    protected void setRequestAttribute(ContainerRequestContext request, String attribute,
+                                       Object value) {
+        request.setProperty(attribute, value);
     }
 }

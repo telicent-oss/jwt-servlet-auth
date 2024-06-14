@@ -22,6 +22,12 @@ import java.util.function.Function;
  * Utilities relating to configuration parsing
  */
 public class Utils {
+
+    /**
+     * Private constructor prevents direct instantiation
+     */
+    private Utils() {}
+
     /**
      * Parses a configuration parameter
      *

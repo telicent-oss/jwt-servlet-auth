@@ -15,10 +15,7 @@
  */
 package io.telicent.servlet.auth.jwt.fake;
 
-import io.telicent.servlet.auth.jwt.AbstractConfigurableJwtAuthFilter;
-import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
-import io.telicent.servlet.auth.jwt.PathExclusion;
-import io.telicent.servlet.auth.jwt.ServletConstants;
+import io.telicent.servlet.auth.jwt.*;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 
 import java.util.List;
@@ -42,17 +39,17 @@ public class FakeConfigurableFilter extends AbstractConfigurableJwtAuthFilter<Fa
     @Override
     protected Object getAttribute(FakeRequest fakeRequest, String attribute) {
         switch (attribute) {
-            case ServletConstants.ATTRIBUTE_JWT_ENGINE:
+            case JwtServletConstants.ATTRIBUTE_JWT_ENGINE:
                 if (engine != null) {
                     return this.engine;
                 }
                 break;
-            case ServletConstants.ATTRIBUTE_JWT_VERIFIER:
+            case JwtServletConstants.ATTRIBUTE_JWT_VERIFIER:
                 if (verifier != null) {
                     return this.verifier;
                 }
                 break;
-            case ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS:
+            case JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS:
                 if (exclusions != null) {
                     return this.exclusions;
                 }

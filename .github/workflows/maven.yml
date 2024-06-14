@@ -19,11 +19,12 @@ jobs:
   maven-build:
     uses: Telicent-oss/shared-workflows/.github/workflows/maven.yml@main
     with:
-      # No Docker based tests in this repository
+      # No Docker based tests in this repository
       USES_DOCKERHUB_IMAGES: false
       # Want SNAPSHOTs to be published from main
       PUBLISH_SNAPSHOTS: true
       MAIN_BRANCH: main
-      JAVA_VERSION: 21
+      # Use JDK 17 to maximise portability
+      JAVA_VERSION: 17
       CHANGELOG_FILE: CHANGELOG.md
     secrets: inherit

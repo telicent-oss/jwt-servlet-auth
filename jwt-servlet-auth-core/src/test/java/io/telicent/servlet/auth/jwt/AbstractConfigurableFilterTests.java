@@ -77,8 +77,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
     }
 
     @DataProvider(name = "macAlgorithms")
@@ -105,8 +105,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);
@@ -131,8 +131,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);
@@ -158,8 +158,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);
@@ -192,8 +192,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);
@@ -227,8 +227,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);
@@ -254,8 +254,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);
@@ -292,8 +292,8 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         filter.configure(config);
 
         // Then
-        Assert.assertNotNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
-        Assert.assertNull(config.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
 
         // And
         this.invokeFilter(filter, request, response);

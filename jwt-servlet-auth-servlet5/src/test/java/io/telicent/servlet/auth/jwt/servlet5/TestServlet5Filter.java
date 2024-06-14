@@ -25,6 +25,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.testng.Assert;
 
@@ -63,9 +64,9 @@ public class TestServlet5Filter extends
                                          JwtVerifier verifier, List<PathExclusion> exclusions) {
         this.context = null;
         ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(eq(ServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
-        when(context.getAttribute(eq(ServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
-        when(context.getAttribute(eq(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
+        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
+        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
+        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
         this.context = context;
 
         return new JwtAuthFilter();
@@ -171,5 +172,14 @@ public class TestServlet5Filter extends
     @Override
     protected JwtAuthFilter createUnconfiguredFilter() {
         return new JwtAuthFilter();
+    }
+
+    @Override
+    protected Object verifyRequestAttribute(HttpServletRequest httpServletRequest, String attribute) {
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(httpServletRequest).setAttribute(eq(attribute), captor.capture());
+        Object value = captor.getValue();
+        Assert.assertNotNull(value, "Attribute " + attribute + " unexpectedly null");
+        return value;
     }
 }

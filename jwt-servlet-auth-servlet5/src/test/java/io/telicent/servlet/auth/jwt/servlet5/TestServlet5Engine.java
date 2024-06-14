@@ -22,6 +22,7 @@ import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.mockito.ArgumentCaptor;
+import org.testng.Assert;
 
 import java.io.IOException;
 import java.net.URI;
@@ -49,6 +50,11 @@ public class TestServlet5Engine extends AbstractHeaderBasedEngineTests<HttpServl
             when(request.getRequestURI()).thenReturn(requestUri.toString());
             when(request.getPathInfo()).thenReturn(requestUri.getPath());
         }
+        when(request.getAttribute(any())).thenAnswer(invocationOnMock -> {
+            ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+            verify(request).setAttribute(eq(invocationOnMock.getArgument(0)), captor.capture());
+            return captor.getValue();
+        });
         return request;
     }
 
@@ -104,5 +110,12 @@ public class TestServlet5Engine extends AbstractHeaderBasedEngineTests<HttpServl
     @Override
     protected String getAuthenticatedUser(HttpServletRequest authenticatedRequest) {
         return authenticatedRequest.getRemoteUser();
+    }
+
+    @Override
+    protected Object verifyRequestAttribute(HttpServletRequest httpServletRequest, String attribute) {
+        Object value = httpServletRequest.getAttribute(attribute);
+        Assert.assertNotNull(value, "Attribute " + attribute + " unexpectedly null");
+        return value;
     }
 }

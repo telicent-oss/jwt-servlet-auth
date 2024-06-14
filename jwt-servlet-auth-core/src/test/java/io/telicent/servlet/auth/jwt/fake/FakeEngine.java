@@ -19,8 +19,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
 
@@ -74,10 +76,10 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
 
     @Override
     protected void sendChallenge(FakeRequest fakeRequest, FakeResponse fakeResponse, Challenge challenge) {
-        fakeResponse.status = challenge.getStatusCode();
+        fakeResponse.status = challenge.statusCode();
         String realm = this.selectRealm(this.getRequestUrl(fakeRequest));
         Map<String, String> challengeParams =
-                buildChallengeParameters(challenge.getErrorCode(), challenge.getErrorDescription());
+                buildChallengeParameters(challenge.errorCode(), challenge.errorDescription());
         fakeResponse.headers.put(JwtHttpConstants.HEADER_WWW_AUTHENTICATE,
                                  Collections.singletonList(buildAuthorizationHeader(realm, challengeParams)));
     }
@@ -90,5 +92,10 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
     @Override
     protected String getRequestUrl(FakeRequest fakeRequest) {
         return fakeRequest.requestUrl;
+    }
+
+    @Override
+    protected void setRequestAttribute(FakeRequest fakeRequest, String attribute, Object value) {
+        fakeRequest.setAttribute(attribute, value);
     }
 }

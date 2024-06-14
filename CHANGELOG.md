@@ -1,5 +1,23 @@
 # CHANGE LOG
 
+# 0.15.0
+
+- API Improvements
+    - **BREAKING** Some internal focused model classes were converted to record classes to simplify implementation but
+      this has changed their field accessor method names
+    - **BREAKING** Added `addRequestAttribute()` method to `JwtAuthenticationEngine`
+    - Authentication engine now populates additional request attributes to allow applications to better understand how a
+      user was authenticated, and to use the JWT for further work, e.g. authorization, if needed.
+    - New `VerifiedToken` class used to track which token was used to authenticate the request better and in populating
+      the new request attributes:
+        - `io.telicent.servlet.auth.jwt.source` with the `TokenSource` from which the JWT was obtained
+        - `io.telicent.servlet.auth.jwt.raw` for the raw JWT
+        - `io.telicent.servlet.auth.jwt.verified` for the `Jws<Claims>` that represents the verified JWT
+    - **BREAKING** Removed old constant classes that was previously renamed in the `0.13.0` release
+- Build improvements:
+    - Further improved test coverage across the libraries
+    - Reverted to JDK 17 as the target JDK for releases to improve portability
+
 # 0.14.0
 
 - Initial public release to Maven Central

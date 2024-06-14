@@ -51,4 +51,12 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
     public Principal getUserPrincipal() {
         return () -> username;
     }
+
+    /**
+     * Gets the verified JSON Web Token (JWT) for the request
+     * @return Verified JWT
+     */
+    public Jws<Claims> getVerifiedJwt() {
+        return this.jws;
+    }
 }

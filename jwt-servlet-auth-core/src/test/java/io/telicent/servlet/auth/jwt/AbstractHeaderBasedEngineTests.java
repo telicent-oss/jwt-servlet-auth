@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import io.jsonwebtoken.security.WeakKeyException;
+import io.telicent.servlet.auth.jwt.fake.FakeRequest;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.*;
 import org.apache.commons.lang3.StringUtils;
@@ -487,5 +488,57 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         for (String claim : claims) {
             Assert.assertTrue(StringUtils.contains(debugString, claim));
         }
+    }
+
+    @Test
+    public void givenMultipleHeaders_whenAuthenticating_thenRequestAttributesIncludeCorrectRawJwt() {
+        // Given
+        JwtAuthenticationEngine<TRequest, TResponse> engine = createMultiHeaderSourceEngine();
+        // Order of headers in request is irrelevant as engine tries the headers in its configured order of preference
+        Map<String, String> headers = new LinkedHashMap<>();
+        headers.put(CUSTOM_AUTH_HEADER, "Bearer bar");
+        headers.put(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer foo");
+
+        // When and Then
+        TRequest request = verifyAuthenticated(headers, engine, new FakeTokenVerifier(), "foo");
+        Object source = verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_SOURCE);
+        Assert.assertTrue(source instanceof HeaderSource);
+        verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT, "foo");
+        Object jws = verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT);
+        Assert.assertTrue(jws instanceof Jws<?>);
+    }
+
+    @Test
+    public void givenMultipleHeadersOfWhichSomeAreInvalid_whenAuthenticating_thenRequestAttributesIncludeCorrectRawJwt() {
+        // Given
+        JwtAuthenticationEngine<TRequest, TResponse> engine = createMultiHeaderSourceEngine();
+        Map<String, String> headers = new LinkedHashMap<>();
+        headers.put(CUSTOM_AUTH_HEADER, "bar");
+        headers.put(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer foo");
+
+        // When and Then
+        TRequest request = verifyAuthenticated(headers, engine, new FakeTokenVerifier(), "foo");
+        Object source = verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_SOURCE);
+        Assert.assertTrue(source instanceof HeaderSource);
+        verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT, "foo");
+        Object jws = verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT);
+        Assert.assertTrue(jws instanceof Jws<?>);
+    }
+
+    @Test
+    public void givenMultipleHeadersOfWhichSomeAreNull_whenAuthenticating_thenRequestAttributesIncludeCorrectRawJwt() {
+        // Given
+        JwtAuthenticationEngine<TRequest, TResponse> engine = createMultiHeaderSourceEngine();
+        Map<String, String> headers = new LinkedHashMap<>();
+        headers.put(CUSTOM_AUTH_HEADER, "Bearer bar");
+        headers.put(JwtHttpConstants.HEADER_AUTHORIZATION, null);
+
+        // When and Then
+        TRequest request = verifyAuthenticated(headers, engine, new FakeTokenVerifier(), "bar");
+        Object source = verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_SOURCE);
+        Assert.assertTrue(source instanceof HeaderSource);
+        verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT, "bar");
+        Object jws = verifyRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT);
+        Assert.assertTrue(jws instanceof Jws<?>);
     }
 }

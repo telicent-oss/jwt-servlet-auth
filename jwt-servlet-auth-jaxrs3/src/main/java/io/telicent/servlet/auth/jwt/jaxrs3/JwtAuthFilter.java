@@ -60,14 +60,14 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
 
     @Override
     public void filter(ContainerRequestContext request) throws IOException {
-        MDC.put(LoggingConstants.MDC_JWT_USER, null);
+        MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
 
         if (this.config.getExclusions() == null) {
             this.config.tryFreezeExclusionsConfiguration(
-                    this.servletContext.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
+                    this.servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
         }
         Function<String, Object> attributeGetter = x -> this.servletContext.getAttribute(x);
-        this.config.warnIfModificationAttempted(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, attributeGetter,
+        this.config.warnIfModificationAttempted(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, attributeGetter,
                                                 this.config.getExclusions());
         if (this.isExcludedPath("/" + request.getUriInfo().getPath(), this.config.getExclusions())) {
             return;
@@ -75,16 +75,16 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
 
         if (this.config.getEngine() == null) {
             this.config.tryFreezeEngineConfiguration(
-                    this.servletContext.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE),
+                    this.servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE),
                     new JaxRs3JwtAuthenticationEngine());
         }
-        this.config.warnIfModificationAttempted(ServletConstants.ATTRIBUTE_JWT_ENGINE, attributeGetter,
+        this.config.warnIfModificationAttempted(JwtServletConstants.ATTRIBUTE_JWT_ENGINE, attributeGetter,
                                                 this.config.getEngine());
         if (this.config.getVerifier() == null) {
             this.config.tryFreezeVerifierConfiguration(
-                    this.servletContext.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
+                    this.servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
         }
-        this.config.warnIfModificationAttempted(ServletConstants.ATTRIBUTE_JWT_VERIFIER, attributeGetter,
+        this.config.warnIfModificationAttempted(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, attributeGetter,
                                                 this.config.getVerifier());
 
         if (LOGGER.isTraceEnabled()) {

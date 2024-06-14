@@ -40,9 +40,9 @@ public class TestChallenge {
         Challenge challenge = new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN, "test");
 
         // Then
-        Assert.assertEquals(challenge.getStatusCode(), 401);
-        Assert.assertEquals(challenge.getErrorCode(), OAuth2Constants.ERROR_INVALID_TOKEN);
-        Assert.assertEquals(challenge.getErrorDescription(), "test");
+        Assert.assertEquals(challenge.statusCode(), 401);
+        Assert.assertEquals(challenge.errorCode(), OAuth2Constants.ERROR_INVALID_TOKEN);
+        Assert.assertEquals(challenge.errorDescription(), "test");
 
         // And
         String value = challenge.toString();

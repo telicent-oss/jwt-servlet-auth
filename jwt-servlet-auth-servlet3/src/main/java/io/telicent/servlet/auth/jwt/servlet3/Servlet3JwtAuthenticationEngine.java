@@ -19,8 +19,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
 
@@ -83,11 +85,11 @@ public class Servlet3JwtAuthenticationEngine
     protected void sendChallenge(HttpServletRequest request, HttpServletResponse response, Challenge challenge) {
         String realm = selectRealm(request.getRequestURI());
         Map<String, String> additionalParams =
-                buildChallengeParameters(challenge.getErrorCode(), challenge.getErrorDescription());
+                buildChallengeParameters(challenge.errorCode(), challenge.errorDescription());
         response.addHeader(JwtHttpConstants.HEADER_WWW_AUTHENTICATE,
                            buildAuthorizationHeader(realm, additionalParams));
         try {
-            response.sendError(challenge.getStatusCode());
+            response.sendError(challenge.statusCode());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -105,5 +107,10 @@ public class Servlet3JwtAuthenticationEngine
     @Override
     protected String getRequestUrl(HttpServletRequest request) {
         return request.getRequestURI();
+    }
+
+    @Override
+    protected void setRequestAttribute(HttpServletRequest request, String attribute, Object value) {
+        request.setAttribute(attribute, value);
     }
 }

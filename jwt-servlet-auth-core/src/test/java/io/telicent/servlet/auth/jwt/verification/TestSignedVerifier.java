@@ -19,6 +19,7 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Jwks;
 import io.jsonwebtoken.security.SignatureException;
 import org.apache.commons.lang3.StringUtils;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -220,5 +221,17 @@ public class TestSignedVerifier {
 
         // Then
         Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=Locator"));
+    }
+
+    @Test
+    public void givenCustomParser_whenCreatingSignedVerified_thenToStringContainsCustomParserMode() {
+        // Given
+        JwtParser parser = Mockito.mock(JwtParser.class);
+
+        // When
+        SignedJwtVerifier verifier = new SignedJwtVerifier(parser);
+
+        // Then
+        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=CustomParser"));
     }
 }

@@ -20,10 +20,7 @@ import java.util.Objects;
 /**
  * Represents a pending authentication challenge to be issued
  */
-public class Challenge {
-
-    private final int statusCode;
-    private final String errorCode, errorDescription;
+public record Challenge(int statusCode, String errorCode, String errorDescription) {
 
     /**
      * Creates a new challenge
@@ -43,7 +40,8 @@ public class Challenge {
      *
      * @return Status code
      */
-    public int getStatusCode() {
+    @Override
+    public int statusCode() {
         return statusCode;
     }
 
@@ -52,7 +50,8 @@ public class Challenge {
      *
      * @return Error code
      */
-    public String getErrorCode() {
+    @Override
+    public String errorCode() {
         return errorCode;
     }
 
@@ -61,7 +60,8 @@ public class Challenge {
      *
      * @return Error description
      */
-    public String getErrorDescription() {
+    @Override
+    public String errorDescription() {
         return errorDescription;
     }
 

@@ -17,6 +17,7 @@ package io.telicent.servlet.auth.jwt.jaxrs3;
 
 import io.telicent.servlet.auth.jwt.AbstractHeaderBasedEngineTests;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
+import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -181,6 +182,18 @@ public class TestJaxRs3Engine
         ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
         verify(authenticatedRequest).setSecurityContext(captor.capture());
         SecurityContext context = captor.getValue();
+        Assert.assertEquals(context.getAuthenticationScheme(), JwtHttpConstants.AUTH_SCHEME_BEARER);
+        Assert.assertTrue(context.isSecure());
+        Assert.assertFalse(context.isUserInRole("test"));
         return context.getUserPrincipal().getName();
+    }
+
+    @Override
+    protected Object verifyRequestAttribute(ContainerRequestContext containerRequestContext, String attribute) {
+        ArgumentCaptor<Object> captor = ArgumentCaptor.forClass(Object.class);
+        verify(containerRequestContext).setProperty(eq(attribute), captor.capture());
+        Object value = captor.getValue();
+        Assert.assertNotNull(value, "Attribute " + attribute + " had unexpected null value");
+        return value;
     }
 }

@@ -20,8 +20,8 @@ import io.jsonwebtoken.jackson.io.JacksonSerializer;
 import io.jsonwebtoken.security.JwkSet;
 import io.jsonwebtoken.security.Jwks;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.OAuth2Constants;
-import io.telicent.servlet.auth.jwt.ServletConstants;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -252,7 +252,7 @@ public abstract class AbstractIntegrationTests {
 
             // And
             server.getRuntimeConfiguration()
-                  .setAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER, new RejectAllVerifier());
+                  .setAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, new RejectAllVerifier());
             response = makeRequest(server, "/hello", Map.of(JwtHttpConstants.HEADER_AUTHORIZATION,
                                                             JwtHttpConstants.AUTH_SCHEME_BEARER + " " + jwt),
                                    HttpResponse.BodyHandlers.ofInputStream());

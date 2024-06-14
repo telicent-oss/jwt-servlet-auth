@@ -21,7 +21,7 @@ jobs:
       jira-url: https://telicent.atlassian.net
       jira-project: CORE
       issue-mapping-file: .github/jira-mapping-rules.yml
-      extra-sync-options: "--skip-existing --extra-labels stream/security --close-after-sync"
+      extra-sync-options: "--skip-existing --extra-labels stream/security"
     secrets: inherit
 
   

@@ -64,18 +64,18 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
         // to configure the filter some other way e.g. ServletContextListener
         try {
             this.config.tryFreezeExclusionsConfiguration(
-                    adaptor.getAttribute(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
+                    adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
         } catch (AuthenticationConfigurationError e) {
             LOGGER.error(e.getMessage());
         }
         try {
-            this.config.tryFreezeEngineConfiguration(adaptor.getAttribute(ServletConstants.ATTRIBUTE_JWT_ENGINE),
+            this.config.tryFreezeEngineConfiguration(adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE),
                                                      this.getDefaultEngine());
         } catch (AuthenticationConfigurationError e) {
             LOGGER.error(e.getMessage());
         }
         try {
-            this.config.tryFreezeVerifierConfiguration(adaptor.getAttribute(ServletConstants.ATTRIBUTE_JWT_VERIFIER));
+            this.config.tryFreezeVerifierConfiguration(adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
         } catch (AuthenticationConfigurationError e) {
             LOGGER.error(e.getMessage());
         }
@@ -123,14 +123,14 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
      */
     public final void doFilter(TRequest request, TResponse response, BiConsumer<TRequest, TResponse> onSuccess) {
         this.lastAuthenticatedRequest = null;
-        MDC.put(LoggingConstants.MDC_JWT_USER, null);
+        MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
 
         if (this.config.getExclusions() == null) {
             this.config.tryFreezeExclusionsConfiguration(
-                    this.getAttribute(request, ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
+                    this.getAttribute(request, JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS));
         }
         Function<String, Object> attributeGetter = x -> this.getAttribute(request, x);
-        this.config.warnIfModificationAttempted(ServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, attributeGetter,
+        this.config.warnIfModificationAttempted(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS, attributeGetter,
                                                 this.config.getExclusions());
         if (this.isExcludedPath(this.getPath(request), this.config.getExclusions())) {
             // If the path is excluded this filter doesn't apply to the request, and we treat it as a success
@@ -139,16 +139,16 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
         }
 
         if (this.config.getEngine() == null) {
-            this.config.tryFreezeEngineConfiguration(this.getAttribute(request, ServletConstants.ATTRIBUTE_JWT_ENGINE),
+            this.config.tryFreezeEngineConfiguration(this.getAttribute(request, JwtServletConstants.ATTRIBUTE_JWT_ENGINE),
                                                      this.getDefaultEngine());
         }
-        this.config.warnIfModificationAttempted(ServletConstants.ATTRIBUTE_JWT_ENGINE, attributeGetter,
+        this.config.warnIfModificationAttempted(JwtServletConstants.ATTRIBUTE_JWT_ENGINE, attributeGetter,
                                                 this.config.getEngine());
         if (this.config.getVerifier() == null) {
             this.config.tryFreezeVerifierConfiguration(
-                    this.getAttribute(request, ServletConstants.ATTRIBUTE_JWT_VERIFIER));
+                    this.getAttribute(request, JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
         }
-        this.config.warnIfModificationAttempted(ServletConstants.ATTRIBUTE_JWT_VERIFIER, attributeGetter,
+        this.config.warnIfModificationAttempted(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, attributeGetter,
                                                 this.config.getVerifier());
 
         if (LOGGER.isTraceEnabled()) {
