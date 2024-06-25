@@ -84,14 +84,14 @@
         <plugin.clean>3.1.0</plugin.clean>
         <plugin.compiler>3.13.0</plugin.compiler>
         <plugin.cyclonedx>2.8.0</plugin.cyclonedx>
-        <plugin.dependency>3.6.1</plugin.dependency>
+        <plugin.dependency>3.7.1</plugin.dependency>
         <plugin.enforcer>3.5.0</plugin.enforcer>
         <plugin.jacoco>0.8.12</plugin.jacoco>
-        <plugin.jar>3.4.1</plugin.jar>
+        <plugin.jar>3.4.2</plugin.jar>
         <plugin.javadoc>3.7.0</plugin.javadoc>
         <plugin.license>4.5</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
-        <plugin.release>3.0.1</plugin.release>
+        <plugin.release>3.1.0</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.3.1</plugin.source>
 
@@ -104,7 +104,7 @@
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
         <dependency.jersey3>3.1.7</dependency.jersey3>
-        <dependency.jjwt>0.12.5</dependency.jjwt>
+        <dependency.jjwt>0.12.6</dependency.jjwt>
         <dependency.jetty10>10.0.21</dependency.jetty10>
         <dependency.jetty11>11.0.19</dependency.jetty11>
         <dependency.mockito>5.12.0</dependency.mockito>
