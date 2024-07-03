@@ -85,14 +85,14 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>${dependency.jetty11}</version>
+            <version>${dependency.jetty12}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${dependency.jetty11}</version>
+            <groupId>org.eclipse.jetty.ee9</groupId>
+            <artifactId>jetty-ee9-servlet</artifactId>
+            <version>${dependency.jetty12}</version>
             <scope>test</scope>
         </dependency>
 
