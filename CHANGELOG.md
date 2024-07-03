@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+# 0.15.1
+
+- Build improvements:
+    - Bumped JJWT to 0.12.6
+    - Various build plugins updated to latest available
+
 # 0.15.0
 
 - API Improvements
