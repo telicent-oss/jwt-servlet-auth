@@ -21,8 +21,8 @@ import io.telicent.servlet.auth.jwt.testing.AbstractIntegrationTests;
 import io.telicent.servlet.auth.jwt.testing.AbstractServer;
 import jakarta.servlet.ServletContextListener;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.resource.PathResource;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.ResourceFactory;
+import org.eclipse.jetty.ee9.webapp.WebAppContext;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -31,7 +31,6 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.servlet.ServletProperties;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -67,11 +66,11 @@ public class TestJaxRS3Application extends AbstractIntegrationTests {
     }
 
     @Override
-    protected AbstractServer buildWebXmlApplication(int port, String appName) throws IOException {
+    protected AbstractServer buildWebXmlApplication(int port, String appName) {
         ensureWebAppExists(appName);
 
         Server server = new Server(port);
-        WebAppContext webApp = new WebAppContext(new PathResource(new File("src/test/apps/" + appName)), "/");
+        WebAppContext webApp = new WebAppContext(ResourceFactory.root().newResource(new File("src/test/apps/" + appName).toURI()), "/");
         server.setHandler(webApp);
 
         return new Jetty11JaxRS3Server(server, port);

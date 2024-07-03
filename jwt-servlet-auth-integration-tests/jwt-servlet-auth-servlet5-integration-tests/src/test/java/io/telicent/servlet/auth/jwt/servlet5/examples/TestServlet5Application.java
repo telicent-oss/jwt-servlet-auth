@@ -20,16 +20,15 @@ import io.telicent.servlet.auth.jwt.servlet5.JwtAuthFilter;
 import io.telicent.servlet.auth.jwt.testing.AbstractIntegrationTests;
 import io.telicent.servlet.auth.jwt.testing.AbstractServer;
 import jakarta.servlet.DispatcherType;
+import org.eclipse.jetty.ee9.servlet.FilterHolder;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.PathResource;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee9.servlet.ServletHandler;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
+import org.eclipse.jetty.ee9.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.EnumSet;
 
 public class TestServlet5Application extends AbstractIntegrationTests {
@@ -49,11 +48,11 @@ public class TestServlet5Application extends AbstractIntegrationTests {
         return new JettyServlet5Server(server, port);
     }
 
-    protected AbstractServer buildWebXmlApplication(int port, String appName) throws IOException {
+    protected AbstractServer buildWebXmlApplication(int port, String appName) {
         ensureWebAppExists(appName);
 
         Server server = new Server(port);
-        WebAppContext webApp = new WebAppContext(new PathResource(new File("src/test/apps/" + appName)), "/");
+        WebAppContext webApp = new WebAppContext(ResourceFactory.root().newResource(new File("src/test/apps/" + appName).toURI()), "/");
         server.setHandler(webApp);
         return new JettyServlet5Server(server, port);
     }
