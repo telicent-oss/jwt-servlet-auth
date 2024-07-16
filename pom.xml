@@ -91,7 +91,7 @@
         <plugin.javadoc>3.7.0</plugin.javadoc>
         <plugin.license>4.5</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
-        <plugin.release>3.1.0</plugin.release>
+        <plugin.release>3.1.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.3.1</plugin.source>
 
