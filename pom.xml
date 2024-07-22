@@ -88,7 +88,7 @@
         <plugin.enforcer>3.5.0</plugin.enforcer>
         <plugin.jacoco>0.8.12</plugin.jacoco>
         <plugin.jar>3.4.2</plugin.jar>
-        <plugin.javadoc>3.7.0</plugin.javadoc>
+        <plugin.javadoc>3.8.0</plugin.javadoc>
         <plugin.license>4.5</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.1.1</plugin.release>
@@ -99,7 +99,7 @@
         <dependency.annotations2>3.0.0</dependency.annotations2>
         <dependency.caffeine>3.1.8</dependency.caffeine>
         <dependency.commons-io>2.16.1</dependency.commons-io>
-        <dependency.commons-lang>3.14.0</dependency.commons-lang>
+        <dependency.commons-lang>3.15.0</dependency.commons-lang>
         <dependency.jackson>2.17.2</dependency.jackson>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
