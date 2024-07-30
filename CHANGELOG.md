@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+# 0.15.3
+
+- Build improvements:
+    - Bumped Apache Commons Lang to 3.15.0
+    - Various build and test dependencies upgraded to latest available
+
 # 0.15.2
 
 - Build improvements:
