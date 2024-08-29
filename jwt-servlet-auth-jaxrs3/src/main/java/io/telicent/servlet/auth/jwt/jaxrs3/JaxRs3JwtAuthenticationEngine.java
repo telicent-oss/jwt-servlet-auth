@@ -111,7 +111,7 @@ public class JaxRs3JwtAuthenticationEngine
     @Override
     protected void sendChallenge(ContainerRequestContext request, ContainerResponseContext response,
                                  Challenge challenge) {
-        String realm = selectRealm(getRequestUrl(request));
+        String realm = selectRealm(JwtHttpConstants.sanitiseHeaderParameterValue(getRequestUrl(request)));
         Map<String, String> additionalParams =
                 buildChallengeParameters(challenge.errorCode(), challenge.errorDescription());
         String authChallenge = buildAuthorizationHeader(realm, additionalParams);
