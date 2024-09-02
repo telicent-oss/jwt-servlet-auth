@@ -108,8 +108,6 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
                 } catch (PrematureJwtException prematureErr) {
                     challenges.add(new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN,
                                                  "Token is not yet valid, are server clocks out of sync?"));
-                } catch (InvalidClaimException claimErr) {
-                    challenges.add(new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN, claimErr.getMessage()));
                 } catch (JwtException jwtErr) {
                     challenges.add(new Challenge(401, OAuth2Constants.ERROR_INVALID_TOKEN, jwtErr.getMessage()));
                 }
@@ -220,20 +218,26 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      * Builds the Authorization header
      *
      * @param realm            Realm
-     * @param additionalParams Map of extra parameters to potentailly apply
+     * @param additionalParams Map of extra parameters to potentially apply
      * @return Authorization header
      */
     protected String buildAuthorizationHeader(String realm, Map<String, String> additionalParams) {
+        // Note that we sanitise the various header parameters (including the realm) to prevent HTTP splitting attacks
         StringBuilder builder = new StringBuilder();
         builder.append(JwtHttpConstants.AUTH_SCHEME_BEARER).append(' ');
         if (StringUtils.isNotBlank(realm)) {
-            builder.append(JwtHttpConstants.CHALLENGE_PARAMETER_REALM).append("=\"").append(realm).append("\"");
+            builder.append(JwtHttpConstants.CHALLENGE_PARAMETER_REALM)
+                   .append("=\"")
+                   .append(JwtHttpConstants.sanitiseHeaderParameterValue(realm))
+                   .append("\"");
         }
         for (Map.Entry<String, String> param : additionalParams.entrySet()) {
             builder.append(", ").append(param.getKey()).append("=");
-            builder.append("\"").append(param.getValue()).append("\"");
+            builder.append("\"").append(JwtHttpConstants.sanitiseHeaderParameterValue(param.getValue())).append("\"");
         }
-        return builder.toString();
+
+        // Sanitise the built authorization header as a whole to prevent HTTP splitting attacks
+        return JwtHttpConstants.sanitiseHeader(builder.toString());
     }
 
     /**

@@ -83,7 +83,7 @@ public class Servlet5JwtAuthenticationEngine extends
 
     @Override
     protected void sendChallenge(HttpServletRequest request, HttpServletResponse response, Challenge challenge) {
-        String realm = selectRealm(request.getRequestURI());
+        String realm = selectRealm(JwtHttpConstants.sanitiseHeaderParameterValue(request.getRequestURI()));
         Map<String, String> additionalParams = buildChallengeParameters(challenge.errorCode(),
                                                                         challenge.errorDescription());
         response.addHeader(JwtHttpConstants.HEADER_WWW_AUTHENTICATE,

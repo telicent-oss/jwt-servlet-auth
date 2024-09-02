@@ -95,7 +95,8 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
      * @return Realm
      */
     protected String selectRealm(String defaultRealm) {
-        return StringUtils.isNotBlank(this.realm) ? this.realm : defaultRealm;
+        return JwtHttpConstants.sanitiseHeaderParameterValue(
+                StringUtils.isNotBlank(this.realm) ? this.realm : defaultRealm);
     }
 
     @Override
