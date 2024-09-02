@@ -19,12 +19,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
-import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
-import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +36,8 @@ import java.util.*;
  */
 public class Servlet3JwtAuthenticationEngine
         extends HeaderBasedJwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Servlet3JwtAuthenticationEngine.class);
 
     /**
      * Creates a new authentication engine with default configuration
@@ -98,7 +100,8 @@ public class Servlet3JwtAuthenticationEngine
     @Override
     protected void sendError(HttpServletResponse response, Throwable err) {
         try {
-            response.sendError(500, err.getMessage());
+            response.sendError(500, UNEXPECTED_ERROR_MESSAGE);
+            LOGGER.warn("Unexpected error during JWT Authentication: ", err);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
