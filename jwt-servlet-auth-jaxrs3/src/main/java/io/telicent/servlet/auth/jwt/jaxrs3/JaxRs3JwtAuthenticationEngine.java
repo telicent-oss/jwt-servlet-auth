@@ -29,6 +29,8 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.Principal;
 import java.util.Collection;
@@ -138,11 +140,7 @@ public class JaxRs3JwtAuthenticationEngine
     protected void sendError(ContainerResponseContext response, Throwable err) {
         // In a JAX-RS context we can just throw the exception and rely on JAX-RS handling the exception to abort the
         // request processing
-        if (err instanceof RuntimeException) {
-            throw (RuntimeException) err;
-        } else {
-            throw new RuntimeException(err);
-        }
+        throw new RuntimeException(UNEXPECTED_ERROR_MESSAGE, err);
     }
 
     @Override

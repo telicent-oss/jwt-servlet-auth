@@ -34,6 +34,10 @@ import java.util.function.BiConsumer;
 public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
         extends JwtAuthenticationEngine<TRequest, TResponse> {
     /**
+     * A generic error message that is sent when authentication fails unexpectedly
+     */
+    public static final String UNEXPECTED_ERROR_MESSAGE = "Unexpected error during JWT authentication";
+    /**
      * Possible header sources
      */
     protected final List<HeaderSource> headers = new ArrayList<>();

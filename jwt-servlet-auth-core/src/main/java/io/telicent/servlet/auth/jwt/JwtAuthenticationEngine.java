@@ -50,14 +50,17 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
     /**
      * Attempts to authenticate a request, returning either an authenticated request object upon success or {@code null}
-     * on failure.  Upon failure the engine will have called its {@link #sendChallenge(Object, Object, Challenge)} or
+     * on failure.
+     * <p>
+     * Upon failure the engine will have called either its {@link #sendChallenge(Object, Object, Challenge)} or
      * {@link #sendError(Object, Throwable)} methods as appropriate so that failure will already have been communicated
      * and the caller of the engine can simply cease any further processing of the request.
+     * </p>
      *
      * @param request  Request
      * @param response Response
      * @param verifier JWT Verifier
-     * @return Authenticated request or {@code null} if authentication failed
+     * @return Authenticated request if successful, or {@code null} if authentication failed
      */
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {

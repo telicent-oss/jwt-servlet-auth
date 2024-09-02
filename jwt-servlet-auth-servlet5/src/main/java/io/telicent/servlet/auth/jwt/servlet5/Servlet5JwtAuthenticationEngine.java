@@ -27,6 +27,8 @@ import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,6 +38,7 @@ import java.util.*;
  */
 public class Servlet5JwtAuthenticationEngine extends
         HeaderBasedJwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Servlet5JwtAuthenticationEngine.class);
 
     /**
      * Creates a new authentication engine using default configuration
@@ -98,7 +101,8 @@ public class Servlet5JwtAuthenticationEngine extends
     @Override
     protected void sendError(HttpServletResponse response, Throwable err) {
         try {
-            response.sendError(500, err.getMessage());
+            response.sendError(500, UNEXPECTED_ERROR_MESSAGE);
+            LOGGER.warn("Unexpected error during JWT Authentication: ", err);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
