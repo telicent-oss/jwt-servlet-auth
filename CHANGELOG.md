@@ -1,5 +1,17 @@
 # CHANGE LOG
 
+# 0.16.0
+
+- Security fixes:
+    - Fixes a theoretical vulnerability where HTTP response/request splitting could occur if a malicious user was either
+      able to control server configuration, or the filter was deployed in a server runtime that applied insufficient
+      Request URI sanitisation.
+    - Fixes a potential information disclosure vulnerability where raw error messages were sent to users in the event of
+      unexpected authentication errors.
+- Build improvements:
+    - Bumped Apache Commons Lang to 3.17.0
+    - Various build and test dependencies upgraded to latest available
+
 # 0.15.3
 
 - Build improvements:
