@@ -169,21 +169,43 @@ authentication out of the box.
 
 You can configure exclusions by setting the `io.telicent.servlet.auth.jwt.path-exclusions` Servlet Context attribute,
 this attribute should have a value that is a `List<PathExclusion>`.  A `PathExclusion` can be either a fixed path, e.g.
-`/healthz`, that matches a single path or can be a wildcard, e.g. `/status/*`, that matches many paths.  You can use the
-static `PathExclusion.parsePathPatterns()` convenience method to generate this list from a comma separated string e.g.
-`/healthz,/status/*`.
+`/healthz`, that matches a single path or can be a path expression with wildcards, e.g. `/status/*`, that matches many
+paths.  You can use the static `PathExclusion.parsePathPatterns()` convenience method to generate this list from a comma
+separated string e.g. `/healthz,/status/*`.
 
-A wildcard path uses the `*` character to match zero or more characters, so in the above example `/status/*`, would
-match `/status/`, `/status/health`, `/status/uptime` etc.  To prevent users unintentionally disabling authentication via
-overly broad exclusions any path pattern that consists of only `/`, `*` and whitespace will be rejected.  So you cannot
-have an exclusion of `/*` as that effectively renders applying the filter pointless.
+A path expression uses the `*` character as a wildcard to match zero or more characters, so in the above example
+`/status/*`, would match `/status/`, `/status/health`, `/status/uptime` etc.  To prevent users unintentionally disabling
+authentication via overly broad exclusions any path expression that consists of only `/`, `*` and whitespace will be
+rejected.  So you cannot have an exclusion of `/*` as that effectively renders applying the filter pointless.
+
+When the wildcard character - `*` - is used the path is interpreted as a regular expression with the `*` replaced with
+`.*`.  When wildcards are used be careful that any other characters in the path expression which have special
+interpretation in Java regular expressions are appropriately escaped in your input expression.  For example
+`/$/status/*` would not work as an exclusion since `$` has special meaning as end of line anchor.  Instead the path
+expression would need to be `/\$/status/*` so that the `$` character is matched literally.  Since wildcard characters
+are interpreted as `.*` in the regular expressions this means they are greedy, so the example given here would exclude
+requests to both `/$/status/health` and `/$/status/components/1`.  If you don't want this greedy behaviour then you
+**MUST** instead enumerate each path you want to exclude.
+
+Please also note that if you're setting the exclusions programmatically in code you will need to escape the backslash
+escape character in order for it to be a valid Java string constant e.g.
+
+```java
+new PathExclusion("/\\$/status/*");
+```
 
 Every time an excluded path is requested the filter will log a warning indicating that this is happened, this helps
-developers and administrators spot cases where the exclusions may have been overly broad.
+developers and administrators spot cases where the exclusions may have been overly broad.  See [Path Exclusion Warnings](#path-exclusion-warnings) for more details.
+
+### Limiting use of Path Exclusions
 
 **IMPORTANT:** Depending on your servlet runtime it may be better to use the filter mapping capabilities of the runtime
 to only apply the filter to the paths you want to protect rather than excluding paths you don't want protected.  Whether
 this is a viable option depends on your runtime and the complexity of paths involved in your application.
+
+For example if you are excluding something like `/status/*` then you **MAY** be better to simply not apply the
+authentication filter to `/status/*` and apply it to the actual paths you want to protect.  Again, depending on how
+complex the paths are in your application this may/may not be viable.
 
 ### Automatic path exclusion configuration
 
@@ -209,6 +231,26 @@ configured.  This parameter expects a comma separated list of exclusion patterns
     <url-pattern>/*</url-pattern>
 </filter-mapping>
 ```
+
+### Path Exclusion Warnings
+
+Whenever a request path matches an exclusion the filter will issue a warning like the following:
+
+> 13:28:18 WARN  AbstractJwtAuthFilter :: Request to path /$/ping is excluded from JWT Authentication filtering by filter configuration
+
+This is done by design to make it easy to spot misconfigured filters where the exclusions are overly broad.
+
+However, if exclusions are used for paths that are being hit regularly, e.g. a `/healthz` endpoint associated with
+automated health checking of your service, these warnings can become very chatty and drown out more useful logging from
+your service.  As of `0.17.0` we have added a warnings cache that is used to rate limit how often these warnings are
+seen, provided you have not excluded too many paths from authentication you should now only see one warning per unique
+excluded path per 15 minutes.
+
+Note that if you have too many excluded paths, or are using a wildcard exclusion like `/status/*` that may match many
+unique paths, then you will see warnings more frequently as the cache entires are evicted by new exclusion warnings
+being issued.  If you are seeing this happen then please consider the earlier advice on [Limiting Path
+Exclusions](#limiting-use-of-path-exclusions).
+
 
 ## Engines
 

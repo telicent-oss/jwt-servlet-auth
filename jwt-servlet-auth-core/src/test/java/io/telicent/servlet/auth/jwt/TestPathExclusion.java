@@ -51,12 +51,15 @@ public class TestPathExclusion {
                 { "*/" },
                 { "**" },
                 { "*/*" },
-                { " * "}
+                { " * "},
+                { "/*/*" },
+                { "/*/*/*" }
         };
     }
 
     @Test(dataProvider = "excludeAllPatterns", expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*excludes all paths")
-    public void exclusion_invalid_05(String pattern) {
+    public void givenAnExcludeAllPattern_whenCreating_thenIllegalArgumentError(String pattern) {
+        // Given, When and Then
         new PathExclusion(pattern);
     }
 
@@ -132,5 +135,29 @@ public class TestPathExclusion {
     public void exclusion_parsing_05() {
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns(",  ,  ,");
         Assert.assertEquals(exclusions.size(), 0);
+    }
+
+    @Test
+    public void givenWildcardExclusionWithRegexChars_whenTestingForExclusion_thenFails() {
+        // Given
+        PathExclusion exclusion = new PathExclusion("/$/status/*");
+
+        // When
+        boolean excluded = exclusion.matches("/$/status/health");
+
+        // Then
+        Assert.assertFalse(excluded);
+    }
+
+    @Test
+    public void givenWildcardExclusionWithEscapedRegexChars_whenTestingForExclusion_thenSuccess() {
+        // Given
+        PathExclusion exclusion = new PathExclusion("/\\$/status/*");
+
+        // When
+        boolean excluded = exclusion.matches("/$/status/health");
+
+        // Then
+        Assert.assertTrue(excluded);
     }
 }
