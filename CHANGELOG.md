@@ -1,5 +1,16 @@
 # CHANGE LOG
 
+# 0.17.0
+
+- Filter improvements:
+    - A cache is now used to rate limit the frequency of warnings issued when a request goes to a path that has been
+      excluded from authentication by configuration.  
+      This prevents these warnings from dominating the logs when used on
+      things like health status endpoints that are being regularly pinged by automated monitoring tools.
+    - Improved documentation around filter exclusions
+- Build improvements:
+    - Various build and test dependencies upgraded to latest available
+
 # 0.16.0
 
 - Security fixes:
