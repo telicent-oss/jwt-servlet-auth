@@ -195,7 +195,8 @@ new PathExclusion("/\\$/status/*");
 ```
 
 Every time an excluded path is requested the filter will log a warning indicating that this is happened, this helps
-developers and administrators spot cases where the exclusions may have been overly broad.  See [Path Exclusion Warnings](#path-exclusion-warnings) for more details.
+developers and administrators spot cases where the exclusions may have been overly broad.  See [Path Exclusion
+Warnings](#path-exclusion-warnings) for more details.
 
 ### Limiting use of Path Exclusions
 

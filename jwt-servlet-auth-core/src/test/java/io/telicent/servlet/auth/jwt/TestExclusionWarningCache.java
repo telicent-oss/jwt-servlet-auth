@@ -124,7 +124,7 @@ public class TestExclusionWarningCache {
 
     private void checkForExclusion(String path, List<PathExclusion> exclusions) {
         boolean excluded = this.filter.isExcludedPath(path, exclusions);
-        Assert.assertTrue(excluded);
+        Assert.assertTrue(excluded, "Path " + path + " was not excluded as expected");
     }
 
     private void verifyAtLeastOneWarningPerPath(List<String> paths) {
@@ -146,7 +146,7 @@ public class TestExclusionWarningCache {
         // Now test a bunch of paths at random to randomly overfill the cache and cause some number of extra exclusion
         // warnings to be generated
         Random random = new Random();
-        for (int i = 1; i <= 1000; i++) {
+        for (int i = 1; i <= 10_000; i++) {
             checkForExclusion(paths.get(random.nextInt(paths.size())), exclusions);
         }
 
