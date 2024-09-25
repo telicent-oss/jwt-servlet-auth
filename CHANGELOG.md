@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+# 0.17.2
+
+- Build improvements:
+    - Automated build pipeline now ensures that Release PRs are automatically generated
+    - Various build and test dependencies upgraded to latest available
+
 # 0.17.1
 
 - Build improvements:
