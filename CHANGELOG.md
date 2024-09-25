@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+# 0.17.1
+
+- Build improvements:
+    - Apache Commons IO upgraded to 2.17.0
+
 # 0.17.0
 
 - Filter improvements:
