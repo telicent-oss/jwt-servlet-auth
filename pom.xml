@@ -89,7 +89,7 @@
         <plugin.jacoco>0.8.12</plugin.jacoco>
         <plugin.jar>3.4.2</plugin.jar>
         <plugin.javadoc>3.10.0</plugin.javadoc>
-        <plugin.license>4.5</plugin.license>
+        <plugin.license>4.6</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.1.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
