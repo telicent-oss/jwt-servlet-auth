@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+# 0.17.3
+
+- Build improvements:
+    - Jackson upgraded to 2.18.0
+    - Various build and test dependencies upgraded to latest available
+
 # 0.17.2
 
 - Build improvements:
