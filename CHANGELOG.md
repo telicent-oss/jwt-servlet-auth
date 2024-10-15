@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+# 0.17.4
+
+- Build improvements
+    - Various build and test dependencies upgraded to latest available
+
 # 0.17.3
 
 - Build improvements:
