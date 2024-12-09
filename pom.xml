@@ -88,7 +88,7 @@
         <plugin.enforcer>3.5.0</plugin.enforcer>
         <plugin.jacoco>0.8.12</plugin.jacoco>
         <plugin.jar>3.4.2</plugin.jar>
-        <plugin.javadoc>3.11.1</plugin.javadoc>
+        <plugin.javadoc>3.11.2</plugin.javadoc>
         <plugin.license>4.6</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.1.1</plugin.release>
