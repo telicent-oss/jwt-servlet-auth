@@ -62,7 +62,7 @@ To depend on this library add the following to your Maven dependencies:
 ```
 
 Where `IMPLEMENTATION` is the desired implementation module for your target servlet container runtime and `X.Y.Z` is the
-desired version. The current stable version is `0.17.4`, development snapshots are `1.0.0-SNAPSHOT`.
+desired version. The current stable version is `0.17.5`, development snapshots are `1.0.0-SNAPSHOT`.
 
 **NB** Our SNAPSHOT builds are `1.0.0` because we consider this library functionally complete, however we're waiting
 until [`jjwt`][jjwt] reaches their `1.0.0` release before making our own corresponding `1.0.0` release.
