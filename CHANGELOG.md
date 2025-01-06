@@ -1,8 +1,15 @@
 # CHANGE LOG
 
+# 0.17.5
+
+- Build improvements:
+    - Apache Commons IO upgraded to 2.18.0
+    - Jackson upgraded to 2.18.2
+    - Various build and test dependencies upgraded to latest available
+
 # 0.17.4
 
-- Build improvements
+- Build improvements:
     - Various build and test dependencies upgraded to latest available
 
 # 0.17.3
