@@ -104,7 +104,7 @@
         <dependency.jackson>2.18.2</dependency.jackson>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
-        <dependency.jersey3>3.1.9</dependency.jersey3>
+        <dependency.jersey3>3.1.10</dependency.jersey3>
         <dependency.jjwt>0.12.6</dependency.jjwt>
         <dependency.jetty12>12.0.16</dependency.jetty12>
         <dependency.mockito>5.15.2</dependency.mockito>
