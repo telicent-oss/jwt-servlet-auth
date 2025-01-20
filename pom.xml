@@ -98,7 +98,7 @@
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
-        <dependency.caffeine>3.1.8</dependency.caffeine>
+        <dependency.caffeine>3.2.0</dependency.caffeine>
         <dependency.commons-io>2.18.0</dependency.commons-io>
         <dependency.commons-lang>3.17.0</dependency.commons-lang>
         <dependency.jackson>2.18.2</dependency.jackson>
