@@ -82,7 +82,7 @@
 
         <!-- Plugin Versions -->
         <plugin.clean>3.1.0</plugin.clean>
-        <plugin.compiler>3.13.0</plugin.compiler>
+        <plugin.compiler>3.14.0</plugin.compiler>
         <plugin.cyclonedx>2.9.1</plugin.cyclonedx>
         <plugin.dependency>3.8.1</plugin.dependency>
         <plugin.enforcer>3.5.0</plugin.enforcer>
