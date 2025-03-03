@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+# 0.17.6
+
+- Build improvements
+    - Caffeine upgraded to 3.2.0
+    - Jackson upgraded to 2.18.3
+    - Various build and test dependencies upgraded to latest available
+
 # 0.17.5
 
 - Build improvements:
