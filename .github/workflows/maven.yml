@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   maven-build:
-    uses: Telicent-oss/shared-workflows/.github/workflows/maven.yml@main
+    uses: Telicent-oss/shared-workflows/.github/workflows/maven.yml@TELDEVOPS-591
     with:
       # No Docker based tests in this repository
       USES_DOCKERHUB_IMAGES: false
