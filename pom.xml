@@ -99,7 +99,7 @@
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
         <dependency.caffeine>3.2.0</dependency.caffeine>
-        <dependency.commons-io>2.18.0</dependency.commons-io>
+        <dependency.commons-io>2.19.0</dependency.commons-io>
         <dependency.commons-lang>3.17.0</dependency.commons-lang>
         <dependency.jackson>2.18.3</dependency.jackson>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
