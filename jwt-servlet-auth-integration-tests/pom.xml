@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.telicent.public</groupId>
         <artifactId>jwt-servlet-auth-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>jwt-servlet-auth-integration-tests</artifactId>
     <name>Telicent - JWT Servlet Auth - Integration Tests</name>
