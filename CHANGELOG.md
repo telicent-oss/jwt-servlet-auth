@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-# 0.17.7
+# 1.0.1
 
 - Build improvements
     - Apache Commons IO upgraded to 2.19.0
