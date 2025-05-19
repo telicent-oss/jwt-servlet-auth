@@ -106,7 +106,7 @@
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
         <dependency.jersey3>3.1.10</dependency.jersey3>
         <dependency.jjwt>0.12.6</dependency.jjwt>
-        <dependency.jetty12>12.0.20</dependency.jetty12>
+        <dependency.jetty12>12.0.21</dependency.jetty12>
         <dependency.mockito>5.17.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
