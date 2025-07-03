@@ -1,5 +1,13 @@
 # CHANGE LOG
 
+# 1.0.2
+
+- Build improvements
+    - Updated to use new Maven Central publishing process
+    - Caffeine upgraded to 3.2.1
+    - Jackson upgraded to 2.19.1
+    - Various build and test dependencies upgraded to latest available
+
 # 1.0.1
 
 - Build improvements
