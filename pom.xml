@@ -386,6 +386,7 @@
                 </executions>
                 <configuration>
                     <outputName>${project.artifactId}-${project.version}-bom</outputName>
+                    <skipNotDeployed>false</skipNotDeployed>
                 </configuration>
             </plugin>
 
