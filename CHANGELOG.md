@@ -1,5 +1,14 @@
 # CHANGE LOG
 
+# 1.0.3
+
+- Build improvements
+    - Restored publishing of CycloneDX SBOM artifacts suppressed by buggy interaction between Maven Central and
+      CycloneDX plugins
+    - Upgraded Apache Commons Lang to 3.18.0
+    - Upgraded Caffeine to 3.2.2
+    - Various build and test dependencies upgraded to latest available
+
 # 1.0.2
 
 - Build improvements
