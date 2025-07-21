@@ -4,7 +4,7 @@
 
     <groupId>io.telicent.public</groupId>
     <artifactId>jwt-servlet-auth-parent</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <modules>
         <module>jwt-servlet-auth-core</module>
         <module>jwt-servlet-auth-jaxrs3</module>
