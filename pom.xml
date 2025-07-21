@@ -81,7 +81,7 @@
         <plugin.compiler>3.14.0</plugin.compiler>
         <plugin.cyclonedx>2.9.1</plugin.cyclonedx>
         <plugin.dependency>3.8.1</plugin.dependency>
-        <plugin.enforcer>3.6.0</plugin.enforcer>
+        <plugin.enforcer>3.6.1</plugin.enforcer>
         <plugin.jacoco>0.8.13</plugin.jacoco>
         <plugin.jar>3.4.2</plugin.jar>
         <plugin.javadoc>3.11.2</plugin.javadoc>
@@ -95,9 +95,9 @@
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
         <dependency.caffeine>3.2.2</dependency.caffeine>
-        <dependency.commons-io>2.19.0</dependency.commons-io>
+        <dependency.commons-io>2.20.0</dependency.commons-io>
         <dependency.commons-lang>3.18.0</dependency.commons-lang>
-        <dependency.jackson>2.19.1</dependency.jackson>
+        <dependency.jackson>2.19.2</dependency.jackson>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
         <dependency.jersey3>3.1.10</dependency.jersey3>
