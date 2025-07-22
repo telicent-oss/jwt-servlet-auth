@@ -1,5 +1,14 @@
 # CHANGE LOG
 
+# 1.0.4
+
+- Build improvements
+    - Increased publish wait time for Central publishing as Central publishing has been observed to be much slower than
+      the old Nexus publishing process depending on time of day when publishing
+    - Upgraded Apache Commons IO to 2.20.0
+    - Upgraded Jackson to 2.19.2
+    - Various build and test dependencies upgraded to latest available
+
 # 1.0.3
 
 - Build improvements
