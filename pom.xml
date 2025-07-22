@@ -400,6 +400,8 @@
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
                     <waitUntil>published</waitUntil>
+                    <!-- Central Publishing can be much slower than old Nexus publishing process -->
+                    <waitMaxTime>3600</waitMaxTime>
                 </configuration>
             </plugin>
 
