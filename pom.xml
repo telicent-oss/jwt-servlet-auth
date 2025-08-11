@@ -100,9 +100,9 @@
         <dependency.jackson>2.19.2</dependency.jackson>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
-        <dependency.jersey3>3.1.10</dependency.jersey3>
+        <dependency.jersey3>3.1.11</dependency.jersey3>
         <dependency.jjwt>0.12.6</dependency.jjwt>
-        <dependency.jetty12>12.0.23</dependency.jetty12>
+        <dependency.jetty12>12.0.24</dependency.jetty12>
         <dependency.mockito>5.18.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
