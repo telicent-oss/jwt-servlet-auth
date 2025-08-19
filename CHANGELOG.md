@@ -1,5 +1,13 @@
 # CHANGE LOG
 
+# 1.0.5
+
+- Build improvements
+    - Upgraded JJWT to 0.12.7
+        - **NB** This contains some internal changes to how JJWT builders function, if you have
+          mismatched versions of the JJWT libraries in an application this may lead to Class loading failures
+    - Various build and test dependencies upgraded to latest available
+
 # 1.0.4
 
 - Build improvements
