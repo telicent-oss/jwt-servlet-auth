@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+# 1.1.0
+
+- Build improvements
+    - Upgraded JJWT to 0.13.0
+    - Various build and test dependencies upgraded to latest available
+
 # 1.0.5
 
 - Build improvements
