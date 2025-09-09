@@ -81,9 +81,19 @@ public class JaxRs3JwtAuthenticationEngine
     @Override
     protected ContainerRequestContext prepareRequest(ContainerRequestContext request, Jws<Claims> jws,
                                                      String username) {
-        request.setSecurityContext(new JwtSecurityContext(jws, username, Strings.CS.equals(
-                request.getUriInfo().getBaseUri().getScheme(), "https"), null));
+        request.setSecurityContext(new JwtSecurityContext(jws, username, isSecureChannel(request), this.rolesClaim));
         return request;
+    }
+
+    /**
+     * Gets whether the request arrived via a secure channel i.e. HTTPs
+     *
+     * @param request Request
+     * @return True if arrived via a secure channel, false otherwise
+     */
+    protected boolean isSecureChannel(ContainerRequestContext request) {
+        return request.getUriInfo() != null && request.getUriInfo().getBaseUri() != null && Strings.CS.equals(
+                request.getUriInfo().getBaseUri().getScheme(), "https");
     }
 
     @Override

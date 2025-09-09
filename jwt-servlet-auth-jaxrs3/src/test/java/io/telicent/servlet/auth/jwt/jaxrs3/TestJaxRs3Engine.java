@@ -109,6 +109,7 @@ public class TestJaxRs3Engine
         when(request.getHeaders()).thenReturn(mockHeaders);
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getRequestUri()).thenReturn(requestUri);
+        when(uriInfo.getBaseUri()).thenReturn(URI.create("https://example.org" + requestUri.toString()));
         when(uriInfo.getPath()).thenReturn(requestUri.getPath().substring(1));
         when(request.getUriInfo()).thenReturn(uriInfo);
         return request;

@@ -105,7 +105,11 @@ public class RolesHelper {
     @SuppressWarnings("unchecked")
     private Object findRawRolesClaim() {
         Map<String, Object> claims = this.jws.getPayload();
-        for (int i = 0; i < this.rolesClaim.length; i++) {
+        for (int i = 0; ; i++) {
+            if (claims == null) {
+                return null;
+            }
+
             Object rawRoles = claims.get(this.rolesClaim[i]);
             if (rawRoles == null || i == this.rolesClaim.length - 1) {
                 return rawRoles;
@@ -114,8 +118,6 @@ public class RolesHelper {
             } else {
                 return null;
             }
-
         }
-        return null;
     }
 }

@@ -2,6 +2,11 @@
 
 # 2.0.0
 
+**NB** This is a major version bump due to breaking changes in some internal APIs that should only affect users that
+create custom authentication engines and providers.  If you are simply using this to enable JWT authentication in your
+applications you should see no functional difference, except that you may wish to add additional configuration to enable
+the new feature detailed below.
+
 - New Role extraction feature:
     - When suitably configured all authentication engines are now able to extract role informations from the verified
       JWT and implement the `isUserInRole(String)` methods appropriately:
@@ -16,14 +21,19 @@
     - **BREAKING**: `AbstractHeaderBasedEngineProvider`'s `createEngine()` method added new `String[]` parameter for
       passing in the configured roles claim (if any)
     - New `RolesHelper` utility in `jwt-servlet-auth-core` to help with extracting and converting the roles information
+    - Please note that no support is provided for actually enforcing that users have specific roles as the details of
+      how applications define which roles are required for different URLs is considered beyond the scope of this
+      library, which is focused on Authentication.  However, exposing the roles information from JWTs (if present)
+      allows consumers of this library to more easily build role based authorization solutions on top of this library.
+- JAX-RS improvements:
+    - **BREAKING** `JwtSecurityContext.isSecure()` now only returns `true` if the authenticated request was received via
+      HTTPS
 - Build improvements:
     - Migrated all deprecated Apache Commons Lang usage to their new APIs
     - Suppressed irrelevant compiler warnings throughout the test suite
-
-**NB**: No support is provided for actually enforcing that users have specific roles as the details of how applications
-define which roles are required for different URLs is considered beyond the scope of this library which is focused on
-the Authentication portion only.  However, exposing the roles information from JWTs (if present) allows consumers of
-this library to more easily build role based authorization solutions on top of this library.
+    - Jackson upgraded to 2.20.0
+    - JJWT upgraded to 0.13.0
+    - Various build and test dependencies upgraded to latest available
 
 # 1.1.0
 
