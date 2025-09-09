@@ -19,7 +19,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -46,6 +46,7 @@ public class TestVerifiedToken {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenCandidateAndVerified_whenConstructingVerifiedToken_thenSuccess_andToStringIsCorrect() {
         // Given
         TokenCandidate candidate = new TokenCandidate(new HeaderSource(JwtHttpConstants.HEADER_AUTHORIZATION, JwtHttpConstants.AUTH_SCHEME_BEARER), "Bearer foo");
@@ -60,7 +61,7 @@ public class TestVerifiedToken {
 
         // And
         String value = token.toString();
-        Assert.assertTrue(StringUtils.contains(value, VerifiedToken.class.getSimpleName()));
-        Assert.assertTrue(StringUtils.contains(value, candidate.toString()));
+        Assert.assertTrue(Strings.CS.contains(value, VerifiedToken.class.getSimpleName()));
+        Assert.assertTrue(Strings.CS.contains(value, candidate.toString()));
     }
 }

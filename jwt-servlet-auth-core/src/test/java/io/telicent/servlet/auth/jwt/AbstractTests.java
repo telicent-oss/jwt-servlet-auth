@@ -17,7 +17,7 @@ package io.telicent.servlet.auth.jwt;
 
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 
 import java.io.IOException;
@@ -91,7 +91,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
      * @param request        Request
      * @param response       Response
      * @param expectedStatus Expected status
-     * @throws IOException
+     * @throws IOException   Thrown if we can't inspect the response status code
      */
     protected abstract void verifyStatusCode(TRequest request, TResponse response, int expectedStatus) throws
             IOException;
@@ -146,7 +146,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
         if (expectedChallengeContents.length > 0) {
             String challenge = verifyHeaderPresent(request, response, JwtHttpConstants.HEADER_WWW_AUTHENTICATE);
             for (String expectedContent : expectedChallengeContents) {
-                Assert.assertTrue(StringUtils.contains(challenge, expectedContent),
+                Assert.assertTrue(Strings.CS.contains(challenge, expectedContent),
                                   "Expected challenge content " + expectedContent + " not found in Challenge " + challenge);
             }
         }

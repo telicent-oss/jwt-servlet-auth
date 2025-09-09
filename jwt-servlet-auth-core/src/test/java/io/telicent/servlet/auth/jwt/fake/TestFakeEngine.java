@@ -56,7 +56,7 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
                                                                               String realm,
                                                                               List<String> usernameClaims) {
-        return new FakeEngine(authHeaders, realm, usernameClaims);
+        return new FakeEngine(authHeaders, realm, usernameClaims, null);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
 
     private static final class NoHeadersFakeEngine extends FakeEngine {
         public NoHeadersFakeEngine() {
-            super(List.of(), null, null);
+            super(List.of(), null, null, null);
         }
     }
 

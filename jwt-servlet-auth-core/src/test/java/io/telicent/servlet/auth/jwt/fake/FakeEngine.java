@@ -19,12 +19,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
-import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
-import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,20 +36,20 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
     }
 
     public FakeEngine(String header, String headerPrefix, String realm, String usernameClaim) {
-        this(List.of(new HeaderSource(header, headerPrefix)), realm, usernameClaim != null ? List.of(usernameClaim) : null);
+        this(List.of(new HeaderSource(header, headerPrefix)), realm, usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
-    public FakeEngine(List<HeaderSource> headers, String realm, List<String> usernameClaims) {
-        super(headers, realm, usernameClaims);
+    public FakeEngine(List<HeaderSource> headers, String realm, List<String> usernameClaims, String[] rolesClaim) {
+        super(headers, realm, usernameClaims, rolesClaim);
     }
 
     @Override
     protected boolean hasRequiredParameters(FakeRequest fakeRequest) {
         String[] allowedHeaders =
-                this.headers.stream().map(h -> h.getHeader()).collect(Collectors.toList()).toArray(new String[0]);
+                this.headers.stream().map(HeaderSource::getHeader).collect(Collectors.toList()).toArray(new String[0]);
         return fakeRequest.headers.keySet()
                                   .stream()
-                                  .anyMatch(key -> StringUtils.equalsAnyIgnoreCase(key, allowedHeaders));
+                                  .anyMatch(key -> Strings.CI.equalsAny(key, allowedHeaders));
     }
 
     @Override
@@ -59,7 +57,7 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
         return this.headers.stream()
                            .flatMap(h -> fakeRequest.headers.entrySet()
                                                             .stream()
-                                                            .filter(e -> StringUtils.equalsIgnoreCase(e.getKey(),
+                                                            .filter(e -> Strings.CI.equals(e.getKey(),
                                                                                                       h.getHeader()))
                                                             .flatMap(e -> e.getValue()
                                                                            .stream()

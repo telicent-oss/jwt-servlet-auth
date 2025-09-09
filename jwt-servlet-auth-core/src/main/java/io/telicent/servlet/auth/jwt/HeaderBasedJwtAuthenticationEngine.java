@@ -18,12 +18,10 @@ package io.telicent.servlet.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.RequiredTypeException;
-import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 
 /**
  * A JWT authentication engine that uses HTTP Headers to find the authentication token
@@ -49,6 +47,10 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
      * The claim(s) from which to extract the username
      */
     protected final List<String> usernameClaims;
+    /**
+     * The sequence of claim(s) from which to extract roles information
+     */
+    protected final String[] rolesClaim;
 
     /**
      * Creates a new engine
@@ -57,9 +59,13 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
      * @param realm          Realm to use in challenges
      * @param usernameClaims Username claim(s) from which the username should be extracted.  The first claim that
      *                       contains a non-empty value that is a valid string will be used.
+     * @param rolesClaim     Sequence of claims leading to the roles information within the JWTs, if null/empty then no
+     *                       roles information will be made available.  A length 1 array would indicate a top level
+     *                       claim contains the roles information, a longer array would indicate that a nested claim
+     *                       contains the roles information.
      */
     public HeaderBasedJwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
-                                              Collection<String> usernameClaims) {
+                                              Collection<String> usernameClaims, String[] rolesClaim) {
         Objects.requireNonNull(headers, "Header sources cannot be null");
         if (headers.isEmpty()) {
             throw new IllegalArgumentException("Header sources cannot be empty");
@@ -67,6 +73,7 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
         this.headers.addAll(headers);
         this.realm = realm;
         this.usernameClaims = usernameClaims != null ? List.copyOf(usernameClaims) : List.of();
+        this.rolesClaim = rolesClaim;
     }
 
     @Override
@@ -114,6 +121,8 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
                .append(this.realm)
                .append(", usernameClaims=[")
                .append(StringUtils.join(this.usernameClaims, ", "))
+               .append("], rolesClaim=[")
+               .append(this.rolesClaim != null ? StringUtils.join(this.rolesClaim, ", ") : "")
                .append("]}");
         return builder.toString();
     }

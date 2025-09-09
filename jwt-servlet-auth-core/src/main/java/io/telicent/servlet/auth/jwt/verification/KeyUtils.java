@@ -20,6 +20,7 @@ import io.jsonwebtoken.security.SecurityException;
 import io.telicent.servlet.auth.jwt.errors.KeyLoadException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import javax.crypto.SecretKey;
 import java.io.*;
@@ -227,7 +228,7 @@ public class KeyUtils {
         if (client == null) {
             throw new KeyLoadException("A HTTP Client must be provided to use when loading the JWKS");
         }
-        if (!StringUtils.equalsAny(jwksURI.getScheme(), "http", "https")) {
+        if (!Strings.CS.equalsAny(jwksURI.getScheme(), "http", "https")) {
             throw new KeyLoadException("JWKS URI must use http/https scheme");
         }
         HttpRequest request = HttpRequest.newBuilder(jwksURI).GET().build();

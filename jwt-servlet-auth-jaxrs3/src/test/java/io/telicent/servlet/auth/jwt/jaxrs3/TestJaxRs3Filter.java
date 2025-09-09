@@ -61,13 +61,13 @@ public class TestJaxRs3Filter
                                                                                                       String realm,
                                                                                                       String usernameClaim) {
         return new JaxRs3JwtAuthenticationEngine(List.of(new HeaderSource(authHeader, authHeaderPrefix)), realm,
-                                                 usernameClaim != null ? List.of(usernameClaim) : null);
+                                                 usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
     @Override
     protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(
             List<HeaderSource> authHeaders, String realm, List<String> usernameClaims) {
-        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims);
+        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, null);
     }
 
     @Override

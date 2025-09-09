@@ -28,8 +28,9 @@ public class Servlet3EngineProvider extends AbstractHeaderBasedEngineProvider {
     @Override
     @SuppressWarnings("unchecked")
     protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-            List<HeaderSource> headerSources, String realm, List<String> usernameClaims) {
+            List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim) {
         return (JwtAuthenticationEngine<TRequest, TResponse>) new Servlet3JwtAuthenticationEngine(headerSources, realm,
-                                                                                                  usernameClaims);
+                                                                                                  usernameClaims,
+                                                                                                  rolesClaim);
     }
 }

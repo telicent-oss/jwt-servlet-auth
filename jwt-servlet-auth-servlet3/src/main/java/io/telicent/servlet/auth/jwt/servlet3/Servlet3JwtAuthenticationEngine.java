@@ -44,7 +44,7 @@ public class Servlet3JwtAuthenticationEngine
      */
     public Servlet3JwtAuthenticationEngine() {
         this(JwtHttpConstants.DEFAULT_HEADER_SOURCES, null,
-             null);
+             null, null);
     }
 
     /**
@@ -53,9 +53,12 @@ public class Servlet3JwtAuthenticationEngine
      * @param headers        Header sources
      * @param realm          Realm
      * @param usernameClaims Username claims
+     * @param rolesClaim     Roles claim
      */
-    public Servlet3JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm, Collection<String> usernameClaims) {
-        super(headers, realm, usernameClaims);
+    public Servlet3JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
+                                           Collection<String> usernameClaims,
+                                           String[] rolesClaim) {
+        super(headers, realm, usernameClaims, rolesClaim);
     }
 
     @Override
@@ -80,7 +83,7 @@ public class Servlet3JwtAuthenticationEngine
 
     @Override
     protected HttpServletRequest prepareRequest(HttpServletRequest request, Jws<Claims> jws, String username) {
-        return new AuthenticatedHttpServletRequest(request, jws, username);
+        return new AuthenticatedHttpServletRequest(request, jws, username, this.rolesClaim);
     }
 
     @Override

@@ -18,10 +18,9 @@ package io.telicent.servlet.auth.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import io.jsonwebtoken.security.WeakKeyException;
-import io.telicent.servlet.auth.jwt.fake.FakeRequest;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.*;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
@@ -45,7 +44,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
         verifyStatusCode(request, response, 401);
         String challenge = verifyHeaderPresent(request, response, JwtHttpConstants.HEADER_WWW_AUTHENTICATE);
-        Assert.assertFalse(StringUtils.contains(challenge, "error="), "No error code expected");
+        Assert.assertFalse(Strings.CS.contains(challenge, "error="), "No error code expected");
     }
 
     @Test
@@ -59,7 +58,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
         verifyStatusCode(request, response, 401);
         String challenge = verifyHeaderPresent(request, response, JwtHttpConstants.HEADER_WWW_AUTHENTICATE);
-        Assert.assertFalse(StringUtils.contains(challenge, "error="), "No error code expected");
+        Assert.assertFalse(Strings.CS.contains(challenge, "error="), "No error code expected");
     }
 
     @Test
@@ -456,7 +455,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         // Then
         String debugString = engine.toString();
         for (HeaderSource source : sources) {
-            Assert.assertTrue(StringUtils.contains(debugString, source.toString()));
+            Assert.assertTrue(Strings.CS.contains(debugString, source.toString()));
         }
     }
 
@@ -471,7 +470,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         // Then
         String debugString = engine.toString();
         for (HeaderSource source : sources) {
-            Assert.assertTrue(StringUtils.contains(debugString, source.toString()));
+            Assert.assertTrue(Strings.CS.contains(debugString, source.toString()));
         }
     }
 
@@ -486,7 +485,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         // Then
         String debugString = engine.toString();
         for (String claim : claims) {
-            Assert.assertTrue(StringUtils.contains(debugString, claim));
+            Assert.assertTrue(Strings.CS.contains(debugString, claim));
         }
     }
 

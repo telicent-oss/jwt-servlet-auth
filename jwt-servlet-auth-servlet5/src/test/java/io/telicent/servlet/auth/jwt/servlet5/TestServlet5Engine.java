@@ -74,13 +74,13 @@ public class TestServlet5Engine extends AbstractHeaderBasedEngineTests<HttpServl
                                                                                             String realm,
                                                                                             String usernameClaim) {
         return new Servlet5JwtAuthenticationEngine(List.of(new HeaderSource(authHeader, authHeaderPrefix)), realm,
-                                                   usernameClaim != null ? List.of(usernameClaim) : null);
+                                                   usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
     @Override
     protected JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> createEngine(
             List<HeaderSource> authHeaders, String realm, List<String> usernameClaims) {
-        return new Servlet5JwtAuthenticationEngine(authHeaders, realm, usernameClaims);
+        return new Servlet5JwtAuthenticationEngine(authHeaders, realm, usernameClaims, null);
     }
 
     @Override

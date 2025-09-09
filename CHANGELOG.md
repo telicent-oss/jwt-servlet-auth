@@ -1,5 +1,30 @@
 # CHANGE LOG
 
+# 2.0.0
+
+- New Role extraction feature:
+    - When suitably configured all authentication engines are now able to extract role informations from the verified
+      JWT and implement the `isUserInRole(String)` methods appropriately:
+         - New `jwt.roles.claim` configuration parameter for supplying a path to the claim containing the roles e.g. a
+           value of `roles` would take the information from the top level `roles` claim, whereas a value of
+           `some.path.roles` would take the information from the nested `roles` claim nested under those other claims
+         - `AuthenticatedHttpServletRequest` now supports checking for user roles
+         - New `JwtSecurityContext` for JAX-RS extracted from previous anonymous inner class and now supports checking
+           for user roles
+    - **BREAKING**: `HeaderBasedJwtAuthenticationEngine`, and derived engines, have a new `String[]` constructor
+      parameter that allows configuring the roles claim
+    - **BREAKING**: `AbstractHeaderBasedEngineProvider`'s `createEngine()` method added new `String[]` parameter for
+      passing in the configured roles claim (if any)
+    - New `RolesHelper` utility in `jwt-servlet-auth-core` to help with extracting and converting the roles information
+- Build improvements:
+    - Migrated all deprecated Apache Commons Lang usage to their new APIs
+    - Suppressed irrelevant compiler warnings throughout the test suite
+
+**NB**: No support is provided for actually enforcing that users have specific roles as the details of how applications
+define which roles are required for different URLs is considered beyond the scope of this library which is focused on
+the Authentication portion only.  However, exposing the roles information from JWTs (if present) allows consumers of
+this library to more easily build role based authorization solutions on top of this library.
+
 # 1.1.0
 
 - Build improvements

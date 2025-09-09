@@ -40,17 +40,16 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     protected List<HeaderSource> configureHeaders(Function<String, String> paramSupplier) {
         List<HeaderSource> sources = new ArrayList<>();
 
-        if (Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS), Boolean::parseBoolean, false)) {
+        if (Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS),
+                                 Boolean::parseBoolean, false)) {
             sources.addAll(JwtHttpConstants.DEFAULT_HEADER_SOURCES);
         }
-        List<String> headers =
-                Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_HEADER_NAMES),
-                                     AbstractHeaderBasedEngineProvider::parseList, null);
+        List<String> headers = Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_HEADER_NAMES),
+                                                    AbstractHeaderBasedEngineProvider::parseList, null);
         if (headers != null) {
             List<String> prefixes =
                     Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_HEADER_PREFIXES),
-                                         AbstractHeaderBasedEngineProvider::parseList,
-                                         null);
+                                         AbstractHeaderBasedEngineProvider::parseList, null);
             for (int i = 0; i < headers.size(); i++) {
                 String prefix = prefixes != null && i < prefixes.size() ? prefixes.get(i) : null;
                 sources.add(new HeaderSource(headers.get(i), prefix));
@@ -82,7 +81,32 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     }
 
     /**
-     * Utility method for splitting a comma seperated string into a list.
+     * Tries to configure the roles claim
+     *
+     * @param paramSupplier Parameter supplier
+     * @return Roles claim, or {@code null} if no configuration provided
+     */
+    protected String[] configureRolesClaim(Function<String, String> paramSupplier) {
+        return Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_ROLES_CLAIM),
+                                    AbstractHeaderBasedEngineProvider::parseDottedPath, null);
+    }
+
+    /**
+     * Utility method for splitting a dot separated path into an array
+     *
+     * @param value Dot separated path
+     * @return Path array
+     */
+    protected static String[] parseDottedPath(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        return value.split("\\.");
+    }
+
+    /**
+     * Utility method for splitting a comma separated string into a list.
+     *
      * @param value Comma-separated string.
      * @return A List of values
      */
@@ -102,9 +126,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
         }
         String realm = this.configureRealm(paramSupplier);
         List<String> usernameClaims = this.configureUsernameClaims(paramSupplier);
+        String[] rolesClaim = this.configureRolesClaim(paramSupplier);
 
         try {
-            JwtAuthenticationEngine<TRequest, TResponse> engine = createEngine(headerSources, realm, usernameClaims);
+            JwtAuthenticationEngine<TRequest, TResponse> engine =
+                    createEngine(headerSources, realm, usernameClaims, rolesClaim);
             if (engine == null) {
                 return false;
             }
@@ -121,10 +147,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param headerSources  Header Sources
      * @param realm          Realm
      * @param usernameClaims Username claims
+     * @param rolesClaim     Roles claim
      * @param <TRequest>     Request type
      * @param <TResponse>    Response type
      * @return JWT Authentication Engine
      */
     protected abstract <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-            List<HeaderSource> headerSources, String realm, List<String> usernameClaims);
+            List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim);
 }

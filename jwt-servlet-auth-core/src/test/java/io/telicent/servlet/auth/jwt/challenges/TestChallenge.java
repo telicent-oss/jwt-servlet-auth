@@ -16,7 +16,7 @@
 package io.telicent.servlet.auth.jwt.challenges;
 
 import io.telicent.servlet.auth.jwt.OAuth2Constants;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -46,8 +46,8 @@ public class TestChallenge {
 
         // And
         String value = challenge.toString();
-        Assert.assertTrue(StringUtils.contains(value, "401"));
-        Assert.assertTrue(StringUtils.contains(value, OAuth2Constants.ERROR_INVALID_TOKEN));
-        Assert.assertTrue(StringUtils.contains(value, "test"));
+        Assert.assertTrue(Strings.CS.contains(value, "401"));
+        Assert.assertTrue(Strings.CS.contains(value, OAuth2Constants.ERROR_INVALID_TOKEN));
+        Assert.assertTrue(Strings.CS.contains(value, "test"));
     }
 }
