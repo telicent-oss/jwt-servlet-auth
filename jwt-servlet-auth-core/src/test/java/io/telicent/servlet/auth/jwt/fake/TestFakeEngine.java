@@ -60,6 +60,13 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
     }
 
     @Override
+    protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
+                                                                              String realm, List<String> usernameClaims,
+                                                                              String[] rolesClaim) {
+        return new FakeEngine(authHeaders, realm, usernameClaims, rolesClaim);
+    }
+
+    @Override
     protected void verifyStatusCode(FakeRequest fakeRequest, FakeResponse fakeResponse, int expectedStatus) {
         Assert.assertEquals(fakeResponse.status, expectedStatus);
     }
@@ -80,6 +87,16 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
         Object value = fakeRequest.getAttribute(attribute);
         Assert.assertNotNull(value);
         return value;
+    }
+
+    @Override
+    protected void verifyMissingRole(FakeRequest fakeRequest, String role) {
+        Assert.assertFalse(fakeRequest.isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyHasRole(FakeRequest fakeRequest, String role) {
+        Assert.assertTrue(fakeRequest.isUserInRole(role));
     }
 
     private static final class NoHeadersFakeEngine extends FakeEngine {

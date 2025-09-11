@@ -66,10 +66,7 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
 
     @Override
     public boolean isUserInRole(String role) {
-        if (this.rolesHelper == null) {
-            return false;
-        }
-        return this.rolesHelper.isUserInRole(role);
+        return this.rolesHelper != null && this.rolesHelper.isUserInRole(role);
     }
 
     @Override

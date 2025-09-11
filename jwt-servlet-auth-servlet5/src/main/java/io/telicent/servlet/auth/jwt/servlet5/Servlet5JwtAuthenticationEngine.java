@@ -80,7 +80,7 @@ public class Servlet5JwtAuthenticationEngine
 
     @Override
     protected HttpServletRequest prepareRequest(HttpServletRequest request, Jws<Claims> jws, String username) {
-        return new AuthenticatedHttpServletRequest(request, jws, username);
+        return new AuthenticatedHttpServletRequest(request, jws, username, this.rolesClaim);
     }
 
     @Override

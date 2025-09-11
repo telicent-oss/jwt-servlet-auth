@@ -17,6 +17,7 @@ package io.telicent.servlet.auth.jwt.roles;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.telicent.servlet.auth.jwt.configuration.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
@@ -58,7 +59,8 @@ public class RolesHelper {
             return false;
         }
         if (this.roles == null) {
-            this.roles = loadRoles(findRawRolesClaim());
+            Object rawRoles = Utils.findClaim(this.jws, this.rolesClaim);
+            this.roles = loadRoles(rawRoles);
         }
         return this.roles.contains(role);
     }
@@ -99,25 +101,6 @@ public class RolesHelper {
             return new HashSet<>(Arrays.asList(roleArray));
         } else {
             return Collections.emptySet();
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object findRawRolesClaim() {
-        Map<String, Object> claims = this.jws.getPayload();
-        for (int i = 0; ; i++) {
-            if (claims == null) {
-                return null;
-            }
-
-            Object rawRoles = claims.get(this.rolesClaim[i]);
-            if (rawRoles == null || i == this.rolesClaim.length - 1) {
-                return rawRoles;
-            } else if (rawRoles instanceof Map<?, ?> mapClaim) {
-                claims = (Map<String, Object>) mapClaim;
-            } else {
-                return null;
-            }
         }
     }
 }

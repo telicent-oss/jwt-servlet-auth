@@ -76,6 +76,20 @@ public abstract class AbstractTests<TRequest, TResponse> {
                                                                                  List<String> usernameClaims);
 
     /**
+     * Creates an engine for testing with roles extraction enabled
+     *
+     * @param authHeaders    Header sources
+     * @param realm          Realm for challenges
+     * @param usernameClaims Username claim(s)
+     * @param rolesClaim     Roles claim
+     * @return Engine
+     */
+    protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(List<HeaderSource> authHeaders,
+                                                                                 String realm,
+                                                                                 List<String> usernameClaims,
+                                                                                 String[] rolesClaim);
+
+    /**
      * Whether the engine implementation throws an error when its
      * {@link JwtAuthenticationEngine#sendError(Object, Throwable)} method gets called
      *
@@ -91,7 +105,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
      * @param request        Request
      * @param response       Response
      * @param expectedStatus Expected status
-     * @throws IOException   Thrown if we can't inspect the response status code
+     * @throws IOException Thrown if we can't inspect the response status code
      */
     protected abstract void verifyStatusCode(TRequest request, TResponse response, int expectedStatus) throws
             IOException;
@@ -172,4 +186,20 @@ public abstract class AbstractTests<TRequest, TResponse> {
         Object value = verifyRequestAttribute(request, attribute);
         Assert.assertEquals(value, expectedValue);
     }
+
+    /**
+     * Verifies that the authenticated user in the request has the given role
+     *
+     * @param request Authenticated request
+     * @param role    Role
+     */
+    protected abstract void verifyHasRole(TRequest request, String role);
+
+    /**
+     * Verifies that the authenticated user in the request <strong>DOES NOT</strong> have the given role
+     *
+     * @param request Authenticated request
+     * @param role    Role
+     */
+    protected abstract void verifyMissingRole(TRequest request, String role);
 }

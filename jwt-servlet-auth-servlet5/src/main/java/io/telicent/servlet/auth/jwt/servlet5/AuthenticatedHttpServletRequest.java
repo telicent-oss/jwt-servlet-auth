@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt.servlet5;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 
+import io.telicent.servlet.auth.jwt.roles.RolesHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 
@@ -30,6 +31,7 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
 
     private final Jws<Claims> jws;
     private final String username;
+    private final RolesHelper rolesHelper;
 
     /**
      * Creates a new authenticated HTTP Request
@@ -37,10 +39,23 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
      * @param jws Verified JWT
      * @param username Username extracted from the JWT
      */
-    public AuthenticatedHttpServletRequest(HttpServletRequest request, Jws<Claims> jws, String username) {
+    public AuthenticatedHttpServletRequest(HttpServletRequest request, Jws<Claims> jws, String username,
+                                           String[] rolesClaim) {
         super(request);
         this.username = username;
         this.jws = jws;
+        this.rolesHelper = createRolesHelper(jws, rolesClaim);
+    }
+
+    /**
+     * Creates the roles helper used by the {@link #isUserInRole(String)} method
+     *
+     * @param jws        JWT
+     * @param rolesClaim Roles claim
+     * @return Roles helper
+     */
+    protected RolesHelper createRolesHelper(Jws<Claims> jws, String[] rolesClaim) {
+        return new RolesHelper(jws, rolesClaim);
     }
 
     @Override
@@ -51,5 +66,19 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public Principal getUserPrincipal() {
         return () -> username;
+    }
+
+    @Override
+    public boolean isUserInRole(String role) {
+        return this.rolesHelper != null && this.rolesHelper.isUserInRole(role);
+    }
+
+    /**
+     * Gets the verified JSON Web Token (JWT) for the request
+     *
+     * @return Verified JWT
+     */
+    public Jws<Claims> getVerifiedJwt() {
+        return this.jws;
     }
 }

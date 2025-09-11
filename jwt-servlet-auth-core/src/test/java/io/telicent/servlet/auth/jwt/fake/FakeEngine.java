@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.roles.RolesHelper;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.Strings;
 
@@ -69,6 +70,7 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
     @Override
     protected FakeRequest prepareRequest(FakeRequest fakeRequest, Jws<Claims> jws, String username) {
         fakeRequest.username = username;
+        fakeRequest.rolesHelper = new RolesHelper(jws, this.rolesClaim);
         return fakeRequest;
     }
 

@@ -141,6 +141,12 @@ public class TestJaxRs3Engine
     }
 
     @Override
+    protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(
+            List<HeaderSource> authHeaders, String realm, List<String> usernameClaims, String[] rolesClaim) {
+        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, rolesClaim);
+    }
+
+    @Override
     protected boolean throwsOnUnexpectedErrors() {
         return true;
     }
@@ -185,7 +191,7 @@ public class TestJaxRs3Engine
         SecurityContext context = captor.getValue();
         Assert.assertEquals(context.getAuthenticationScheme(), JwtHttpConstants.AUTH_SCHEME_BEARER);
         Assert.assertTrue(context.isSecure());
-        Assert.assertFalse(context.isUserInRole("test"));
+        Assert.assertFalse(context.isUserInRole("NO-SUCH-ROLE"));
         return context.getUserPrincipal().getName();
     }
 
@@ -196,5 +202,21 @@ public class TestJaxRs3Engine
         Object value = captor.getValue();
         Assert.assertNotNull(value, "Attribute " + attribute + " had unexpected null value");
         return value;
+    }
+
+    @Override
+    protected void verifyHasRole(ContainerRequestContext requestContext, String role) {
+        ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
+        verify(requestContext).setSecurityContext(captor.capture());
+        SecurityContext context = captor.getValue();
+        Assert.assertTrue(context.isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyMissingRole(ContainerRequestContext requestContext, String role) {
+        ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
+        verify(requestContext).setSecurityContext(captor.capture());
+        SecurityContext context = captor.getValue();
+        Assert.assertFalse(context.isUserInRole(role));
     }
 }

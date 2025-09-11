@@ -85,6 +85,24 @@ public class TestServlet3Engine extends AbstractHeaderBasedEngineTests<HttpServl
     }
 
     @Override
+    protected JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> createEngine(
+            List<HeaderSource> authHeaders, String realm, List<String> usernameClaims, String[] rolesClaim) {
+        return new Servlet3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, rolesClaim);
+    }
+
+    @Override
+    protected void verifyHasRole(HttpServletRequest httpServletRequest, String role) {
+        Assert.assertNotNull(httpServletRequest);
+        Assert.assertTrue(httpServletRequest.isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyMissingRole(HttpServletRequest httpServletRequest, String role) {
+        Assert.assertNotNull(httpServletRequest);
+        Assert.assertFalse(httpServletRequest.isUserInRole(role));
+    }
+
+    @Override
     protected void verifyStatusCode(HttpServletRequest request, HttpServletResponse httpServletResponse,
                                     int expectedStatus) throws IOException {
         verifyStatusCode(httpServletResponse, expectedStatus);

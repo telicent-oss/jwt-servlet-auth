@@ -15,6 +15,9 @@
  */
 package io.telicent.servlet.auth.jwt.configuration;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -26,7 +29,8 @@ public class Utils {
     /**
      * Private constructor prevents direct instantiation
      */
-    private Utils() {}
+    private Utils() {
+    }
 
     /**
      * Parses a configuration parameter
@@ -60,6 +64,39 @@ public class Utils {
             return parser.apply(value);
         } catch (Throwable e) {
             return defaultValue;
+        }
+    }
+
+    /**
+     * Finds the value of a claim at the given claim path if it exists in the given verified JWT
+     *
+     * @param jws       Verified JWT
+     * @param claimPath Claim path, each item in the list represents a level of nesting
+     * @param <T>       Target return type, if the value of the claim cannot be cast to this type then a
+     *                  {@link ClassCastException} is thrown
+     * @return Claim value, or {@code null} if no such claim
+     * @throws ClassCastException Thrown if the claim value cannot be cast to the target return type
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T findClaim(Jws<Claims> jws, String[] claimPath) {
+        if (jws == null || claimPath == null || claimPath.length == 0) {
+            return null;
+        }
+
+        Map<String, Object> claims = jws.getPayload();
+        for (int i = 0; ; i++) {
+            if (claims == null) {
+                return null;
+            }
+
+            Object rawValue = claims.get(claimPath[i]);
+            if (rawValue == null || i == claimPath.length - 1) {
+                return (T) rawValue;
+            } else if (rawValue instanceof Map<?, ?> mapClaim) {
+                claims = (Map<String, Object>) mapClaim;
+            } else {
+                return null;
+            }
         }
     }
 }

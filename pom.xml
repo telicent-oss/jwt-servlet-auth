@@ -90,6 +90,7 @@
         <plugin.release>3.1.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.3.1</plugin.source>
+        <plugin.surefire>3.5.3</plugin.surefire>
         <plugin.versions>2.19.0</plugin.versions>
 
         <!-- Dependency Versions -->
@@ -110,6 +111,21 @@
         <dependency.slf4j>2.0.17</dependency.slf4j>
         <dependency.testng>7.11.0</dependency.testng>
     </properties>
+
+    <dependencies>
+        <!-- TestNG and Mockito for testing -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -184,24 +200,26 @@
                 <version>${dependency.caffeine}</version>
             </dependency>
 
+            <!-- Need a JAX-RS runtime for testing -->
+            <dependency>
+                <groupId>org.glassfish.jersey.containers</groupId>
+                <artifactId>jersey-container-grizzly2-servlet</artifactId>
+                <version>${dependency.jersey3}</version>
+                <scope>test</scope>
+            </dependency>
+
             <!-- TestNG and Mockito for testing -->
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${dependency.testng}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${dependency.mockito}</version>
-            </dependency>
-
-            <!-- Need a JAX-RS runtime for testing -->
-            <dependency>
-                <groupId>org.glassfish.jersey.containers</groupId>
-                <artifactId>jersey-container-grizzly2-servlet</artifactId>
-                <version>${dependency.jersey3}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -353,6 +371,32 @@
                             <goal>jar</goal>
                         </goals>
                         <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Surefire Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${plugin.surefire}</version>
+                <configuration>
+                    <includes>
+                        <include>**/Test*.java</include>
+                    </includes>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -XX:+EnableDynamicAgentLoading -Xshare:off</argLine>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${plugin.dependency}</version>
+                <executions>
+                    <execution>
+                        <id>properties</id>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

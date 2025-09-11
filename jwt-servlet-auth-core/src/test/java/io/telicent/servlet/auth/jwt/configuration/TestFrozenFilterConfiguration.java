@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TestFrozenFilterConfiguration {
 
     @Test
