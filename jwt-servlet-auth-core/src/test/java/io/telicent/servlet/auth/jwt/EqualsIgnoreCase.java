@@ -15,7 +15,7 @@
  */
 package io.telicent.servlet.auth.jwt;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.mockito.ArgumentMatcher;
 
 import static org.mockito.internal.progress.ThreadSafeMockingProgress.mockingProgress;
@@ -38,7 +38,7 @@ public class EqualsIgnoreCase implements ArgumentMatcher<String> {
 
     @Override
     public boolean matches(String argument) {
-        return StringUtils.equalsIgnoreCase(this.wanted, argument);
+        return Strings.CI.equals(this.wanted, argument);
     }
 
     @Override

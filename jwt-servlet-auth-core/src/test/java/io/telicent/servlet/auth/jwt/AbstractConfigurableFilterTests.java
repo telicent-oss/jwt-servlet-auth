@@ -56,7 +56,13 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
      */
     protected abstract TRequest createMockRequest(FilterConfigAdaptorWrapper config, Map<String, String> headers);
 
-    protected File createSecretKey(MacAlgorithm algorithm) throws IOException {
+    /**
+     * Creates a secret key for use in tests
+     * @param algorithm Algorithm
+     * @return Secret Key
+     * @throws IOException Thrown if the key cannot be generated/saved
+     */
+    public static File createSecretKey(MacAlgorithm algorithm) throws IOException {
         SecretKey key = algorithm.key().build();
 
         File keyFile = Files.createTempFile("secret", ".key").toFile();

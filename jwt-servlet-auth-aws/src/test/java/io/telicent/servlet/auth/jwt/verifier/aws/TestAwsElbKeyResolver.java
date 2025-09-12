@@ -18,7 +18,7 @@ package io.telicent.servlet.auth.jwt.verifier.aws;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -57,8 +57,8 @@ public class TestAwsElbKeyResolver {
         SignedJwtVerifier verifier = new SignedJwtVerifier(resolver);
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=Locator"));
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), resolver.toString()));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=Locator"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), resolver.toString()));
     }
 
     @Test

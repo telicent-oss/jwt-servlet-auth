@@ -24,7 +24,7 @@ import io.jsonwebtoken.security.RsaPublicJwk;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.KeyUtils;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
@@ -79,7 +79,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, "10");
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -94,12 +94,12 @@ public class TestVerificationFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_KEY_ALGORITHM, algorithm);
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured.get());
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), "verificationMethod=PublicKey"));
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), "fingerprint="));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), "verificationMethod=PublicKey"));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), "fingerprint="));
     }
 
     @Test(dataProvider = "publicKeyAlgorithms")
@@ -111,7 +111,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_KEY_ALGORITHM, "no-such-algorithm");
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -125,7 +125,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_PUBLIC_KEY, keyFile.getAbsolutePath());
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -140,7 +140,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_KEY_ALGORITHM, algorithm);
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -157,11 +157,11 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_SECRET_KEY, secretKey.getAbsolutePath());
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured.get());
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), "verificationMethod=SecretKey"));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), "verificationMethod=SecretKey"));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_SECRET_KEY, secretKey.getAbsolutePath());
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -192,7 +192,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, "10");
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured.get());
@@ -210,12 +210,13 @@ public class TestVerificationFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, "not a number");
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured.get());
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T extends PublicKey> File saveJwks(PublicJwk<T> jwks) throws IOException {
         File file = Files.createTempFile("jwks", ".json").toFile();
         try (FileOutputStream output = new FileOutputStream(file)) {
@@ -234,12 +235,12 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, jwksFile.toURI().toString());
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured.get());
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), "verificationMethod=Locator"));
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), "jwksUrl=" + jwksFile.toURI()));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), "verificationMethod=Locator"));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), "jwksUrl=" + jwksFile.toURI()));
     }
 
     @Test
@@ -259,12 +260,12 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, jwksUri.toString());
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured.get());
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), "verificationMethod=Locator"));
-        Assert.assertTrue(StringUtils.contains(configured.get().toString(), jwksFile.getAbsolutePath()));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), "verificationMethod=Locator"));
+        Assert.assertTrue(Strings.CS.contains(configured.get().toString(), jwksFile.getAbsolutePath()));
     }
 
     @Test
@@ -274,7 +275,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "not a valid URL");
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -288,7 +289,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "no-such-file.json");
 
         // When
-        VerificationFactory.configure(supplierForMap(config), x -> configured.set(x));
+        VerificationFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNull(configured.get());

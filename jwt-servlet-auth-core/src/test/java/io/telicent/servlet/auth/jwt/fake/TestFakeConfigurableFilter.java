@@ -95,7 +95,24 @@ public class TestFakeConfigurableFilter
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
                                                                               String realm,
                                                                               List<String> usernameClaims) {
-        return new FakeEngine(authHeaders, realm, usernameClaims);
+        return new FakeEngine(authHeaders, realm, usernameClaims, null);
+    }
+
+    @Override
+    protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
+                                                                              String realm, List<String> usernameClaims,
+                                                                              String[] rolesClaim) {
+        return new FakeEngine(authHeaders, realm, usernameClaims, rolesClaim);
+    }
+
+    @Override
+    protected void verifyHasRole(FakeRequest fakeRequest, String role) {
+        Assert.assertTrue(fakeRequest.isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyMissingRole(FakeRequest fakeRequest, String role) {
+        Assert.assertFalse(fakeRequest.isUserInRole(role));
     }
 
     @Override

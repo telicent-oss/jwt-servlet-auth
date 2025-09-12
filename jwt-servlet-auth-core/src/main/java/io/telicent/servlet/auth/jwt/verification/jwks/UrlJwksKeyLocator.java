@@ -23,6 +23,7 @@ import io.jsonwebtoken.security.JwkSet;
 import io.telicent.servlet.auth.jwt.errors.KeyLoadException;
 import io.telicent.servlet.auth.jwt.verification.KeyUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.io.File;
 import java.net.URI;
@@ -106,7 +107,7 @@ public class UrlJwksKeyLocator extends LocatorAdapter<Key> {
      * @return True if a supported scheme, false otherwise
      */
     protected static boolean isSupportedScheme(URI jwksURI) {
-        return StringUtils.equalsAny(jwksURI.getScheme(), SUPPORTED_SCHEMES);
+        return Strings.CS.equalsAny(jwksURI.getScheme(), SUPPORTED_SCHEMES);
     }
 
     @Override
@@ -140,7 +141,7 @@ public class UrlJwksKeyLocator extends LocatorAdapter<Key> {
     protected JwkSet loadJwks() {
         JwkSet jwks;
         try {
-            if (StringUtils.equals(this.jwksURI.getScheme(), "file")) {
+            if (Strings.CS.equals(this.jwksURI.getScheme(), "file")) {
                 // Read in File
                 File f = Paths.get(this.jwksURI).toFile();
                 jwks = KeyUtils.loadJwks(f);
@@ -182,7 +183,7 @@ public class UrlJwksKeyLocator extends LocatorAdapter<Key> {
         // to live with this
         return jwks.getKeys()
                    .stream()
-                   .filter(k -> StringUtils.equals(k.getId(), keyId))
+                   .filter(k -> Strings.CS.equals(k.getId(), keyId))
                    .findFirst()
                    .orElse(null);
     }

@@ -18,7 +18,7 @@ package io.telicent.servlet.auth.jwt.challenges;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.sources.TokenSource;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -52,9 +52,9 @@ public class TestTokenCandidate {
 
         // And
         String toStringValue = candidate.toString();
-        Assert.assertTrue(StringUtils.contains(toStringValue, TokenCandidate.class.getSimpleName()));
-        Assert.assertTrue(StringUtils.contains(toStringValue, "test"));
-        Assert.assertTrue(StringUtils.contains(toStringValue, source.toString()));
+        Assert.assertTrue(Strings.CS.contains(toStringValue, TokenCandidate.class.getSimpleName()));
+        Assert.assertTrue(Strings.CS.contains(toStringValue, "test"));
+        Assert.assertTrue(Strings.CS.contains(toStringValue, source.toString()));
     }
 
     @Test

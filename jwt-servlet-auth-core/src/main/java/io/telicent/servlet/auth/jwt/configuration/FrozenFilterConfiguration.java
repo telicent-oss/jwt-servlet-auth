@@ -107,6 +107,7 @@ public final class FrozenFilterConfiguration<TRequest, TResponse> {
      * @throws RuntimeException Thrown if the provided raw engine is of the wrong type, or no configured engine and no
      *                          default engine provided
      */
+    @SuppressWarnings("unchecked")
     private JwtAuthenticationEngine<TRequest, TResponse> prepareEngine(Object rawEngine,
                                                                        JwtAuthenticationEngine<TRequest, TResponse> defaultEngine) {
         JwtAuthenticationEngine<TRequest, TResponse> engine;
@@ -160,6 +161,7 @@ public final class FrozenFilterConfiguration<TRequest, TResponse> {
      * @param rawPathExclusions The list of exclusions.
      * @return A casting of the object to a list of exclusions.
      */
+    @SuppressWarnings("unchecked")
     private List<PathExclusion> preparePathExclusions(Object rawPathExclusions) {
         if (rawPathExclusions == null) {
             return Collections.emptyList();

@@ -35,7 +35,7 @@ public class TestBadEngineProvider {
 
         @Override
         protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-                List<HeaderSource> headerSources, String realm, List<String> usernameClaims) {
+                List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim) {
             return null;
         }
     }
@@ -44,7 +44,7 @@ public class TestBadEngineProvider {
 
         @Override
         protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-                List<HeaderSource> headerSources, String realm, List<String> usernameClaims) {
+                List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim) {
             throw new RuntimeException("Failed");
         }
     }

@@ -15,15 +15,16 @@
  */
 package io.telicent.servlet.auth.jwt.fake;
 
+import io.telicent.servlet.auth.jwt.roles.RolesHelper;
+
 import java.util.*;
 
 public class FakeRequest {
 
     public final Map<String, List<String>> headers = new HashMap<>();
     public final Map<String, Object> attributes = new HashMap<>();
-
+    public RolesHelper rolesHelper = null;
     public String username = null;
-
     public String requestUrl = null;
 
     public FakeRequest() {
@@ -50,5 +51,9 @@ public class FakeRequest {
 
     public void setAttribute(String attribute, Object value) {
         this.attributes.put(attribute, value);
+    }
+
+    public boolean isUserInRole(String role) {
+        return this.rolesHelper != null && this.rolesHelper.isUserInRole(role);
     }
 }

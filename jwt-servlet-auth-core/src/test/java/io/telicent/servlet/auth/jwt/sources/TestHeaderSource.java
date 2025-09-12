@@ -17,6 +17,7 @@ package io.telicent.servlet.auth.jwt.sources;
 
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -81,8 +82,8 @@ public class TestHeaderSource {
         String value = source.toString();
 
         // Then
-        Assert.assertTrue(StringUtils.contains(value, source.getHeader()));
-        Assert.assertEquals(StringUtils.contains(value, source.getPrefix()),
+        Assert.assertTrue(Strings.CS.contains(value, source.getHeader()));
+        Assert.assertEquals(Strings.CS.contains(value, source.getPrefix()),
                             StringUtils.isNotBlank(source.getPrefix()));
     }
 }

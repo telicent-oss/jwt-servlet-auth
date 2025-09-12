@@ -22,7 +22,8 @@ import io.telicent.servlet.auth.jwt.JwtHttpConstants;
  */
 public class ConfigurationParameters {
 
-    private ConfigurationParameters() {}
+    private ConfigurationParameters() {
+    }
 
     /**
      * Parameter for indicating that your application wants to permit multiple different filter configurations to be
@@ -48,9 +49,16 @@ public class ConfigurationParameters {
     public static final String PARAM_HEADER_PREFIXES = "jwt.headers.prefixes";
     /**
      * Parameter for configuring the list of claims that are used to find the username for a user from a verified JWT,
-     * should be given in order of preference
+     * should be a comma separated list e.g. {@code preferred_username,email,sub} where claims are listed in order of
+     * preference
      */
     public static final String PARAM_USERNAME_CLAIMS = "jwt.username.claims";
+    /**
+     * Parameter for configuring the roles claim that is used to find the roles information for a user from a verified
+     * JWT, should be a period separated path to the nested claim, if no period characters are present then assumed to
+     * be a top level claim e.g. {@code roles} or {@code some-claim.roles} would both be acceptable values.
+     */
+    public static final String PARAM_ROLES_CLAIM = "jwt.roles.claim";
     /**
      * Parameter for configuring the realm that will be presented to users who are not authenticated as part of the HTTP
      * challenge

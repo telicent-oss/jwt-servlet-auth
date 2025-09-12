@@ -98,7 +98,7 @@ public class JwtHttpConstants {
      * @return Sanitised values
      */
     public static String sanitiseHeaderParameterValue(String value) {
-        return RegExUtils.removeAll(value, INVALID_PARAM_CHARACTERS);
+        return RegExUtils.removeAll((CharSequence) value, INVALID_PARAM_CHARACTERS);
     }
 
     /**
@@ -112,6 +112,6 @@ public class JwtHttpConstants {
      * @return Sanitised values
      */
     public static String sanitiseHeader(String header) {
-        return RegExUtils.removeAll(header, INVALID_HEADER_CHARACTERS);
+        return RegExUtils.removeAll((CharSequence) header, INVALID_HEADER_CHARACTERS);
     }
 }

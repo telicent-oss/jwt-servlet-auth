@@ -52,7 +52,8 @@ public class TestAutomatedConfiguration extends AbstractFactoryTests {
                 Map.of(ConfigurationParameters.PARAM_JWKS_URL, EXAMPLE_JWKS_URL,
                        ConfigurationParameters.PARAM_PATH_EXCLUSIONS, "/public/*",
                        ConfigurationParameters.PARAM_HEADER_NAMES, "Authorization",
-                       ConfigurationParameters.PARAM_USERNAME_CLAIMS, "email"));
+                       ConfigurationParameters.PARAM_USERNAME_CLAIMS, "email",
+                       ConfigurationParameters.PARAM_ROLES_CLAIM, "roles"));
 
         // When
         AutomatedConfiguration.configure(config);

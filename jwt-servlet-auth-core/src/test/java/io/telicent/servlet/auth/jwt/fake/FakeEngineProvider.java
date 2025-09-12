@@ -25,8 +25,9 @@ public class FakeEngineProvider extends AbstractHeaderBasedEngineProvider {
     @Override
     @SuppressWarnings("unchecked")
     protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-            List<HeaderSource> headerSources, String realm, List<String> usernameClaims) {
-        return (JwtAuthenticationEngine<TRequest, TResponse>) new FakeEngine(headerSources, realm, usernameClaims);
+            List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim) {
+        return (JwtAuthenticationEngine<TRequest, TResponse>) new FakeEngine(headerSources, realm, usernameClaims,
+                                                                             rolesClaim);
     }
 
     @Override

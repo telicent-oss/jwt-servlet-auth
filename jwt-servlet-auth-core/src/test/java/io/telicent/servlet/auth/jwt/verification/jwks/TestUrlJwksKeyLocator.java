@@ -22,7 +22,7 @@ import io.jsonwebtoken.security.Jwk;
 import io.jsonwebtoken.security.JwkSet;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
@@ -264,8 +264,8 @@ public class TestUrlJwksKeyLocator {
         SignedJwtVerifier verifier = new SignedJwtVerifier(new UrlJwksKeyLocator(this.jwksFile));
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=Locator"));
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "jwksUrl=" + this.jwksFile.toString()));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=Locator"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "jwksUrl=" + this.jwksFile.toString()));
     }
 
     @Test
@@ -278,8 +278,8 @@ public class TestUrlJwksKeyLocator {
         SignedJwtVerifier verifier = new SignedJwtVerifier(new CachedJwksKeyLocator(this.jwksFile, cacheKeysFor));
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=Locator"));
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "jwksUrl=" + this.jwksFile.toString()));
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "cacheKeysFor=" + cacheKeysFor.toString()));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=Locator"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "jwksUrl=" + this.jwksFile.toString()));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "cacheKeysFor=" + cacheKeysFor.toString()));
     }
 }

@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.verification.jwks.JwksServer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
@@ -77,7 +78,7 @@ public class AwsElbServer extends JwksServer {
 
             Jwk<?> jwk = this.jwks.getKeys()
                                   .stream()
-                                  .filter(k -> StringUtils.equals(k.getId(), keyId))
+                                  .filter(k -> Strings.CS.equals(k.getId(), keyId))
                                   .findFirst()
                                   .orElse(null);
 

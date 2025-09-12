@@ -25,6 +25,7 @@ import io.telicent.servlet.auth.jwt.OAuth2Constants;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
@@ -561,7 +562,7 @@ public abstract class AbstractIntegrationTests {
         // Then
         String authHeader = response.headers().firstValue(JwtHttpConstants.HEADER_WWW_AUTHENTICATE).orElse(null);
         Assert.assertNotNull(authHeader);
-        Assert.assertTrue(StringUtils.contains(authHeader, OAuth2Constants.ERROR_INVALID_REQUEST));
+        Assert.assertTrue(Strings.CI.contains(authHeader, OAuth2Constants.ERROR_INVALID_REQUEST));
     }
 
     @Test
@@ -581,6 +582,6 @@ public abstract class AbstractIntegrationTests {
         // Then
         String authHeader = response.headers().firstValue(JwtHttpConstants.HEADER_WWW_AUTHENTICATE).orElse(null);
         Assert.assertNotNull(authHeader);
-        Assert.assertTrue(StringUtils.contains(authHeader, OAuth2Constants.ERROR_INVALID_REQUEST));
+        Assert.assertTrue(Strings.CI.contains(authHeader, OAuth2Constants.ERROR_INVALID_REQUEST));
     }
 }
