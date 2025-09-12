@@ -19,9 +19,10 @@ import java.util.Objects;
 
 /**
  * Represents a pending authentication challenge to be issued
- * @param errorCode Error Code
+ *
+ * @param statusCode       Status Code
+ * @param errorCode        Error Code
  * @param errorDescription Error Description
- * @param statusCode Status Code
  */
 public record Challenge(int statusCode, String errorCode, String errorDescription) {
 

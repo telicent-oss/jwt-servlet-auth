@@ -75,7 +75,10 @@ public class Utils {
      * @param <T>       Target return type, if the value of the claim cannot be cast to this type then a
      *                  {@link ClassCastException} is thrown
      * @return Claim value, or {@code null} if no such claim
-     * @throws ClassCastException Thrown if the claim value cannot be cast to the target return type
+     * @throws ClassCastException May occur if the target return type is not compatible with the claim value type i.e.
+     *                            the claim value cannot be cast to the target return type.  Note that due to the quirks
+     *                            of generics in JVM this error is technically not thrown in this method, but rather at
+     *                            the location where this method is called.
      */
     @SuppressWarnings("unchecked")
     public static <T> T findClaim(Jws<Claims> jws, String[] claimPath) {
