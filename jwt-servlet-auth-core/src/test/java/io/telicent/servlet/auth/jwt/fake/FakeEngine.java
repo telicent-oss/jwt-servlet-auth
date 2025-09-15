@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.roles.RolesHelper;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.Strings;
@@ -36,11 +37,12 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
         this(JwtHttpConstants.HEADER_AUTHORIZATION, JwtHttpConstants.AUTH_SCHEME_BEARER, null, null);
     }
 
-    public FakeEngine(String header, String headerPrefix, String realm, String usernameClaim) {
-        this(List.of(new HeaderSource(header, headerPrefix)), realm, usernameClaim != null ? List.of(usernameClaim) : null, null);
+    public FakeEngine(String header, String headerPrefix, String realm, ClaimPath usernameClaim) {
+        this(List.of(new HeaderSource(header, headerPrefix)), realm,
+             usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
-    public FakeEngine(List<HeaderSource> headers, String realm, List<String> usernameClaims, String[] rolesClaim) {
+    public FakeEngine(List<HeaderSource> headers, String realm, List<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         super(headers, realm, usernameClaims, rolesClaim);
     }
 
@@ -59,7 +61,7 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
                            .flatMap(h -> fakeRequest.headers.entrySet()
                                                             .stream()
                                                             .filter(e -> Strings.CI.equals(e.getKey(),
-                                                                                                      h.getHeader()))
+                                                                                           h.getHeader()))
                                                             .flatMap(e -> e.getValue()
                                                                            .stream()
                                                                            .map(v -> new TokenCandidate(h, v))))

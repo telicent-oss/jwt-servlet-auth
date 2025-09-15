@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt.jaxrs3;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.roles.RolesHelper;
 import jakarta.ws.rs.core.SecurityContext;
 
@@ -42,7 +43,7 @@ public class JwtSecurityContext implements SecurityContext {
      * @param rolesClaim       Claim from which to extract the list of roles to use when answering
      *                         {@link #isUserInRole(String)} calls
      */
-    public JwtSecurityContext(Jws<Claims> jws, String username, boolean wasSecureChannel, String[] rolesClaim) {
+    public JwtSecurityContext(Jws<Claims> jws, String username, boolean wasSecureChannel, ClaimPath rolesClaim) {
         this.jws = Objects.requireNonNull(jws, "JWT cannot be null");
         this.username = username;
         this.isSecure = wasSecureChannel;
@@ -59,7 +60,7 @@ public class JwtSecurityContext implements SecurityContext {
      * @param rolesClaim Roles claim
      * @return Roles helper
      */
-    protected RolesHelper createRolesHelper(Jws<Claims> jws, String[] rolesClaim) {
+    protected RolesHelper createRolesHelper(Jws<Claims> jws, ClaimPath rolesClaim) {
         return new RolesHelper(jws, rolesClaim);
     }
 

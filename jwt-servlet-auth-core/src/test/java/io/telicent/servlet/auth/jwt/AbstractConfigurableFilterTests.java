@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.security.KeyPair;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilter extends AbstractConfigurableJwtAuthFilter<TRequest, TResponse>>
@@ -58,6 +59,7 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
 
     /**
      * Creates a secret key for use in tests
+     *
      * @param algorithm Algorithm
      * @return Secret Key
      * @throws IOException Thrown if the key cannot be generated/saved
@@ -243,6 +245,38 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
     }
 
     @Test(dataProvider = "macAlgorithms")
+    public void givenFilterConfigurationWithNestedUsernameClaims_whenConfiguringFilter_thenVerifierIsConfigured_andFilterVerifiesRequest(
+            MacAlgorithm algorithm) throws IOException, KeyLoadException {
+        // Given
+        File keyFile = createSecretKey(algorithm);
+        FilterConfigAdaptorWrapper config = new FilterConfigAdaptorWrapper(createConfigAdaptor(
+                Map.of(ConfigurationParameters.PARAM_SECRET_KEY, keyFile.getAbsolutePath(),
+                       ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS, "true",
+                       ConfigurationParameters.PARAM_USERNAME_CLAIMS, "details.name,details.email")));
+        TFilter filter = this.createUnconfiguredFilter();
+        String jwt = Jwts.builder()
+                         .subject("test")
+                         .claims(Map.of("details", Map.of("name", "Mr T. Test", "email", "test@example.org")))
+                         .signWith(KeyUtils.loadSecretKey(keyFile))
+                         .compact();
+        TRequest request = createMockRequest(config, Map.of(JwtHttpConstants.HEADER_AUTHORIZATION,
+                                                            JwtHttpConstants.AUTH_SCHEME_BEARER + " " + jwt));
+        TResponse response = createMockResponse();
+
+        // When
+        filter.configure(config);
+
+        // Then
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
+
+        // And
+        this.invokeFilter(filter, request, response);
+        this.verifyNoChallenge(request, response);
+        Assert.assertEquals(this.getAuthenticatedUser(filter, request), "Mr T. Test");
+    }
+
+    @Test(dataProvider = "macAlgorithms")
     public void givenFilterConfigurationWithCustomHeader_whenConfiguringFilter_thenVerifierIsConfigured_andFilterRejectsRequestUsingDefaultHeader(
             MacAlgorithm algorithm) throws IOException, KeyLoadException {
         // Given
@@ -305,6 +339,80 @@ public abstract class AbstractConfigurableFilterTests<TRequest, TResponse, TFilt
         this.invokeFilter(filter, request, response);
         this.verifyNoChallenge(request, response);
         Assert.assertEquals(this.getAuthenticatedUser(filter, request), "test");
+    }
+
+    @Test(dataProvider = "publicKeyAlgorithms")
+    public void givenFilterConfigurationWithTopLevelRolesClaimPath_whenConfiguringFilter_thenVerifierIsConfigured_andFilterVerifiesRequestButUserHasNoRoles(
+            String algorithm, KeyPair keyPair) throws IOException {
+        // Given
+        File keyFile = TestKeyUtils.saveKeyToFile(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()));
+        FilterConfigAdaptorWrapper config = new FilterConfigAdaptorWrapper(createConfigAdaptor(
+                Map.of(ConfigurationParameters.PARAM_PUBLIC_KEY, keyFile.getAbsolutePath(),
+                       ConfigurationParameters.PARAM_KEY_ALGORITHM, algorithm,
+                       ConfigurationParameters.PARAM_HEADER_NAMES, JwtHttpConstants.HEADER_AUTHORIZATION,
+                       ConfigurationParameters.PARAM_HEADER_PREFIXES, JwtHttpConstants.AUTH_SCHEME_BEARER,
+                       ConfigurationParameters.PARAM_ROLES_CLAIM, "roles")));
+        TFilter filter = this.createUnconfiguredFilter();
+        String jwt = Jwts.builder()
+                         .subject("test")
+                         .claims(Map.of("roles", List.of("USER", "ADMIN")))
+                         .signWith(keyPair.getPrivate())
+                         .compact();
+        TRequest request = createMockRequest(config, Map.of(JwtHttpConstants.HEADER_AUTHORIZATION,
+                                                            JwtHttpConstants.AUTH_SCHEME_BEARER + " " + jwt));
+        TResponse response = createMockResponse();
+
+        // When
+        filter.configure(config);
+
+        // Then
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
+
+        // And
+        this.invokeFilter(filter, request, response);
+        this.verifyNoChallenge(request, response);
+        Assert.assertEquals(this.getAuthenticatedUser(filter, request), "test");
+        request = filter.lastAuthenticatedRequest;
+        this.verifyHasRole(request, "USER");
+        this.verifyHasRole(request, "ADMIN");
+    }
+
+    @Test(dataProvider = "publicKeyAlgorithms")
+    public void givenFilterConfigurationWithEmptyRolesClaimPath_whenConfiguringFilter_thenVerifierIsConfigured_andFilterVerifiesRequestButUserHasNoRoles(
+            String algorithm, KeyPair keyPair) throws IOException {
+        // Given
+        File keyFile = TestKeyUtils.saveKeyToFile(Base64.getEncoder().encode(keyPair.getPublic().getEncoded()));
+        FilterConfigAdaptorWrapper config = new FilterConfigAdaptorWrapper(createConfigAdaptor(
+                Map.of(ConfigurationParameters.PARAM_PUBLIC_KEY, keyFile.getAbsolutePath(),
+                       ConfigurationParameters.PARAM_KEY_ALGORITHM, algorithm,
+                       ConfigurationParameters.PARAM_HEADER_NAMES, JwtHttpConstants.HEADER_AUTHORIZATION,
+                       ConfigurationParameters.PARAM_HEADER_PREFIXES, JwtHttpConstants.AUTH_SCHEME_BEARER,
+                       ConfigurationParameters.PARAM_ROLES_CLAIM, "  ")));
+        TFilter filter = this.createUnconfiguredFilter();
+        String jwt = Jwts.builder()
+                         .subject("test")
+                         .claims(Map.of("roles", List.of("USER", "ADMIN")))
+                         .signWith(keyPair.getPrivate())
+                         .compact();
+        TRequest request = createMockRequest(config, Map.of(JwtHttpConstants.HEADER_AUTHORIZATION,
+                                                            JwtHttpConstants.AUTH_SCHEME_BEARER + " " + jwt));
+        TResponse response = createMockResponse();
+
+        // When
+        filter.configure(config);
+
+        // Then
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER));
+        Assert.assertNotNull(config.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE));
+
+        // And
+        this.invokeFilter(filter, request, response);
+        this.verifyNoChallenge(request, response);
+        Assert.assertEquals(this.getAuthenticatedUser(filter, request), "test");
+        request = filter.lastAuthenticatedRequest;
+        this.verifyMissingRole(request, "USER");
+        this.verifyMissingRole(request, "ADMIN");
     }
 
 }

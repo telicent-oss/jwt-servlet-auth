@@ -19,12 +19,14 @@ import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * An abstract base class for use by concrete {@link EngineProvider} implementations
@@ -65,9 +67,14 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Username claims, or {@code null} if no configuration provided
      */
-    protected List<String> configureUsernameClaims(Function<String, String> paramSupplier) {
-        return Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USERNAME_CLAIMS),
-                                    AbstractHeaderBasedEngineProvider::parseList, null);
+    protected List<ClaimPath> configureUsernameClaims(Function<String, String> paramSupplier) {
+        List<String> rawClaims =
+                Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USERNAME_CLAIMS),
+                                     AbstractHeaderBasedEngineProvider::parseList, null);
+        if (rawClaims == null) {
+            return null;
+        }
+        return rawClaims.stream().map(AbstractHeaderBasedEngineProvider::parseClaimPath).collect(Collectors.toList());
     }
 
     /**
@@ -86,9 +93,26 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Roles claim, or {@code null} if no configuration provided
      */
-    protected String[] configureRolesClaim(Function<String, String> paramSupplier) {
+    protected ClaimPath configureRolesClaim(Function<String, String> paramSupplier) {
         return Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_ROLES_CLAIM),
-                                    AbstractHeaderBasedEngineProvider::parseDottedPath, null);
+                                    AbstractHeaderBasedEngineProvider::parseClaimPath, null);
+    }
+
+    /**
+     * Parses a claim path from a raw configuration value
+     * @param value Raw value
+     * @return Claim path, or {@code null} if not parseable
+     */
+    protected static ClaimPath parseClaimPath(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        // Split into path elements
+        List<String> pathElements = parseDottedPath(value);
+        if (pathElements == null) {
+            return null;
+        }
+        return ClaimPath.of(pathElements);
     }
 
     /**
@@ -97,11 +121,16 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param value Dot separated path
      * @return Path array
      */
-    protected static String[] parseDottedPath(String value) {
+    protected static List<String> parseDottedPath(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
         }
-        return value.split("\\.");
+        // Split into elements based on the . character
+        // Remove any empty elements and strip excess whitespace around the elements
+        return Arrays.stream(value.split("\\."))
+                     .filter(StringUtils::isNotBlank)
+                     .map(StringUtils::strip)
+                     .collect(Collectors.toList());
     }
 
     /**
@@ -114,6 +143,9 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
         if (StringUtils.isBlank(value)) {
             return null;
         }
+        // NB - We intentionally DO NOT use StringUtils.split() here as that eliminates empty elements and for some
+        //      configuration we rely upon two separately configured lists being aligned (including their empty
+        //      elements)
         return Arrays.stream(value.split(",")).toList();
     }
 
@@ -125,8 +157,8 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
             return false;
         }
         String realm = this.configureRealm(paramSupplier);
-        List<String> usernameClaims = this.configureUsernameClaims(paramSupplier);
-        String[] rolesClaim = this.configureRolesClaim(paramSupplier);
+        List<ClaimPath> usernameClaims = this.configureUsernameClaims(paramSupplier);
+        ClaimPath rolesClaim = this.configureRolesClaim(paramSupplier);
 
         try {
             JwtAuthenticationEngine<TRequest, TResponse> engine =
@@ -153,5 +185,5 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @return JWT Authentication Engine
      */
     protected abstract <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-            List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim);
+            List<HeaderSource> headerSources, String realm, List<ClaimPath> usernameClaims, ClaimPath rolesClaim);
 }

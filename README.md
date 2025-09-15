@@ -155,6 +155,8 @@ configure multiple filters with different configurations for different parts of 
 Servlet 3.x/5.x filters via their filter init parameters.  If you need different filter configurations for a JAX-RS
 application consider using the Servlet filters instead of the JAX-RS filter.
 
+### Using Multiple Configurations
+
 **Warning** As of `0.11.0` we limited support for multiple filter configurations to avoid users accidentally configuring
 less security than they intended for some parts of their application.  If you want to allow for multiple configurations
 in your application you must now add `jwt.configs.allow-multiple` with a value of `true` to your configuration
@@ -292,13 +294,16 @@ A constructor is provided for all implementations that allows overriding parts o
 
 ```java
 JwtAuthenticationEngine<?,?> engine = 
-        new Servlet3JwtAuthenticationEngine(List.of(new HeaderSource("X-Custom-Header", null)),
-        "my-secure-domain.com",
-        List.of("preferred_username"));
+        new Servlet3JwtAuthenticationEngine(
+            List.of(new HeaderSource("X-Custom-Header", null)),
+            "my-secure-domain.com",
+            List.of(ClaimPath.topLevel("preferred_username")), 
+            ClaimPath.of("details", "roles"));
 ```
 
 In the above example the engine is configured to obtain JWTs from `X-Custom-Header` headers (with no header prefix
-expected), challenge with a `realm` of `my-secure-domain.com` and to read the username from the `preferred_username`
+expected), challenge with a `realm` of `my-secure-domain.com` and to read the username from the top level
+`preferred_username` claim of the JWT, and extract roles from the `roles` claim which is nested under the `details`
 claim of the JWT.
 
 As of `0.4.0` all the concrete engine implementations allow for configuring multiple HTTP Headers in which the JWT may
@@ -308,6 +313,11 @@ will be considered as the authenticated user identity, even if multiple valid to
 As of `0.5.0` all the concrete engine implementations allow for configuring multiple claims within the JWT from which
 the username may be read.  These are used in the preference order provided, and always falls back to reading the
 standard `sub` (subject) claim if none of those contain a non-empty string value.
+
+From `2.0.0` we introduced the ability to extract user roles from the JWT, this version also introduced the use of the
+`ClaimPath` record class to represent a path to a claim for username claims as well.  Prior to `2.0.0` only top level
+claims could be used to provide the username, from `2.0.0` onwards they are configured via `ClaimPath` instances
+allowing for nested username claims to be used.
 
 If you want to customise the authentication flow more then you can do so by deriving from the base
 `JwtAuthenticationEngine`, or one of its derived classes, yourself. Note that the basic flow logic is intentionally
@@ -338,6 +348,10 @@ the filter when configuring it e.g.
         <param-name>jwt.username.claims</param-name>
         <param-value>email</param-value>
     </init-param>
+    <init-param>
+        <param-name>jwt.roles.claim</param-name>
+        <param-value>details.roles</param-value>
+    </init-param>
 </filter>
 <filter-mapping>
     <filter-name>JWTAuth</filter-name>
@@ -348,7 +362,26 @@ the filter when configuring it e.g.
 Here we configure the engine to expect the JWT to be supplied in either the `X-API-Key` or `Authorization` headers. When
 supplied via `X-API-Key` we expect the JWT to be provided as-is in the header value, and when supplied via
 `Authorization` we expected it to be provided as `Bearer JWT`.  We also configure the engine to extract the username
-from the `email` claim of the JWT.
+from the `email` claim of the JWT, and the roles from the `roles` claim nested under the `details` claim of the JWT.
+
+### Roles Extraction
+
+From `2.0.0` onwards all provided engines support the new roles extraction feature.  When suitably configured via the
+`jwt.roles.claim` parameter then the authenticated request will use the information from that claim within the JWT to
+answer `isUserInRole(String)` calls.  Roles information in the JWT is supported in a number of formats:
+
+- A simple string e.g. `user`
+- A string containing a comma separate list of roles e.g. `user,admin`
+- A Java collection listing the roles, this can be any collection where the values can be converted to a Java `String`
+- A string array containing the list of roles
+
+In all cases blank/empty roles are ignored, and any duplicate roles are ignored since roles information is stored as a
+`Set<String>` internally.
+
+Note that this logic is all encapsulated in the `RolesHelper` class.  Therefore, if your JWT provider sends roles
+information in some other format then you can extend this class and override the `loadRoles()` method as needed.  If you
+do this you will also need to extend your engine implementation to change how it prepares the authenticated request in
+order to inject your customised `RolesHelper`, please file an issue if you need help with this.
 
 ## Verifiers
 
@@ -444,6 +477,30 @@ automatic verifier configuration.  If the `jwt.aws.region` parameter is supplied
 
 Here we configure the AWS verifier to use keys from the `eu-west-2` region, find the AWS ELB injected JWT in the
 `X-Amzn-Oidc-Data` header and extract the username from the `email` claim.
+
+## Configuration Reference
+
+The following table lists all the configuration parameters currently supported by this library, please refer to earlier
+sections on how/where to specify these.  Bear in mind that if this library is being used indirectly, e.g. as part of a
+higher level framework, then the configuration mechanisms and/or parameter names may differ from those outlined here,
+and frameworks may choose to intentionally disable some parameters!
+
+| Parameter                    | Default | Description                                            | Supported Versions |
+|------------------------------|---------|--------------------------------------------------------|--------------------|
+| `jwt.configs.allow-multiple` | `false` | Sets whether multiple filter configurations are permitted within a single application, see [multiple configurations](#using-multiple-configurations). | `0.11.0` onwards |
+| `jwt.headers.use-defaults`   | `false` | Sets whether you want to use the default header sources to find presented JWTs.  When `true` this looks for the `Authorization: Bearer <jwt>` header.  Additional header sources may also be configured via `jwt.headers.names` and `jwt.headers.prefixes`. | `0.8.0` onwards |
+| `jwt.headers.names`          | N/A     | A comma separated list of HTTP Headers to search for JWTs e.g. `Authorization,X-API-Key`. | `0.8.0` onwards |
+| `jwt.headers.prefixes`       | N/A     | A comma separated list of the prefixes to remove from the configured HTTP headers in order to find the JWT - e.g. `Bearer,` - where an empty entry signifies that the corresponding header is expected to contain only the JWT. | `0.8.0` onwards |
+| `jwt.username.claims`        | N/A     | A comma separated list of the claims within the JWT to use to find the username, e.g. `preferred_username,email`.  These are treated as an order of preference.  Will always fall back to the JWT standard `sub` (subject) claim if none of the configured claims is present.  <br />From `2.0.0` onwards claims in the list may contain `.` characters to represent a nested path to a claim, e.g. `details.name,email`. | `0.8.0` onwards |
+| `jwt.roles.claim`            | N/A     | A path to the roles claim, e.g. `roles`.  You may use `.` characters to represent a nested path to the claim, e.g. `details.roles`. | `2.0.0` onwards |
+| `jwt.realm`                  | N/A     | The realm to use in HTTP 401 Challenges. |
+| `jwt.path-exclusions`        | N/A     | A comma separated list of [path exclusions](#path-exclusions) to which authentication doesn't apply. | `0.8.0` onwards |
+| `jwt.secret.key`             | N/A     | A file path to a shared secret key used for JWT verification. | `0.8.0` onwards |
+| `jwt.public.key`             | N/A     | A file path to a public key used for JWT verification. | `0.8.0` onwards |
+| `jwt.key.algorithm`          | N/A     | The algorithm for the secret/public key, generally one of `RSA` or `EC`. |
+| `jwt.jwks.url`               | N/A     | A file path or URL from which a [JSON Web Key Set (JWKS)](#jwks-verification) can be obtained for JWT verification.<br />If [AWS Integration](#aws-integration) module is in use a special value of `aws:<region>` may be used to configure AWS ELB verification as AWS exposes public keys in a non-standard way. | `0.8.0` onwards |
+| `jwt.jwks.cache.minutes`     | `60`    | How long in minutes to cache retrieved [JWKS](#jwks-verification) for.  Note that if an unknown Key ID is encountered then the cache is always bypassed and the JWKS retrieved again. | `0.8.0` onwards |
+| `jwt.allowed.clock.skew`     | N/A     | How long in seconds of clock skew to permit when evaluating validity period for JWT. | `0.8.0` onwards |
 
 # License
 

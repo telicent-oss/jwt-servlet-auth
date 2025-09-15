@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -56,8 +57,8 @@ public class Servlet3JwtAuthenticationEngine
      * @param rolesClaim     Roles claim
      */
     public Servlet3JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
-                                           Collection<String> usernameClaims,
-                                           String[] rolesClaim) {
+                                           Collection<ClaimPath> usernameClaims,
+                                           ClaimPath rolesClaim) {
         super(headers, realm, usernameClaims, rolesClaim);
     }
 

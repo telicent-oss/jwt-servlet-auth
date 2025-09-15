@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import io.jsonwebtoken.security.WeakKeyException;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.errors.KeyLoadException;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.*;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
 
@@ -162,7 +164,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     public void engine_invalid_token_11() throws IOException {
         verifyChallenge("Bearer test",
                         this.createEngine(JwtHttpConstants.HEADER_AUTHORIZATION, JwtHttpConstants.AUTH_SCHEME_BEARER,
-                                          null, CUSTOM_CLAIM), new SubjectlessTokenVerifier(), 401,
+                                          null, ClaimPath.topLevel(CUSTOM_CLAIM)), new SubjectlessTokenVerifier(), 401,
                         "error=\"invalid_token\"", "Failed to find a username");
     }
 
@@ -170,7 +172,8 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     public void engine_invalid_token_12() throws IOException {
         verifyChallenge("Bearer test",
                         this.createEngine(JwtHttpConstants.HEADER_AUTHORIZATION, JwtHttpConstants.AUTH_SCHEME_BEARER,
-                                          null, CUSTOM_CLAIM), new WrongTypeTokenVerifier(CUSTOM_CLAIM), 401,
+                                          null, ClaimPath.topLevel(CUSTOM_CLAIM)),
+                        new WrongTypeTokenVerifier(CUSTOM_CLAIM), 401,
                         "error=\"invalid_token\"", "Failed to find a username");
     }
 
@@ -254,8 +257,47 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         Assert.assertNotNull(verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer charles",
                                                  this.createEngine(JwtHttpConstants.HEADER_AUTHORIZATION,
                                                                    JwtHttpConstants.AUTH_SCHEME_BEARER, null,
-                                                                   CUSTOM_CLAIM),
+                                                                   ClaimPath.topLevel(CUSTOM_CLAIM)),
                                                  new AlternateClaimTokenVerifier(CUSTOM_CLAIM), "charles"));
+    }
+
+    @Test
+    public void givenCustomLightlyNestedUsernameClaim_whenAuthenticating_thenCorrectUser() {
+        // Given
+        SecretKey key = Jwts.SIG.HS256.key().build();
+        String jwt = Jwts.builder()
+                         .subject(UUID.randomUUID().toString())
+                         .claims(Map.of("details", Map.of("name", "doug")))
+                         .signWith(key)
+                         .compact();
+
+        // When and Then
+        Assert.assertNotNull(verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer " + jwt,
+                                                 this.createEngine(JwtHttpConstants.HEADER_AUTHORIZATION,
+                                                                   JwtHttpConstants.AUTH_SCHEME_BEARER, null,
+                                                                   ClaimPath.of("details", "name")),
+                                                 new SignedJwtVerifier(key), "doug"));
+    }
+
+    @Test
+    public void givenCustomDeeplyNestedUsernameClaim_whenAuthenticating_thenCorrectUser() {
+        // Given
+        SecretKey key = Jwts.SIG.HS256.key().build();
+        String jwt = Jwts.builder()
+                         .subject(UUID.randomUUID().toString())
+                         .claims(Map.of("a", Map.of("really", Map.of("really", Map.of("deeply", Map.of("nested",
+                                                                                                       Map.of("claim",
+                                                                                                              "doug")))))))
+                         .signWith(key)
+                         .compact();
+
+        // When and Then
+        Assert.assertNotNull(verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer " + jwt,
+                                                 this.createEngine(JwtHttpConstants.HEADER_AUTHORIZATION,
+                                                                   JwtHttpConstants.AUTH_SCHEME_BEARER, null,
+                                                                   ClaimPath.of("a", "really", "really", "deeply",
+                                                                                "nested", "claim")),
+                                                 new SignedJwtVerifier(key), "doug"));
     }
 
     @Test
@@ -274,14 +316,16 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
     @Test
     public void engine_authenticated_multiple_token_sources_03() {
-        JwtAuthenticationEngine<TRequest, TResponse> engine = createMultiHeaderSourceEngine(null, CUSTOM_CLAIM);
+        JwtAuthenticationEngine<TRequest, TResponse> engine =
+                createMultiHeaderSourceEngine(null, ClaimPath.topLevel(CUSTOM_CLAIM));
         Assert.assertNotNull(verifyAuthenticated(CUSTOM_AUTH_HEADER, "Bearer test", engine,
                                                  new AlternateClaimTokenVerifier(CUSTOM_CLAIM), "test"));
     }
 
     @Test
     public void engine_authenticated_multiple_token_sources_04() throws IOException {
-        JwtAuthenticationEngine<TRequest, TResponse> engine = createMultiHeaderSourceEngine(null, CUSTOM_CLAIM);
+        JwtAuthenticationEngine<TRequest, TResponse> engine =
+                createMultiHeaderSourceEngine(null, ClaimPath.topLevel(CUSTOM_CLAIM));
         Assert.assertNotNull(verifyAuthenticated(CUSTOM_AUTH_HEADER, "Bearer test", engine,
                                                  new AlternateClaimTokenVerifier(CUSTOM_CLAIM), "test"));
     }
@@ -375,7 +419,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     private JwtAuthenticationEngine<TRequest, TResponse> createMultiHeaderSourceEngine(String realm,
-                                                                                       String usernameClaim) {
+                                                                                       ClaimPath usernameClaim) {
         List<HeaderSource> headerSources = new ArrayList<>(JwtHttpConstants.DEFAULT_HEADER_SOURCES);
         headerSources.add(new HeaderSource(CUSTOM_AUTH_HEADER, JwtHttpConstants.AUTH_SCHEME_BEARER));
 
@@ -457,7 +501,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
     public JwtAuthenticationEngine<TRequest, TResponse> createMultiClaimEngine(String... usernameClaims) {
         return createEngine((List<HeaderSource>) JwtHttpConstants.DEFAULT_HEADER_SOURCES, null,
-                            Arrays.asList(usernameClaims));
+                            Arrays.stream(usernameClaims).map(ClaimPath::topLevel).collect(Collectors.toList()));
     }
 
     @Test
@@ -494,7 +538,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     @Test
     public void givenCustomUsernameClaims_whenCreatingAnEngine_thenToStringReflectsSources() {
         // Given
-        List<String> claims = List.of(CUSTOM_CLAIM, "test");
+        List<ClaimPath> claims = List.of(ClaimPath.topLevel(CUSTOM_CLAIM), ClaimPath.topLevel("test"));
 
         // When
         JwtAuthenticationEngine<TRequest, TResponse> engine =
@@ -502,8 +546,8 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
         // Then
         String debugString = engine.toString();
-        for (String claim : claims) {
-            Assert.assertTrue(Strings.CS.contains(debugString, claim));
+        for (ClaimPath claim : claims) {
+            Assert.assertTrue(Strings.CS.contains(debugString, claim.toConfigurationString()));
         }
     }
 
@@ -586,8 +630,10 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
                         new String[] { "USER", "ADMIN" },
                         USER_AND_ADMIN
                 },
-                { new String[] { "roles" }, List.of("AUDITOR"), List.of("AUDITOR") }
-        };
+                { new String[] { "roles" }, List.of("AUDITOR"), List.of("AUDITOR") },
+                { new String[] { "roles" }, "USER,, ADMIN  ", USER_AND_ADMIN },
+                { new String[] { "roles" }, "USER, USER , ADMIN  ", USER_AND_ADMIN },
+                };
     }
 
     @Test(dataProvider = "rolesTestData", dataProviderClass = AbstractHeaderBasedEngineTests.class)
@@ -596,7 +642,8 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
             IOException, KeyLoadException {
         // Given
         JwtAuthenticationEngine<TRequest, TResponse> engine =
-                createEngine(new ArrayList<>(JwtHttpConstants.DEFAULT_HEADER_SOURCES), null, null, rolesClaim);
+                createEngine(new ArrayList<>(JwtHttpConstants.DEFAULT_HEADER_SOURCES), null, null,
+                             ClaimPath.of(rolesClaim));
         File keyFile = AbstractConfigurableFilterTests.createSecretKey(Jwts.SIG.HS256);
         SecretKey key = KeyUtils.loadSecretKey(keyFile);
         SignedJwtVerifier verifier = new SignedJwtVerifier(key);

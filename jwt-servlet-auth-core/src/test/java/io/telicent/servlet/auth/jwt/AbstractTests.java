@@ -15,6 +15,7 @@
  */
 package io.telicent.servlet.auth.jwt;
 
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import org.apache.commons.lang3.Strings;
@@ -61,7 +62,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
      */
     protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(String authHeader,
                                                                                  String authHeaderPrefix, String realm,
-                                                                                 String usernameClaim);
+                                                                                 ClaimPath usernameClaim);
 
     /**
      * Creates an engine for testing
@@ -73,7 +74,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
      */
     protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(List<HeaderSource> authHeaders,
                                                                                  String realm,
-                                                                                 List<String> usernameClaims);
+                                                                                 List<ClaimPath> usernameClaims);
 
     /**
      * Creates an engine for testing with roles extraction enabled
@@ -86,8 +87,8 @@ public abstract class AbstractTests<TRequest, TResponse> {
      */
     protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(List<HeaderSource> authHeaders,
                                                                                  String realm,
-                                                                                 List<String> usernameClaims,
-                                                                                 String[] rolesClaim);
+                                                                                 List<ClaimPath> usernameClaims,
+                                                                                 ClaimPath rolesClaim);
 
     /**
      * Whether the engine implementation throws an error when its

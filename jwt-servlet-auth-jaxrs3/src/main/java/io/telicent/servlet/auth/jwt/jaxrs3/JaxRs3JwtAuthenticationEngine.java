@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -54,7 +55,7 @@ public class JaxRs3JwtAuthenticationEngine
      * @param rolesClaim     Roles claim
      */
     public JaxRs3JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
-                                         Collection<String> usernameClaims, String[] rolesClaim) {
+                                         Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         super(headers, realm, usernameClaims, rolesClaim);
     }
 
@@ -92,7 +93,8 @@ public class JaxRs3JwtAuthenticationEngine
      * @return True if arrived via a secure channel, false otherwise
      */
     protected boolean isSecureChannel(ContainerRequestContext request) {
-        return request.getUriInfo() != null && request.getUriInfo().getBaseUri() != null && Strings.CS.equals(
+        // NB - Server runtime should have normalised URIs so scheme is lowercase but do a case-insensitive check anyway
+        return request.getUriInfo() != null && request.getUriInfo().getBaseUri() != null && Strings.CI.equals(
                 request.getUriInfo().getBaseUri().getScheme(), "https");
     }
 

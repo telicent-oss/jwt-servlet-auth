@@ -16,6 +16,7 @@
 package io.telicent.servlet.auth.jwt.fake;
 
 import io.telicent.servlet.auth.jwt.*;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.configuration.MapRuntimeConfigAdaptor;
 import io.telicent.servlet.auth.jwt.configuration.RuntimeConfigurationAdaptor;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TestFakeConfigurableFilter
         extends AbstractConfigurableFilterTests<FakeRequest, FakeResponse, FakeConfigurableFilter> {
     @Override
@@ -87,21 +89,21 @@ public class TestFakeConfigurableFilter
     @Override
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(String authHeader,
                                                                               String authHeaderPrefix, String realm,
-                                                                              String usernameClaim) {
+                                                                              ClaimPath usernameClaim) {
         return new FakeEngine(authHeader, authHeaderPrefix, realm, usernameClaim);
     }
 
     @Override
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
                                                                               String realm,
-                                                                              List<String> usernameClaims) {
+                                                                              List<ClaimPath> usernameClaims) {
         return new FakeEngine(authHeaders, realm, usernameClaims, null);
     }
 
     @Override
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
-                                                                              String realm, List<String> usernameClaims,
-                                                                              String[] rolesClaim) {
+                                                                              String realm, List<ClaimPath> usernameClaims,
+                                                                              ClaimPath rolesClaim) {
         return new FakeEngine(authHeaders, realm, usernameClaims, rolesClaim);
     }
 

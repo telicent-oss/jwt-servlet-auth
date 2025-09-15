@@ -17,6 +17,7 @@ package io.telicent.servlet.auth.jwt.fake;
 
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.configuration.AbstractHeaderBasedEngineProvider;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class FakeEngineProvider extends AbstractHeaderBasedEngineProvider {
     @Override
     @SuppressWarnings("unchecked")
     protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(
-            List<HeaderSource> headerSources, String realm, List<String> usernameClaims, String[] rolesClaim) {
+            List<HeaderSource> headerSources, String realm, List<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         return (JwtAuthenticationEngine<TRequest, TResponse>) new FakeEngine(headerSources, realm, usernameClaims,
                                                                              rolesClaim);
     }

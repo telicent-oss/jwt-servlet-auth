@@ -17,6 +17,7 @@ package io.telicent.servlet.auth.jwt.servlet3;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.roles.RolesHelper;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +42,7 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
      * @param rolesClaim Roles claim
      */
     public AuthenticatedHttpServletRequest(HttpServletRequest request, Jws<Claims> jws, String username,
-                                           String[] rolesClaim) {
+                                           ClaimPath rolesClaim) {
         super(request);
         this.username = username;
         this.jws = jws;
@@ -55,7 +56,7 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
      * @param rolesClaim Roles claim
      * @return Roles helper
      */
-    protected RolesHelper createRolesHelper(Jws<Claims> jws, String[] rolesClaim) {
+    protected RolesHelper createRolesHelper(Jws<Claims> jws, ClaimPath rolesClaim) {
         return new RolesHelper(jws, rolesClaim);
     }
 

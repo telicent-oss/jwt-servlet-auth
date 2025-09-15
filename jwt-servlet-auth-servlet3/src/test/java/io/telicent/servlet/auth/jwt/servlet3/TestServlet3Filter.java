@@ -16,6 +16,7 @@
 package io.telicent.servlet.auth.jwt.servlet3;
 
 import io.telicent.servlet.auth.jwt.*;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.configuration.RuntimeConfigurationAdaptor;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
@@ -110,14 +111,14 @@ public class TestServlet3Filter extends
     protected JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> createEngine(String authHeader,
                                                                                             String authHeaderPrefix,
                                                                                             String realm,
-                                                                                            String usernameClaim) {
+                                                                                            ClaimPath usernameClaim) {
         return new Servlet3JwtAuthenticationEngine(List.of(new HeaderSource(authHeader, authHeaderPrefix)), realm,
                                                    usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
     @Override
     protected JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> createEngine(
-            List<HeaderSource> authHeaders, String realm, List<String> usernameClaims) {
+            List<HeaderSource> authHeaders, String realm, List<ClaimPath> usernameClaims) {
         return new Servlet3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, null);
     }
 
@@ -135,7 +136,7 @@ public class TestServlet3Filter extends
 
     @Override
     protected JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> createEngine(
-            List<HeaderSource> authHeaders, String realm, List<String> usernameClaims, String[] rolesClaim) {
+            List<HeaderSource> authHeaders, String realm, List<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         return new Servlet3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, rolesClaim);
     }
 

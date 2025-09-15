@@ -32,7 +32,7 @@ public class TestUtils {
     @Test
     public void givenNoJws_whenFindingClaim_thenNull() {
         // Given, When and Then
-        Assert.assertNull(Utils.findClaim(null, new String[] { "some", "path" }));
+        Assert.assertNull(Utils.findClaim(null, new ClaimPath(new String[] { "some", "path" })));
     }
 
     @Test
@@ -50,7 +50,7 @@ public class TestUtils {
         Jws<Claims> jws = Mockito.mock(Jws.class);
 
         // When and Then
-        Assert.assertNull(Utils.findClaim(jws, new String[0]));
+        Assert.assertNull(Utils.findClaim(jws, ClaimPath.EMPTY));
     }
 
     @Test(expectedExceptions = ClassCastException.class)
@@ -63,7 +63,7 @@ public class TestUtils {
         when(jws.getPayload()).thenReturn(claims);
 
         // When and Then
-        Integer value = Utils.findClaim(jws, new String[] { "test" });
+        Integer value = Utils.findClaim(jws, ClaimPath.topLevel("test"));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class TestUtils {
         when(jws.getPayload()).thenReturn(claims);
 
         // When
-        List<String> found = Utils.findClaim(jws, new String[] { "test" });
+        List<String> found = Utils.findClaim(jws, ClaimPath.topLevel("test"));
 
         // Then
         Assert.assertNotNull(found);
@@ -92,7 +92,7 @@ public class TestUtils {
         when(jws.getPayload()).thenReturn(claims);
 
         // When
-        Boolean found = Utils.findClaim(jws, new String[] { "test", "a", "b", "c", "d"});
+        Boolean found = Utils.findClaim(jws, new ClaimPath(new String[] { "test", "a", "b", "c", "d" }));
 
         // Then
         Assert.assertNotNull(found);

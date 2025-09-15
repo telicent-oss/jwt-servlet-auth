@@ -80,26 +80,11 @@ public class Utils {
      *                            of generics in JVM this error is technically not thrown in this method, but rather at
      *                            the location where this method is called.
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T findClaim(Jws<Claims> jws, String[] claimPath) {
-        if (jws == null || claimPath == null || claimPath.length == 0) {
+    public static <T> T findClaim(Jws<Claims> jws, ClaimPath claimPath) {
+        if (jws == null || claimPath == null || claimPath.isEmpty()) {
             return null;
         }
 
-        Map<String, Object> claims = jws.getPayload();
-        for (int i = 0; ; i++) {
-            if (claims == null) {
-                return null;
-            }
-
-            Object rawValue = claims.get(claimPath[i]);
-            if (rawValue == null || i == claimPath.length - 1) {
-                return (T) rawValue;
-            } else if (rawValue instanceof Map<?, ?> mapClaim) {
-                claims = (Map<String, Object>) mapClaim;
-            } else {
-                return null;
-            }
-        }
+        return claimPath.find(jws);
     }
 }

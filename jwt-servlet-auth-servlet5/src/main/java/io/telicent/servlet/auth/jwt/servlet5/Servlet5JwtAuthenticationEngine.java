@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,7 +55,7 @@ public class Servlet5JwtAuthenticationEngine
      * @param rolesClaim     Roles claim
      */
     public Servlet5JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
-                                           Collection<String> usernameClaims, String[] rolesClaim) {
+                                           Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         super(headers, realm, usernameClaims, rolesClaim);
     }
 

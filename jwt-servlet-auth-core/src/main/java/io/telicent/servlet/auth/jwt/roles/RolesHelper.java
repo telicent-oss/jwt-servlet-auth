@@ -17,11 +17,13 @@ package io.telicent.servlet.auth.jwt.roles;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.configuration.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A helper for obtaining roles information from a JWT
@@ -33,16 +35,16 @@ import java.util.*;
  */
 public class RolesHelper {
     private final Jws<Claims> jws;
-    private final String[] rolesClaim;
+    private final ClaimPath rolesClaim;
     private Set<String> roles = null;
 
     /**
      * Creates a new roles helper
      *
      * @param jws        Verified JWT
-     * @param rolesClaim Roles claim that contains the users roles information
+     * @param rolesClaim Roles claim path that contains the users roles information
      */
-    public RolesHelper(Jws<Claims> jws, String[] rolesClaim) {
+    public RolesHelper(Jws<Claims> jws, ClaimPath rolesClaim) {
         this.jws = Objects.requireNonNull(jws, "JWT cannot be null");
         this.rolesClaim = rolesClaim;
     }
@@ -54,7 +56,7 @@ public class RolesHelper {
      * @return True if they have the given role, false otherwise
      */
     public boolean isUserInRole(String role) {
-        if (this.rolesClaim == null || this.rolesClaim.length == 0) {
+        if (this.rolesClaim == null || this.rolesClaim.isEmpty()) {
             // No roles claim so user not considered to be in any role
             return false;
         }
@@ -90,15 +92,38 @@ public class RolesHelper {
         if (rawRoles == null) {
             return Collections.emptySet();
         } else if (rawRoles instanceof String singleRole) {
+            // NB - Filter out empty roles and strip extra whitespace around role names
             if (Strings.CS.contains(singleRole, ",")) {
-                return new HashSet<>(Arrays.asList(StringUtils.split(singleRole, ",")));
+                //@formatter:off
+                return Arrays.stream(StringUtils.split(singleRole, ","))
+                             .filter(StringUtils::isNotBlank)
+                             .map(StringUtils::strip)
+                             .collect(Collectors.toSet());
+                //@formatter:on
+            } else if (StringUtils.isNotBlank(singleRole)) {
+                return Collections.singleton(StringUtils.strip(singleRole));
             } else {
-                return Collections.singleton(singleRole);
+                return Collections.emptySet();
             }
         } else if (rawRoles instanceof Collection<?> roleSet) {
-            return new HashSet<>(roleSet.stream().map(Object::toString).toList());
+            // NB - Filter for nulls twice as objects may be non-null but could have a null string representation, also
+            //      strip any extra whitespace around role names
+            //@formatter:off
+            return roleSet.stream()
+                          .filter(Objects::nonNull)
+                          .map(Object::toString)
+                          .filter(Objects::nonNull)
+                          .map(StringUtils::strip)
+                          .collect(Collectors.toSet());
+            //@formatter:on
         } else if (rawRoles instanceof String[] roleArray) {
-            return new HashSet<>(Arrays.asList(roleArray));
+            // NB - Filter for empty roles and strip any extra whitespace around role names
+            //@formatter:off
+            return Arrays.stream(roleArray)
+                         .filter(StringUtils::isNotBlank)
+                         .map(StringUtils::strip)
+                         .collect(Collectors.toSet());
+            //@formatter:on
         } else {
             return Collections.emptySet();
         }

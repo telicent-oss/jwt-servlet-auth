@@ -17,11 +17,13 @@ package io.telicent.servlet.auth.jwt.roles;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +59,7 @@ public class TestRolesHelper {
         Jws<Claims> jwt = Mockito.mock(Jws.class);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[0]);
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.EMPTY);
 
         // Then
         Assert.assertFalse(helper.isUserInRole("test"));
@@ -67,7 +69,7 @@ public class TestRolesHelper {
     public void givenEmptyTokenAndRolesClaim_whenUsingHelper_thenUserNotInAnyRoles() {
         // Given
         Jws<Claims> jwt = Mockito.mock(Jws.class);
-        String[] rolesClaim = new String[] { "roles " };
+        ClaimPath rolesClaim = ClaimPath.topLevel("roles");
 
         // When
         RolesHelper helper = new RolesHelper(jwt, rolesClaim);
@@ -76,19 +78,36 @@ public class TestRolesHelper {
         Assert.assertFalse(helper.isUserInRole("test"));
     }
 
+    private record Dummy(String toStringForm) {
+
+        @Override
+        public String toString() {
+            return this.toStringForm;
+        }
+    }
+
     @DataProvider(name = "supportedRolesFormats")
     private Object[][] supportedRoles() {
+        //@formatter:off
         return new Object[][] {
                 // Single string
                 { "user", new String[] { "user" } },
                 // String with comma separated list of strings
                 { "user,admin", USER_AND_ADMIN },
+                // Comma separated string with excess whitespace and a blank entry
+                { "  user , , admin ", USER_AND_ADMIN },
                 // Collections of strings
                 { List.of("user", "admin"), USER_AND_ADMIN },
                 { Set.of("user", "admin"), USER_AND_ADMIN },
+                // Collections with empty and duplicate entries plus excess whitespace in some entries
+                { List.of("user", "", " admin   ", "", "admin"), USER_AND_ADMIN },
                 // Array of strings
                 { USER_AND_ADMIN, USER_AND_ADMIN },
-                };
+                // Collection of objects which are convertible to string
+                { List.of(new Dummy("user"), new Dummy(null), new Dummy("admin  ")), USER_AND_ADMIN },
+                { Arrays.asList(null, new Dummy("admin"), new Dummy("user")), USER_AND_ADMIN },
+        };
+        //@formatter:on
     }
 
     @Test(dataProvider = "supportedRolesFormats")
@@ -100,7 +119,7 @@ public class TestRolesHelper {
         when(jwt.getPayload()).thenReturn(claims);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[] { "roles" });
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.topLevel("roles"));
 
         // Then
         for (String role : expected) {
@@ -119,7 +138,7 @@ public class TestRolesHelper {
         when(jwt.getPayload()).thenReturn(claims);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[] { "details", "roles" });
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.of("details", "roles"));
 
         // Then
         for (String role : expected) {
@@ -138,7 +157,7 @@ public class TestRolesHelper {
         when(jwt.getPayload()).thenReturn(claims);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[] { "some", "deep", "path" });
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.of("some", "deep", "path"));
 
         // Then
         for (String role : expected) {
@@ -157,7 +176,7 @@ public class TestRolesHelper {
         when(jwt.getPayload()).thenReturn(claims);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[] { "some", "deep", "path" });
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.of("some", "deep", "path"));
 
         // Then
         for (String role : expected) {
@@ -177,7 +196,7 @@ public class TestRolesHelper {
         when(jwt.getPayload()).thenReturn(claims);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[] { "some", "deep", "path" });
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.of("some", "deep", "path"));
 
         // Then
         for (String role : expected) {
@@ -207,7 +226,7 @@ public class TestRolesHelper {
         when(jwt.getPayload()).thenReturn(claims);
 
         // When
-        RolesHelper helper = new RolesHelper(jwt, new String[] { "roles" });
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.topLevel("roles"));
 
         // Then
         Assert.assertFalse(helper.isUserInRole("test"));

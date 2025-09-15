@@ -8,7 +8,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>jwt-servlet-auth-jaxrs3-integration-tests</artifactId>
-    <name>Telicent - JWT Servlet Auth - Integration Tests - Servlet 5.x (jakarta.servlet)</name>
+    <name>Telicent - JWT Servlet Auth - Integration Tests - JAX-RS 3.x (jakarta.ws.rs)</name>
 
     <properties>
         <license.header.path>${project.parent.parent.basedir}</license.header.path>
