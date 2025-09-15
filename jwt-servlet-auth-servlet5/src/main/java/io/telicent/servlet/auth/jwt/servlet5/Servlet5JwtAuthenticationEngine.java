@@ -19,10 +19,9 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
-import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
-import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,16 +35,15 @@ import java.util.*;
 /**
  * A JSON Web Token (JWT) authentication engine for use with {@code jakarta.servlet} based applications
  */
-public class Servlet5JwtAuthenticationEngine extends
-        HeaderBasedJwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> {
+public class Servlet5JwtAuthenticationEngine
+        extends HeaderBasedJwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> {
     private static final Logger LOGGER = LoggerFactory.getLogger(Servlet5JwtAuthenticationEngine.class);
 
     /**
      * Creates a new authentication engine using default configuration
      */
     public Servlet5JwtAuthenticationEngine() {
-        this(JwtHttpConstants.DEFAULT_HEADER_SOURCES, null,
-             null);
+        this(JwtHttpConstants.DEFAULT_HEADER_SOURCES, null, null, null);
     }
 
     /**
@@ -54,9 +52,11 @@ public class Servlet5JwtAuthenticationEngine extends
      * @param headers        Header sources
      * @param realm          Realm
      * @param usernameClaims Username claims
+     * @param rolesClaim     Roles claim
      */
-    public Servlet5JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm, Collection<String> usernameClaims) {
-        super(headers, realm, usernameClaims);
+    public Servlet5JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
+                                           Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
+        super(headers, realm, usernameClaims, rolesClaim);
     }
 
     @Override
@@ -81,16 +81,15 @@ public class Servlet5JwtAuthenticationEngine extends
 
     @Override
     protected HttpServletRequest prepareRequest(HttpServletRequest request, Jws<Claims> jws, String username) {
-        return new AuthenticatedHttpServletRequest(request, jws, username);
+        return new AuthenticatedHttpServletRequest(request, jws, username, this.rolesClaim);
     }
 
     @Override
     protected void sendChallenge(HttpServletRequest request, HttpServletResponse response, Challenge challenge) {
         String realm = selectRealm(JwtHttpConstants.sanitiseHeaderParameterValue(request.getRequestURI()));
-        Map<String, String> additionalParams = buildChallengeParameters(challenge.errorCode(),
-                                                                        challenge.errorDescription());
-        response.addHeader(JwtHttpConstants.HEADER_WWW_AUTHENTICATE,
-                           buildAuthorizationHeader(realm, additionalParams));
+        Map<String, String> additionalParams =
+                buildChallengeParameters(challenge.errorCode(), challenge.errorDescription());
+        response.addHeader(JwtHttpConstants.HEADER_WWW_AUTHENTICATE, buildAuthorizationHeader(realm, additionalParams));
         try {
             response.sendError(challenge.statusCode());
         } catch (IOException e) {

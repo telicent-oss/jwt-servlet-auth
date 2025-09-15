@@ -1,5 +1,54 @@
 # CHANGE LOG
 
+# 2.0.0
+
+**NB** This is a major version bump due to breaking changes in some internal APIs that should only affect users that
+create custom authentication engines and providers.  If you are simply using this to enable JWT authentication in your
+applications you should see no functional difference, except that you may wish to add additional configuration to enable
+the new feature detailed below.
+
+- Core improvements:
+    - New `ClaimPath` record class for representing a path to a claim within a JWT
+    - `ClaimPath.find(Jws<Claims>)` provides support for accessing potentially deeply nested claims within the JWT
+    - Username claim configuration may not specify claims in dotted path style, e.g. `details.username`, to specify a
+      username claim that is nested within the JWT (previously only top level username claims were supported)
+- New Role extraction feature:
+    - When suitably configured all authentication engines are now able to extract role informations from the verified
+      JWT and implement the `isUserInRole(String)` methods appropriately:
+         - New `jwt.roles.claim` configuration parameter for supplying a path to the claim containing the roles e.g. a
+           value of `roles` would take the information from the top level `roles` claim, whereas a value of
+           `some.path.roles` would take the information from the nested `roles` claim nested under those other claims
+         - `AuthenticatedHttpServletRequest` now supports checking for user roles
+         - New `JwtSecurityContext` for JAX-RS extracted from previous anonymous inner class and now supports checking
+           for user roles
+    - **BREAKING**: `HeaderBasedJwtAuthenticationEngine`, and derived engines, have changed constructor signatures:
+         - `List<String> usernameClaims` parameter changed type to `List<ClaimPath>`
+         - Added new `ClaimPath rolesClaim` parameter that allows configuring the roles claim
+    - **BREAKING**: `AbstractHeaderBasedEngineProvider`'s `createEngine()` method changed signature to match the above
+      changes
+    - New `RolesHelper` utility in `jwt-servlet-auth-core` to help with extracting and converting the roles information
+    - Please note that no support is provided for actually enforcing that users have specific roles as the details of
+      how applications define which roles are required for different URLs is considered beyond the scope of this
+      library, which is focused on Authentication.  However, exposing the roles information from JWTs (if present)
+      allows consumers of this library to more easily build role based authorization solutions on top of this library.
+- JAX-RS improvements:
+    - **BREAKING** `JwtSecurityContext.isSecure()` now only returns `true` if the authenticated request was received via
+      HTTPS
+- Build improvements:
+    - Migrated all deprecated Apache Commons Lang usage to their new APIs
+    - Suppressed irrelevant compiler warnings throughout the test suite
+    - Jackson upgraded to 2.20.0
+    - JJWT upgraded to 0.13.0
+    - Fixed an incorrect module name in one of the integration test `pom.xml` files
+    - Improved how test coverage is collected and aggregated across modules
+    - Various build and test dependencies upgraded to latest available
+
+# 1.1.0
+
+- Build improvements
+    - Upgraded JJWT to 0.13.0
+    - Various build and test dependencies upgraded to latest available
+
 # 1.0.5
 
 - Build improvements

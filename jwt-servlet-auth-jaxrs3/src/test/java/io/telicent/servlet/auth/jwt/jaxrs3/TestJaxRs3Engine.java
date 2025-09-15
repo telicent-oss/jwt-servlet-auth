@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt.jaxrs3;
 import io.telicent.servlet.auth.jwt.AbstractHeaderBasedEngineTests;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -53,11 +54,11 @@ public class TestJaxRs3Engine
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected ContainerRequestContext createMockRequest(Map<String, String> headers) {
         return mockRequest(TEST_REQUEST_URI, headers);
     }
 
+    @SuppressWarnings("unchecked")
     public static ContainerRequestContext mockRequest(URI requestUri, Map<String, String> headers) {
         ContainerRequestContext request = mock(ContainerRequestContext.class);
         MultivaluedMap<String, String> mockHeaders = mock(MultivaluedMap.class);
@@ -109,6 +110,7 @@ public class TestJaxRs3Engine
         when(request.getHeaders()).thenReturn(mockHeaders);
         UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getRequestUri()).thenReturn(requestUri);
+        when(uriInfo.getBaseUri()).thenReturn(URI.create("https://example.org" + requestUri.toString()));
         when(uriInfo.getPath()).thenReturn(requestUri.getPath().substring(1));
         when(request.getUriInfo()).thenReturn(uriInfo);
         return request;
@@ -128,15 +130,21 @@ public class TestJaxRs3Engine
     protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(String authHeader,
                                                                                                       String authHeaderPrefix,
                                                                                                       String realm,
-                                                                                                      String usernameClaim) {
+                                                                                                      ClaimPath usernameClaim) {
         return new JaxRs3JwtAuthenticationEngine(List.of(new HeaderSource(authHeader, authHeaderPrefix)), realm,
-                                                 usernameClaim != null ? List.of(usernameClaim) : null);
+                                                 usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
     @Override
     protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(
-            List<HeaderSource> authHeaders, String realm, List<String> usernameClaims) {
-        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims);
+            List<HeaderSource> authHeaders, String realm, List<ClaimPath> usernameClaims) {
+        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, null);
+    }
+
+    @Override
+    protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(
+            List<HeaderSource> authHeaders, String realm, List<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
+        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, rolesClaim);
     }
 
     @Override
@@ -150,7 +158,7 @@ public class TestJaxRs3Engine
         verifyStatusCode(request, expectedStatus);
     }
 
-    public final static void verifyStatusCode(ContainerRequestContext request, int expectedStatus) {
+    public static void verifyStatusCode(ContainerRequestContext request, int expectedStatus) {
         ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
         verify(request).abortWith(captor.capture());
         Response actualResponse = captor.getValue();
@@ -163,7 +171,7 @@ public class TestJaxRs3Engine
         return verifyHeaderPresent(request, expectedHeader);
     }
 
-    public final static String verifyHeaderPresent(ContainerRequestContext request, String expectedHeader) {
+    public static String verifyHeaderPresent(ContainerRequestContext request, String expectedHeader) {
         ArgumentCaptor<Response> captor = ArgumentCaptor.forClass(Response.class);
         verify(request).abortWith(captor.capture());
         Response actualResponse = captor.getValue();
@@ -178,13 +186,13 @@ public class TestJaxRs3Engine
         return verifyAuthenticatedUser(authenticatedRequest);
     }
 
-    public final static String verifyAuthenticatedUser(ContainerRequestContext authenticatedRequest) {
+    public static String verifyAuthenticatedUser(ContainerRequestContext authenticatedRequest) {
         ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
         verify(authenticatedRequest).setSecurityContext(captor.capture());
         SecurityContext context = captor.getValue();
         Assert.assertEquals(context.getAuthenticationScheme(), JwtHttpConstants.AUTH_SCHEME_BEARER);
         Assert.assertTrue(context.isSecure());
-        Assert.assertFalse(context.isUserInRole("test"));
+        Assert.assertFalse(context.isUserInRole("NO-SUCH-ROLE"));
         return context.getUserPrincipal().getName();
     }
 
@@ -195,5 +203,21 @@ public class TestJaxRs3Engine
         Object value = captor.getValue();
         Assert.assertNotNull(value, "Attribute " + attribute + " had unexpected null value");
         return value;
+    }
+
+    @Override
+    protected void verifyHasRole(ContainerRequestContext requestContext, String role) {
+        ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
+        verify(requestContext).setSecurityContext(captor.capture());
+        SecurityContext context = captor.getValue();
+        Assert.assertTrue(context.isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyMissingRole(ContainerRequestContext requestContext, String role) {
+        ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
+        verify(requestContext).setSecurityContext(captor.capture());
+        SecurityContext context = captor.getValue();
+        Assert.assertFalse(context.isUserInRole(role));
     }
 }

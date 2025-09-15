@@ -98,7 +98,7 @@ public class JwtHttpConstants {
      * @return Sanitised values
      */
     public static String sanitiseHeaderParameterValue(String value) {
-        return RegExUtils.removeAll(value, INVALID_PARAM_CHARACTERS);
+        return RegExUtils.removeAll((CharSequence) value, INVALID_PARAM_CHARACTERS);
     }
 
     /**
@@ -112,6 +112,8 @@ public class JwtHttpConstants {
      * @return Sanitised values
      */
     public static String sanitiseHeader(String header) {
-        return RegExUtils.removeAll(header, INVALID_HEADER_CHARACTERS);
+        // NB - Cast to CharSequence to suppress compiler warning as String overload form of this Apache Commons method
+        //      is deprecated.  String implements the CharSequence interface anyway so this should be a no-op
+        return RegExUtils.removeAll((CharSequence) header, INVALID_HEADER_CHARACTERS);
     }
 }

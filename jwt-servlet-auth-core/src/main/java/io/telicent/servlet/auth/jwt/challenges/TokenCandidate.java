@@ -21,6 +21,8 @@ import java.util.Objects;
 
 /**
  * A candidate authentication token
+ * @param source Token source
+ * @param value Token value
  */
 public record TokenCandidate(TokenSource source, String value) {
 

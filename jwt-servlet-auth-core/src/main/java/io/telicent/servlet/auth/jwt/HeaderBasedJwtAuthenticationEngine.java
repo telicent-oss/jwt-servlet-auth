@@ -18,12 +18,13 @@ package io.telicent.servlet.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.RequiredTypeException;
-import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
+import io.telicent.servlet.auth.jwt.configuration.Utils;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * A JWT authentication engine that uses HTTP Headers to find the authentication token
@@ -48,7 +49,11 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
     /**
      * The claim(s) from which to extract the username
      */
-    protected final List<String> usernameClaims;
+    protected final List<ClaimPath> usernameClaims;
+    /**
+     * The sequence of claim(s) from which to extract roles information
+     */
+    protected final ClaimPath rolesClaim;
 
     /**
      * Creates a new engine
@@ -57,9 +62,13 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
      * @param realm          Realm to use in challenges
      * @param usernameClaims Username claim(s) from which the username should be extracted.  The first claim that
      *                       contains a non-empty value that is a valid string will be used.
+     * @param rolesClaim     Sequence of claims leading to the roles information within the JWTs, if null/empty then no
+     *                       roles information will be made available.  A length 1 array would indicate a top level
+     *                       claim contains the roles information, a longer array would indicate that a nested claim
+     *                       contains the roles information.
      */
     public HeaderBasedJwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
-                                              Collection<String> usernameClaims) {
+                                              Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         Objects.requireNonNull(headers, "Header sources cannot be null");
         if (headers.isEmpty()) {
             throw new IllegalArgumentException("Header sources cannot be empty");
@@ -67,24 +76,21 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
         this.headers.addAll(headers);
         this.realm = realm;
         this.usernameClaims = usernameClaims != null ? List.copyOf(usernameClaims) : List.of();
+        this.rolesClaim = rolesClaim;
     }
 
     @Override
     protected String extractUsername(Jws<Claims> jws) {
         // Try all the configured username claims in the provided order
-        for (String claim : this.usernameClaims) {
+        for (ClaimPath claim : this.usernameClaims) {
             try {
-                if (!jws.getPayload().containsKey(claim)) {
-                    continue;
-                }
-
                 // Claims could be present but have a blank value (#17) in which case we want to continue to try another
                 // configured claim, or fallback to the subject of the JWS
-                String username = jws.getPayload().get(claim, String.class);
+                String username = Utils.findClaim(jws, claim);
                 if (StringUtils.isNotBlank(username)) {
                     return username;
                 }
-            } catch (RequiredTypeException e) {
+            } catch (ClassCastException e) {
                 // Claim value was not a string, so we'll try the next claim, or fallback to the subject of the JWS
             }
         }
@@ -113,8 +119,12 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
                .append("], realm=")
                .append(this.realm)
                .append(", usernameClaims=[")
-               .append(StringUtils.join(this.usernameClaims, ", "))
-               .append("]}");
+               .append(this.usernameClaims.stream()
+                                          .map(ClaimPath::toConfigurationString)
+                                          .collect(Collectors.joining(", ")))
+               .append("], rolesClaim=")
+               .append(this.rolesClaim != null ? this.rolesClaim.toConfigurationString() : "<null>")
+               .append("}");
         return builder.toString();
     }
 }

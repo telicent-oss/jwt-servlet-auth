@@ -15,6 +15,9 @@
  */
 package io.telicent.servlet.auth.jwt.configuration;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+
 import java.util.Map;
 import java.util.function.Function;
 
@@ -26,7 +29,8 @@ public class Utils {
     /**
      * Private constructor prevents direct instantiation
      */
-    private Utils() {}
+    private Utils() {
+    }
 
     /**
      * Parses a configuration parameter
@@ -61,5 +65,26 @@ public class Utils {
         } catch (Throwable e) {
             return defaultValue;
         }
+    }
+
+    /**
+     * Finds the value of a claim at the given claim path if it exists in the given verified JWT
+     *
+     * @param jws       Verified JWT
+     * @param claimPath Claim path, each item in the list represents a level of nesting
+     * @param <T>       Target return type, if the value of the claim cannot be cast to this type then a
+     *                  {@link ClassCastException} is thrown
+     * @return Claim value, or {@code null} if no such claim
+     * @throws ClassCastException May occur if the target return type is not compatible with the claim value type i.e.
+     *                            the claim value cannot be cast to the target return type.  Note that due to the quirks
+     *                            of generics in JVM this error is technically not thrown in this method, but rather at
+     *                            the location where this method is called.
+     */
+    public static <T> T findClaim(Jws<Claims> jws, ClaimPath claimPath) {
+        if (jws == null || claimPath == null || claimPath.isEmpty()) {
+            return null;
+        }
+
+        return claimPath.find(jws);
     }
 }

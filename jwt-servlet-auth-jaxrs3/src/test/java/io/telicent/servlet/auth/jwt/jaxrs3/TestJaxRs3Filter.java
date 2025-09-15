@@ -16,6 +16,7 @@
 package io.telicent.servlet.auth.jwt.jaxrs3;
 
 import io.telicent.servlet.auth.jwt.*;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import jakarta.servlet.ServletContext;
@@ -59,15 +60,33 @@ public class TestJaxRs3Filter
     protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(String authHeader,
                                                                                                       String authHeaderPrefix,
                                                                                                       String realm,
-                                                                                                      String usernameClaim) {
+                                                                                                      ClaimPath usernameClaim) {
         return new JaxRs3JwtAuthenticationEngine(List.of(new HeaderSource(authHeader, authHeaderPrefix)), realm,
-                                                 usernameClaim != null ? List.of(usernameClaim) : null);
+                                                 usernameClaim != null ? List.of(usernameClaim) : null, null);
     }
 
     @Override
     protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(
-            List<HeaderSource> authHeaders, String realm, List<String> usernameClaims) {
-        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims);
+            List<HeaderSource> authHeaders, String realm, List<ClaimPath> usernameClaims) {
+        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, null);
+    }
+
+    @Override
+    protected JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> createEngine(
+            List<HeaderSource> authHeaders, String realm, List<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
+        return new JaxRs3JwtAuthenticationEngine(authHeaders, realm, usernameClaims, rolesClaim);
+    }
+
+    @Override
+    protected void verifyHasRole(ContainerRequestContext requestContext, String role) {
+        Assert.assertNotNull(requestContext.getSecurityContext());
+        Assert.assertTrue(requestContext.getSecurityContext().isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyMissingRole(ContainerRequestContext requestContext, String role) {
+        Assert.assertNotNull(requestContext.getSecurityContext());
+        Assert.assertFalse(requestContext.getSecurityContext().isUserInRole(role));
     }
 
     @Override

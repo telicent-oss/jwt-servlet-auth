@@ -19,20 +19,15 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.HeaderBasedJwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
-import io.telicent.servlet.auth.jwt.JwtServletConstants;
 import io.telicent.servlet.auth.jwt.challenges.Challenge;
 import io.telicent.servlet.auth.jwt.challenges.TokenCandidate;
-import io.telicent.servlet.auth.jwt.challenges.VerifiedToken;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.lang3.Strings;
 
-import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +43,7 @@ public class JaxRs3JwtAuthenticationEngine
      * Creates a new authentication engine using default configuration
      */
     public JaxRs3JwtAuthenticationEngine() {
-        this(JwtHttpConstants.DEFAULT_HEADER_SOURCES, null, null);
+        this(JwtHttpConstants.DEFAULT_HEADER_SOURCES, null, null, null);
     }
 
     /**
@@ -57,10 +52,11 @@ public class JaxRs3JwtAuthenticationEngine
      * @param headers        Header sources
      * @param realm          Realm
      * @param usernameClaims Username claims
+     * @param rolesClaim     Roles claim
      */
     public JaxRs3JwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
-                                         Collection<String> usernameClaims) {
-        super(headers, realm, usernameClaims);
+                                         Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
+        super(headers, realm, usernameClaims, rolesClaim);
     }
 
     @Override
@@ -69,7 +65,7 @@ public class JaxRs3JwtAuthenticationEngine
                            .anyMatch(h -> request.getHeaders()
                                                  .keySet()
                                                  .stream()
-                                                 .anyMatch(k -> StringUtils.equalsIgnoreCase(k, h.getHeader())));
+                                                 .anyMatch(k -> Strings.CI.equals(k, h.getHeader())));
     }
 
     @Override
@@ -78,7 +74,7 @@ public class JaxRs3JwtAuthenticationEngine
                            .flatMap(h -> request.getHeaders()
                                                 .entrySet()
                                                 .stream()
-                                                .filter(e -> StringUtils.equalsIgnoreCase(e.getKey(), h.getHeader()))
+                                                .filter(e -> Strings.CI.equals(e.getKey(), h.getHeader()))
                                                 .flatMap(e -> e.getValue().stream().map(v -> new TokenCandidate(h, v))))
                            .collect(Collectors.toList());
     }
@@ -86,28 +82,20 @@ public class JaxRs3JwtAuthenticationEngine
     @Override
     protected ContainerRequestContext prepareRequest(ContainerRequestContext request, Jws<Claims> jws,
                                                      String username) {
-        request.setSecurityContext(new SecurityContext() {
-            @Override
-            public Principal getUserPrincipal() {
-                return () -> username;
-            }
-
-            @Override
-            public boolean isUserInRole(String role) {
-                return false;
-            }
-
-            @Override
-            public boolean isSecure() {
-                return true;
-            }
-
-            @Override
-            public String getAuthenticationScheme() {
-                return JwtHttpConstants.AUTH_SCHEME_BEARER;
-            }
-        });
+        request.setSecurityContext(new JwtSecurityContext(jws, username, isSecureChannel(request), this.rolesClaim));
         return request;
+    }
+
+    /**
+     * Gets whether the request arrived via a secure channel i.e. HTTPs
+     *
+     * @param request Request
+     * @return True if arrived via a secure channel, false otherwise
+     */
+    protected boolean isSecureChannel(ContainerRequestContext request) {
+        // NB - Server runtime should have normalised URIs so scheme is lowercase but do a case-insensitive check anyway
+        return request.getUriInfo() != null && request.getUriInfo().getBaseUri() != null && Strings.CI.equals(
+                request.getUriInfo().getBaseUri().getScheme(), "https");
     }
 
     @Override
@@ -149,8 +137,8 @@ public class JaxRs3JwtAuthenticationEngine
     }
 
     @Override
-    protected void setRequestAttribute(ContainerRequestContext request, String attribute,
-                                       Object value) {
+    protected void setRequestAttribute(ContainerRequestContext request, String attribute, Object value) {
         request.setProperty(attribute, value);
     }
+
 }

@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt.fake;
 import io.telicent.servlet.auth.jwt.AbstractHeaderBasedEngineTests;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import org.testng.Assert;
@@ -48,15 +49,22 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
     @Override
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(String authHeader,
                                                                               String authHeaderPrefix, String realm,
-                                                                              String usernameClaim) {
+                                                                              ClaimPath usernameClaim) {
         return new FakeEngine(authHeader, authHeaderPrefix, realm, usernameClaim);
     }
 
     @Override
     protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
                                                                               String realm,
-                                                                              List<String> usernameClaims) {
-        return new FakeEngine(authHeaders, realm, usernameClaims);
+                                                                              List<ClaimPath> usernameClaims) {
+        return new FakeEngine(authHeaders, realm, usernameClaims, null);
+    }
+
+    @Override
+    protected JwtAuthenticationEngine<FakeRequest, FakeResponse> createEngine(List<HeaderSource> authHeaders,
+                                                                              String realm, List<ClaimPath> usernameClaims,
+                                                                              ClaimPath rolesClaim) {
+        return new FakeEngine(authHeaders, realm, usernameClaims, rolesClaim);
     }
 
     @Override
@@ -82,9 +90,19 @@ public class TestFakeEngine extends AbstractHeaderBasedEngineTests<FakeRequest, 
         return value;
     }
 
+    @Override
+    protected void verifyMissingRole(FakeRequest fakeRequest, String role) {
+        Assert.assertFalse(fakeRequest.isUserInRole(role));
+    }
+
+    @Override
+    protected void verifyHasRole(FakeRequest fakeRequest, String role) {
+        Assert.assertTrue(fakeRequest.isUserInRole(role));
+    }
+
     private static final class NoHeadersFakeEngine extends FakeEngine {
         public NoHeadersFakeEngine() {
-            super(List.of(), null, null);
+            super(List.of(), null, null, null);
         }
     }
 

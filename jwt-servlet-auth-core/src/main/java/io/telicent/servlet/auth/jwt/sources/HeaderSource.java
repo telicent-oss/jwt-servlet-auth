@@ -16,6 +16,7 @@
 package io.telicent.servlet.auth.jwt.sources;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * Represents an HTTP header based token source
@@ -61,7 +62,7 @@ public class HeaderSource implements TokenSource {
     @Override
     public String getRawToken(String rawValue) {
         if (StringUtils.isNotBlank(this.prefix)) {
-            if (!StringUtils.startsWithIgnoreCase(rawValue, prefix)) {
+            if (!Strings.CI.startsWith(rawValue, prefix)) {
                 return null;
             }
             String rawToken = rawValue.substring(prefix.length());

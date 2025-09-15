@@ -15,9 +15,10 @@
  */
 package io.telicent.servlet.auth.jwt;
 
+import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 
 import java.io.IOException;
@@ -61,7 +62,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
      */
     protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(String authHeader,
                                                                                  String authHeaderPrefix, String realm,
-                                                                                 String usernameClaim);
+                                                                                 ClaimPath usernameClaim);
 
     /**
      * Creates an engine for testing
@@ -73,7 +74,21 @@ public abstract class AbstractTests<TRequest, TResponse> {
      */
     protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(List<HeaderSource> authHeaders,
                                                                                  String realm,
-                                                                                 List<String> usernameClaims);
+                                                                                 List<ClaimPath> usernameClaims);
+
+    /**
+     * Creates an engine for testing with roles extraction enabled
+     *
+     * @param authHeaders    Header sources
+     * @param realm          Realm for challenges
+     * @param usernameClaims Username claim(s)
+     * @param rolesClaim     Roles claim
+     * @return Engine
+     */
+    protected abstract JwtAuthenticationEngine<TRequest, TResponse> createEngine(List<HeaderSource> authHeaders,
+                                                                                 String realm,
+                                                                                 List<ClaimPath> usernameClaims,
+                                                                                 ClaimPath rolesClaim);
 
     /**
      * Whether the engine implementation throws an error when its
@@ -91,7 +106,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
      * @param request        Request
      * @param response       Response
      * @param expectedStatus Expected status
-     * @throws IOException
+     * @throws IOException Thrown if we can't inspect the response status code
      */
     protected abstract void verifyStatusCode(TRequest request, TResponse response, int expectedStatus) throws
             IOException;
@@ -146,7 +161,7 @@ public abstract class AbstractTests<TRequest, TResponse> {
         if (expectedChallengeContents.length > 0) {
             String challenge = verifyHeaderPresent(request, response, JwtHttpConstants.HEADER_WWW_AUTHENTICATE);
             for (String expectedContent : expectedChallengeContents) {
-                Assert.assertTrue(StringUtils.contains(challenge, expectedContent),
+                Assert.assertTrue(Strings.CS.contains(challenge, expectedContent),
                                   "Expected challenge content " + expectedContent + " not found in Challenge " + challenge);
             }
         }
@@ -172,4 +187,20 @@ public abstract class AbstractTests<TRequest, TResponse> {
         Object value = verifyRequestAttribute(request, attribute);
         Assert.assertEquals(value, expectedValue);
     }
+
+    /**
+     * Verifies that the authenticated user in the request has the given role
+     *
+     * @param request Authenticated request
+     * @param role    Role
+     */
+    protected abstract void verifyHasRole(TRequest request, String role);
+
+    /**
+     * Verifies that the authenticated user in the request <strong>DOES NOT</strong> have the given role
+     *
+     * @param request Authenticated request
+     * @param role    Role
+     */
+    protected abstract void verifyMissingRole(TRequest request, String role);
 }

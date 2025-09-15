@@ -18,7 +18,7 @@ package io.telicent.servlet.auth.jwt.verification;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Jwks;
 import io.jsonwebtoken.security.SignatureException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -70,6 +70,7 @@ public class TestSignedVerifier {
         return jws;
     }
 
+    @SuppressWarnings("unchecked")
     private Locator<Key> mockKeyResolver(Key key) {
         Locator<Key> resolver = mock(Locator.class);
         when(resolver.locate(any())).thenReturn(key);
@@ -83,7 +84,7 @@ public class TestSignedVerifier {
         String jwt = Jwts.builder().subject("test").signWith(this.key).compact();
 
         // When and Then
-        verify(parser, jwt);
+        Assert.assertNotNull(verify(parser, jwt));
     }
 
     @Test
@@ -195,8 +196,8 @@ public class TestSignedVerifier {
         SignedJwtVerifier verifier = new SignedJwtVerifier(key);
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=PublicKey"));
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), expectedFingerprint));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=PublicKey"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), expectedFingerprint));
     }
 
     @Test
@@ -208,7 +209,7 @@ public class TestSignedVerifier {
         SignedJwtVerifier verifier = new SignedJwtVerifier(key);
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=SecretKey"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=SecretKey"));
     }
 
     @Test
@@ -220,7 +221,7 @@ public class TestSignedVerifier {
         SignedJwtVerifier verifier = new SignedJwtVerifier(locator);
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=Locator"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=Locator"));
     }
 
     @Test
@@ -232,6 +233,6 @@ public class TestSignedVerifier {
         SignedJwtVerifier verifier = new SignedJwtVerifier(parser);
 
         // Then
-        Assert.assertTrue(StringUtils.contains(verifier.toString(), "verificationMethod=CustomParser"));
+        Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=CustomParser"));
     }
 }

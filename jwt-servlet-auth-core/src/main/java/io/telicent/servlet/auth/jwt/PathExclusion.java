@@ -16,6 +16,7 @@
 package io.telicent.servlet.auth.jwt;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +45,7 @@ public class PathExclusion {
             throw new IllegalArgumentException("Cannot have a path exclusion that excludes all paths");
         }
 
-        this.wildcard = StringUtils.contains(pathPattern, "*");
+        this.wildcard = Strings.CS.contains(pathPattern, "*");
         this.regex = this.wildcard ? parsePathPattern(pathPattern) : null;
         this.pattern = pathPattern;
     }
@@ -120,7 +121,7 @@ public class PathExclusion {
         } else if (this.wildcard) {
             return this.regex.matcher(path).matches();
         } else {
-            return StringUtils.equals(this.pattern, path);
+            return Strings.CS.equals(this.pattern, path);
         }
     }
 }
