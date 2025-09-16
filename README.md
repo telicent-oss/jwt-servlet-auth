@@ -498,7 +498,8 @@ and frameworks may choose to intentionally disable some parameters!
 | `jwt.secret.key`             | N/A     | A file path to a shared secret key used for JWT verification. | `0.8.0` onwards |
 | `jwt.public.key`             | N/A     | A file path to a public key used for JWT verification. | `0.8.0` onwards |
 | `jwt.key.algorithm`          | N/A     | The algorithm for the secret/public key, generally one of `RSA` or `EC`. |
-| `jwt.jwks.url`               | N/A     | A file path or URL from which a [JSON Web Key Set (JWKS)](#jwks-verification) can be obtained for JWT verification.<br />If [AWS Integration](#aws-integration) module is in use a special value of `aws:<region>` may be used to configure AWS ELB verification as AWS exposes public keys in a non-standard way. | `0.8.0` onwards |
+| `jwt.jwks.url`               | N/A     | A file path or URL from which a [JSON Web Key Set (JWKS)](#jwks-verification) can be obtained for JWT verification. | `0.8.0` onwards |
+| `jwt.aws.region`             | N/A     | An AWS region, e.g. `eu-west-1`, that matches the AWS region your application is deployed in and uses [AWS ELB Verification](#aws-integration) | `0.8.0` onwards |
 | `jwt.jwks.cache.minutes`     | `60`    | How long in minutes to cache retrieved [JWKS](#jwks-verification) for.  Note that if an unknown Key ID is encountered then the cache is always bypassed and the JWKS retrieved again. | `0.8.0` onwards |
 | `jwt.allowed.clock.skew`     | N/A     | How long in seconds of clock skew to permit when evaluating validity period for JWT. | `0.8.0` onwards |
 
