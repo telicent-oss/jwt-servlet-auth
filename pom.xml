@@ -78,20 +78,20 @@
         <!-- Plugin Versions -->
         <plugin.central>0.8.0</plugin.central>
         <plugin.clean>3.1.0</plugin.clean>
-        <plugin.compiler>3.14.0</plugin.compiler>
+        <plugin.compiler>3.14.1</plugin.compiler>
         <plugin.cyclonedx>2.9.1</plugin.cyclonedx>
         <plugin.dependency>3.8.1</plugin.dependency>
         <plugin.enforcer>3.6.1</plugin.enforcer>
         <plugin.jacoco>0.8.13</plugin.jacoco>
         <plugin.jar>3.4.2</plugin.jar>
-        <plugin.javadoc>3.11.3</plugin.javadoc>
+        <plugin.javadoc>3.12.0</plugin.javadoc>
         <plugin.license>5.0.0</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.1.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.3.1</plugin.source>
-        <plugin.surefire>3.5.3</plugin.surefire>
-        <plugin.versions>2.19.0</plugin.versions>
+        <plugin.surefire>3.5.4</plugin.surefire>
+        <plugin.versions>2.19.1</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
@@ -105,7 +105,7 @@
         <dependency.jersey3>3.1.11</dependency.jersey3>
         <dependency.jjwt>0.13.0</dependency.jjwt>
         <dependency.jetty12>12.1.1</dependency.jetty12>
-        <dependency.mockito>5.19.0</dependency.mockito>
+        <dependency.mockito>5.20.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
         <dependency.slf4j>2.0.17</dependency.slf4j>
