@@ -76,7 +76,7 @@
         <coverage.skip>false</coverage.skip>
 
         <!-- Plugin Versions -->
-        <plugin.central>0.8.0</plugin.central>
+        <plugin.central>0.9.0</plugin.central>
         <plugin.clean>3.1.0</plugin.clean>
         <plugin.compiler>3.14.1</plugin.compiler>
         <plugin.cyclonedx>2.9.1</plugin.cyclonedx>
@@ -97,7 +97,7 @@
         <dependency.annotations2>3.0.0</dependency.annotations2>
         <dependency.caffeine>3.2.2</dependency.caffeine>
         <dependency.commons-io>2.20.0</dependency.commons-io>
-        <dependency.commons-lang>3.18.0</dependency.commons-lang>
+        <dependency.commons-lang>3.19.0</dependency.commons-lang>
         <dependency.jackson>2.20.0</dependency.jackson>
         <dependency.jackson-annotations>2.20</dependency.jackson-annotations>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
