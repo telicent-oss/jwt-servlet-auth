@@ -4,7 +4,7 @@
 
     <groupId>io.telicent.public</groupId>
     <artifactId>jwt-servlet-auth-parent</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.1</version>
     <modules>
         <module>jwt-servlet-auth-core</module>
         <module>jwt-servlet-auth-jaxrs3</module>
@@ -50,7 +50,7 @@
         <connection>scm:git:https://github.com/telicent-oss/jwt-servlet-auth</connection>
         <developerConnection>scm:git:ssh://git@github.com/telicent-oss/jwt-servlet-auth</developerConnection>
         <url>https://github.com/telicent-oss/jwt-servlet-auth</url>
-        <tag>HEAD</tag>
+        <tag>2.0.1</tag>
     </scm>
 
     <properties>
