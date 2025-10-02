@@ -15,31 +15,34 @@
  */
 package io.telicent.servlet.auth.jwt;
 
+import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestPathExclusion {
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void exclusion_invalid_01() {
+    public void givenNullPattern_whenCreatingExclusion_thenIllegalArgument() {
         new PathExclusion(null);
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void exclusion_invalid_02() {
+    public void givenEmptyPattern_whenCreatingExclusion_thenIllegalArgument() {
         new PathExclusion("");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void exclusion_invalid_03() {
+    public void givenBlankPattern_whenCreatingExclusion_thenIllegalArgument() {
         new PathExclusion("    ");
     }
 
     @Test(expectedExceptions = IllegalArgumentException.class)
-    public void exclusion_invalid_04() {
+    public void givenInvalidRegex_whenCreatingExclusion_thenIllegalArgument() {
         new PathExclusion("/path(unfinished_regex_clause*");
     }
 
@@ -51,7 +54,7 @@ public class TestPathExclusion {
                 { "*/" },
                 { "**" },
                 { "*/*" },
-                { " * "},
+                { " * " },
                 { "/*/*" },
                 { "/*/*/*" }
         };
@@ -64,15 +67,15 @@ public class TestPathExclusion {
     }
 
     @Test
-    public void exclusion_valid_01() {
+    public void givenFixedPathExclusion_whenTestingPaths_thenOnlyExactPathIsMatched() {
+        // Given
         PathExclusion exclusion = new PathExclusion("/fixed");
-        Assert.assertFalse(exclusion.isWildcard());
-        Assert.assertEquals(exclusion.getPattern(), "/fixed");
+        verifyParsed(exclusion, false, "/fixed");
 
+        // When and Then
         Assert.assertTrue(exclusion.matches("/fixed"));
         Assert.assertFalse(exclusion.matches("/fixed-thing"));
         Assert.assertFalse(exclusion.matches("/other"));
-
         verifyBlankPathsAreNotMatched(exclusion);
     }
 
@@ -83,57 +86,87 @@ public class TestPathExclusion {
     }
 
     @Test
-    public void exclusion_valid_02() {
+    public void givenWildcardPathExclusion_whenTestingPaths_thenSubPathsAreCorrectlyMatched() {
+        // Given
         PathExclusion exclusion = new PathExclusion("/status/*");
-        Assert.assertTrue(exclusion.isWildcard());
-        Assert.assertEquals(exclusion.getPattern(), "/status/*");
+        verifyParsed(exclusion, true, "/status/*");
 
+        // When and Then
         Assert.assertTrue(exclusion.matches("/status/"));
         Assert.assertTrue(exclusion.matches("/status/healthz"));
         Assert.assertFalse(exclusion.matches("/fixed"));
-
         verifyBlankPathsAreNotMatched(exclusion);
     }
 
     @Test
-    public void exclusion_parsing_01() {
+    public void givenNullPatterns_whenParsingExclusions_thenNoExclusions() {
+        // Given and When
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns(null);
-        Assert.assertEquals(exclusions.size(), 0);
-        exclusions = PathExclusion.parsePathPatterns("");
-        Assert.assertEquals(exclusions.size(), 0);
-        exclusions = PathExclusion.parsePathPatterns("    ");
+
+        // Then
         Assert.assertEquals(exclusions.size(), 0);
     }
 
     @Test
-    public void exclusion_parsing_02() {
+    public void givenEmptyPatterns_whenParsingExclusions_thenNoExclusions() {
+        // Given and When
+        List<PathExclusion> exclusions = PathExclusion.parsePathPatterns("");
+
+        // Then
+        Assert.assertEquals(exclusions.size(), 0);
+    }
+
+    @Test
+    public void givenBlankPatterns_whenParsingExclusions_thenNoExclusions() {
+        // Given and When
+        List<PathExclusion> exclusions = PathExclusion.parsePathPatterns("    ");
+
+        // Then
+        Assert.assertEquals(exclusions.size(), 0);
+    }
+
+    @Test
+    public void givenMultiplePatterns_whenParsingExclusions_thenAsExpected() {
+        // Given and When
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns("/fixed,/status/*");
         Assert.assertEquals(exclusions.size(), 2);
 
-        PathExclusion a = exclusions.get(0);
-        Assert.assertFalse(a.isWildcard());
-        Assert.assertEquals(a.getPattern(), "/fixed");
+        // Then
+        verifyParsed(exclusions.get(0), false, "/fixed");
+        verifyParsed(exclusions.get(1), true, "/status/*");
+    }
 
-        PathExclusion b = exclusions.get(1);
-        Assert.assertTrue(b.isWildcard());
-        Assert.assertEquals(b.getPattern(), "/status/*");
+    private static void verifyParsed(PathExclusion exclusion, boolean shouldBeWildcard, String expectedPattern) {
+        Assert.assertEquals(exclusion.isWildcard(), shouldBeWildcard);
+        Assert.assertEquals(exclusion.getPattern(), expectedPattern);
     }
 
     @Test
-    public void exclusion_parsing_03() {
+    public void givenMultiplePatternsWithSomeEmpty_whenParsingExclusions_thenEmptyPatternsIgnored() {
+        // Given and When
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns("/fixed,,/status/*,");
+
+        // Then
         Assert.assertEquals(exclusions.size(), 2);
+        verifyParsed(exclusions.get(0), false, "/fixed");
+        verifyParsed(exclusions.get(1), true, "/status/*");
     }
 
     @Test
-    public void exclusion_parsing_04() {
+    public void givenAllEmptyPatterns_whenParsingExclusions_thenEmptyPatternsIgnored() {
+        // Given and When
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns(",,,");
+
+        // Then
         Assert.assertEquals(exclusions.size(), 0);
     }
 
     @Test
-    public void exclusion_parsing_05() {
+    public void givenAllBlankPatterns_whenParsingExclusions_thenBlankPatternsIgnored() {
+        // Given and When
         List<PathExclusion> exclusions = PathExclusion.parsePathPatterns(",  ,  ,");
+
+        // Then
         Assert.assertEquals(exclusions.size(), 0);
     }
 
@@ -159,5 +192,125 @@ public class TestPathExclusion {
 
         // Then
         Assert.assertTrue(excluded);
+    }
+
+    @Test
+    public void givenPathExclusions_whenInsertingIntoMaps_thenUsableAsKeys() {
+        // Given
+        PathExclusion a = new PathExclusion("/a");
+        PathExclusion aWild = new PathExclusion("/a/*");
+        PathExclusion b = new PathExclusion("/b");
+        Map<PathExclusion, Integer> map = new HashMap<PathExclusion, Integer>();
+
+        // When
+        map.put(a, 1);
+        map.put(aWild, 2);
+        map.put(b, 3);
+
+        // Then
+        Assert.assertEquals(map.size(), 3);
+        Assert.assertEquals(map.get(a), 1);
+        Assert.assertEquals(map.get(aWild), 2);
+        Assert.assertEquals(map.get(b), 3);
+    }
+
+    @Test
+    public void givenTwoInstancesOfSamePathExclusion_whenComparingForEquality_thenEqual() {
+        // Given
+        PathExclusion x = new PathExclusion("/a");
+        PathExclusion y = new PathExclusion("/a");
+
+        // When and Then
+        Assert.assertEquals(x, y);
+        Assert.assertEquals(y, x);
+        Assert.assertEquals(x.hashCode(), y.hashCode());
+    }
+
+    @DataProvider(name = "differentPatterns")
+    private Object[][] differentPatterns() {
+        return new Object[][] {
+                { "/x", "/y"},
+                { "/x/", "/x/*"},
+                { "/x/*", "/x" },
+                { "/a/b", "/a/c"},
+                { "/a", "/a/b/c/d/e/f"}
+        };
+    }
+
+    @Test(dataProvider = "differentPatterns")
+    public void givenDifferentPathExclusions_whenComparingForEquality_thenNotEqual(String x, String y) {
+        // Given
+        PathExclusion a = new PathExclusion(x);
+        PathExclusion b = new PathExclusion(y);
+
+        // When and Then
+        Assert.assertNotEquals(a, b);
+        Assert.assertNotEquals(b, a);
+        Assert.assertNotEquals(a.hashCode(), b.hashCode());
+    }
+
+    @Test
+    public void givenPathExclusion_whenComparingEqualityWithSelf_thenEqual() {
+        // Given
+        PathExclusion x = new PathExclusion("/a");
+
+        // When and Then
+        Assert.assertTrue(x.equals(x));
+    }
+
+    @Test
+    public void givenPathExclusion_whenComparingEqualityWithNull_thenNotEqual() {
+        // Given
+        PathExclusion x = new PathExclusion("/a");
+
+        // When and Then
+        Assert.assertFalse(x.equals(null));
+    }
+
+    @Test
+    public void givenPathExclusion_whenComparingEqualityWithAnotherType_thenNotEqual() {
+        // Given
+        PathExclusion x = new PathExclusion("/a");
+
+        // When and Then
+        Assert.assertFalse(x.equals(new Object()));
+    }
+
+    @Test
+    public void givenPathExclusionAsMapKey_whenRetrievingViaDifferentInstance_thenSuccess() {
+        // Given
+        PathExclusion x = new PathExclusion("/a");
+        Map<PathExclusion, Integer> map = new HashMap<>();
+        map.put(x, 1);
+
+        // When and Then
+        PathExclusion y = new PathExclusion("/a");
+        Assert.assertEquals(map.get(y), 1);
+    }
+
+    @Test
+    public void givenFixedPattern_whenToString_thenCorrect() {
+        // Given
+        PathExclusion fixed = new PathExclusion("/fixed");
+
+        // When
+        String value = fixed.toString();
+
+        // Then
+        Assert.assertTrue(Strings.CS.contains(value, "wildcard=false"));
+        Assert.assertTrue(Strings.CS.contains(value, "pattern=/fixed"));
+    }
+
+    @Test
+    public void givenWildcardPattern_whenToString_thenCorrect() {
+        // Given
+        PathExclusion wildcard = new PathExclusion("/status/*");
+
+        // When
+        String value = wildcard.toString();
+
+        // Then
+        Assert.assertTrue(Strings.CS.contains(value, "wildcard=true"));
+        Assert.assertTrue(Strings.CS.contains(value, "pattern=/status/*"));
     }
 }

@@ -21,6 +21,7 @@ import org.apache.commons.lang3.Strings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -57,14 +58,16 @@ public class PathExclusion {
      * @return List of path exclusions
      */
     public static List<PathExclusion> parsePathPatterns(String rawPathPatterns) {
-        if (StringUtils.isBlank(rawPathPatterns))
+        if (StringUtils.isBlank(rawPathPatterns)) {
             return Collections.emptyList();
+        }
 
         String[] rawPatterns = StringUtils.split(rawPathPatterns, ",");
         List<PathExclusion> exclusions = new ArrayList<>();
         for (String rawPattern : rawPatterns) {
-            if (StringUtils.isBlank(rawPattern))
+            if (StringUtils.isBlank(rawPattern)) {
                 continue;
+            }
             exclusions.add(new PathExclusion(rawPattern));
         }
         return exclusions;
@@ -123,5 +126,30 @@ public class PathExclusion {
         } else {
             return Strings.CS.equals(this.pattern, path);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.wildcard, this.pattern);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof PathExclusion other) {
+            return this.wildcard == other.wildcard && Objects.equals(this.pattern, other.pattern);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "PathExclusion{wildcard=" + this.wildcard + ", pattern=" + this.pattern + "}";
     }
 }
