@@ -1,5 +1,13 @@
 # CHANGE LOG
 
+# 2.0.1
+
+- Core improvements:
+    - `PathExclusion` class now implements `toString()`, `hashCode()` and `equals()` methods properly
+- Build and test improvements:
+    - Apache Commons Lang upgraded to 3.19.0
+    - Various build and test dependencies upgraded to latest available
+
 # 2.0.0
 
 **NB** This is a major version bump due to breaking changes in some internal APIs that should only affect users that
