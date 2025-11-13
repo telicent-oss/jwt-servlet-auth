@@ -1,1 +1,2 @@
 io.telicent.servlet.auth.jwt.configuration.DefaultVerificationProvider
+io.telicent.servlet.auth.jwt.configuration.oidc.OpenIdConnectVerificationProvider
