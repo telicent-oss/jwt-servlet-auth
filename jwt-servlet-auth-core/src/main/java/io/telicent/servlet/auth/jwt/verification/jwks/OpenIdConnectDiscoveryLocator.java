@@ -84,6 +84,8 @@ public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
         super(client);
         this.discoveryUri =
                 Objects.requireNonNull(discoveryUri, "Open ID Connect configuration Discovery URL cannot be null");
+        this.nonStandardWarning = !Strings.CS.endsWith(discoveryUri.toString(),
+                                                      OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
         this.retryInterval = retryInterval != null ? retryInterval :
                              Duration.ofSeconds(ConfigurationParameters.DEFAULT_OIDC_RETRY_INTERVAL);
         if (this.retryInterval.isNegative()) {
@@ -108,11 +110,10 @@ public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
         }
 
         // Issue a warning once, and once only, if the configured Discovery URI is non-standard
-        if (!this.nonStandardWarning && !Strings.CS.endsWith(discoveryUri.toString(),
-                                                             OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION)) {
+        if (this.nonStandardWarning) {
             LOGGER.warn(
                     "Non-standard OpenID Connect discovery endpoint in-use (does not end with expected " + OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION + " suffix)");
-            this.nonStandardWarning = true;
+            this.nonStandardWarning = false;
         }
 
         try {
