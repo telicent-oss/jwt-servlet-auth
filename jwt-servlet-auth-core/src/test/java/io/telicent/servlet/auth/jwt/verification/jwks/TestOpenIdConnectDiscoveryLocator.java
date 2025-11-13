@@ -20,6 +20,7 @@ import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Jwk;
 import io.jsonwebtoken.security.JwkSet;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
+import org.apache.commons.lang3.Strings;
 import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -84,6 +85,28 @@ public class TestOpenIdConnectDiscoveryLocator {
         // And
         Assert.assertNotNull(locator.locate(header));
         Assert.assertEquals(server.getDiscoveryRequestsCount(), 1);
+    }
+
+    @Test
+    public void givenLocator_whenToString_thenHasNoJwksUrlPriorToDiscovery_andHasJwksUrlAfterDiscovery() throws
+            Exception {
+        // Given
+        OpenIdConnectDiscoveryLocator locator =
+                new OpenIdConnectDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
+
+        // When
+        String stringForm = locator.toString();
+
+        // Then
+        Assert.assertTrue(Strings.CI.contains(stringForm, "<not yet discovered>"));
+
+        // And
+        JwsHeader header = Mockito.mock(JwsHeader.class);
+        String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
+        Assert.assertNotNull(keyId);
+        when(header.getKeyId()).thenReturn(keyId);
+        Assert.assertNotNull(locator.locate(header));
+        Assert.assertTrue(Strings.CI.contains(locator.toString(), this.server.getUrl()));
     }
 
     @Test
