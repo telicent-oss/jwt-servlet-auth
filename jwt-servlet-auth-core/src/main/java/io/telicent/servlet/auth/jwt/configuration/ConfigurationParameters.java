@@ -17,6 +17,8 @@ package io.telicent.servlet.auth.jwt.configuration;
 
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 
+import java.time.Duration;
+
 /**
  * Configuration parameters used for {@link AutomatedConfiguration} of filters
  */
@@ -97,4 +99,19 @@ public class ConfigurationParameters {
      * The default amount of time for which JWKS loaded keys will be cached
      */
     public static final int DEFAULT_JWKS_CACHE_KEYS_FOR = 60;
+    /**
+     * Parameter that configures the verification provider via OIDC discovery
+     */
+    public static final String PARAM_OIDC_PROVIDER_URL = "jwt.oidc.provider.url";
+    /**
+     * Parameter that specifies the retry interval (in seconds) that is used if resolving the JWKS URL via the
+     * configured {@value #PARAM_OIDC_PROVIDER_URL} property does not work.  By having a retry interval we avoid
+     * misconfigured applications having a
+     */
+    public static final String PARAM_OIDC_RETRY_INTERVAL = "jwt.oidc.retry.interval";
+
+    /**
+     * The default OIDC retry interval (in seconds) used if no specific retry interval is configured
+     */
+    public static final int DEFAULT_OIDC_RETRY_INTERVAL = 15;
 }
