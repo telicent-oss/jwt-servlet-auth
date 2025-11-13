@@ -15,7 +15,6 @@
  */
 package io.telicent.servlet.auth.jwt.configuration;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -44,9 +43,9 @@ public interface ConfigurationProvider {
      * @param providers Providers
      */
     static void sort(List<? extends ConfigurationProvider> providers) {
-        Collections.sort(providers,
-                         Comparator.nullsLast(Comparator.<ConfigurationProvider>comparingInt(f -> f.priority())
-                                                        .reversed()
-                                                        .thenComparing(f -> f.hashCode())));
+        providers.sort(Comparator.nullsLast(Comparator.<ConfigurationProvider>comparingInt(
+                                                              ConfigurationProvider::priority)
+                                                      .reversed()
+                                                      .thenComparing(Object::hashCode)));
     }
 }

@@ -65,9 +65,9 @@ public class DefaultVerificationProvider implements VerificationProvider {
     public DefaultVerificationProvider() {
     }
 
-    private Map<String, String> prepareParameters(Function<String, String> paramSupplier) {
+    public static Map<String, String> prepareParameters(Function<String, String> paramSupplier, String[] allowedParameters) {
         Map<String, String> parameters = new HashMap<>();
-        for (String param : DefaultVerificationProvider.PARAMETERS) {
+        for (String param : allowedParameters) {
             parameters.put(param, paramSupplier.apply(param));
         }
         parameters.entrySet().removeIf(e -> e.getValue() == null);
@@ -82,7 +82,7 @@ public class DefaultVerificationProvider implements VerificationProvider {
      */
     @Override
     public boolean configure(Function<String, String> paramSupplier, Consumer<JwtVerifier> verifierConsumer) {
-        Map<String, String> parameters = prepareParameters(paramSupplier);
+        Map<String, String> parameters = prepareParameters(paramSupplier, PARAMETERS);
         if (parameters.isEmpty()) {
             LOGGER.info(
                     "No relevant parameters provided to allow default JWT verifier configuration, authentication will not be possible unless the verifier is separately configured.");
@@ -131,7 +131,7 @@ public class DefaultVerificationProvider implements VerificationProvider {
 
     }
 
-    private static URI asURI(String jwksUrl) throws KeyLoadException {
+    protected static URI asURI(String jwksUrl) throws KeyLoadException {
         try {
             URI uri = URI.create(jwksUrl);
             if (StringUtils.isBlank(uri.getScheme())) {
@@ -156,7 +156,7 @@ public class DefaultVerificationProvider implements VerificationProvider {
         return new KeyLoadException("Parameter " + ConfigurationParameters.PARAM_JWKS_URL + " is not a valid URL", e);
     }
 
-    private JwtVerifier create(Map<String, String> parameters, JwtParserBuilder builder, String debugString) {
+    protected JwtVerifier create(Map<String, String> parameters, JwtParserBuilder builder, String debugString) {
         Integer allowedClockSkew =
                 Utils.parseParameter(parameters, ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, Integer::parseInt,
                                      null);
