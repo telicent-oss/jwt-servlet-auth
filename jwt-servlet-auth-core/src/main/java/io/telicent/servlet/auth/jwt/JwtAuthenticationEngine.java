@@ -49,6 +49,12 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
     protected static final String NO_AUTH_TOKEN_FOUND = null;
 
     /**
+     * Initial challenge message used when receiving a request with no authentication parameters present
+     */
+    protected static final String INITIAL_CHALLENGE_MESSAGE =
+            "No authentication parameters provided (initial 401 challenge response)";
+
+    /**
      * Attempts to authenticate a request, returning either an authenticated request object upon success or {@code null}
      * on failure.
      * <p>
@@ -67,7 +73,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
             if (!hasRequiredParameters(request)) {
                 // No authentication parameters provided so abort immediately
-                sendChallenge(request, response, new Challenge(401, "", ""));
+                sendChallenge(request, response, new Challenge(401, "", noParametersMessage()));
                 return null;
             }
 
@@ -146,8 +152,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_SOURCE, jws.candidateToken().source());
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT,
                                 jws.candidateToken().source().getRawToken(jws.candidateToken().value()));
-            setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT,
-                                jws.verifiedToken());
+            setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
             LOGGER.info("Request to {} successfully authenticated as {}", getRequestUrl(request), username);
             return prepareRequest(request, jws.verifiedToken(), username);
         } catch (Throwable e) {
@@ -207,6 +212,20 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      * @return Authenticated request
      */
     protected abstract TRequest prepareRequest(TRequest request, Jws<Claims> jws, String username);
+
+    /**
+     * Provides a challenge error message for the scenario where no authentication parameters are provided i.e. used
+     * when the initial 401 Challenge response is triggered
+     * <p>
+     * By default, this is {@link #INITIAL_CHALLENGE_MESSAGE}, derived implementations may provide more specific error
+     * messages if they see fit to do so
+     * </p>
+     *
+     * @return No parameters challenge message
+     */
+    protected String noParametersMessage() {
+        return INITIAL_CHALLENGE_MESSAGE;
+    }
 
     /**
      * Sends an authentication challenge

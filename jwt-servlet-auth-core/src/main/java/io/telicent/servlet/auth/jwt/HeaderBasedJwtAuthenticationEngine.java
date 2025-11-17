@@ -110,6 +110,11 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
     }
 
     @Override
+    protected String noParametersMessage() {
+        return "No authentication headers received in request, expected at least one of " + StringUtils.join(this.headers, ", ");
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(this.getClass().getSimpleName())
