@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+# 2.1.0
+
+- Core improvements:
+    - Initial challenge response now sets an informative `error_message` to aid debugging
+        - `JwtAuthenticationEngine` implementations can optionally customise this message further if they desire
+    - `UrlJwksLocator` provides more detailed error messages in some failure scenarios
+
 # 2.0.1
 
 - Core improvements:

@@ -53,6 +53,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         verifyStatusCode(request, response, 401);
         String challenge = verifyHeaderPresent(request, response, JwtHttpConstants.HEADER_WWW_AUTHENTICATE);
         Assert.assertFalse(Strings.CS.contains(challenge, "error="), "No error code expected");
+        Assert.assertTrue(Strings.CI.contains(challenge, "No authentication"));
     }
 
     @Test

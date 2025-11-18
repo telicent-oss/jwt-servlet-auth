@@ -235,12 +235,18 @@ public class KeyUtils {
         try {
             HttpResponse<InputStream> response =
                     client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            // For any HTTP error report the error code specifically as that aids debugging
+            if (response.statusCode() >= 400) {
+                throw new KeyLoadException("JWKS URI '" + jwksURI + "' returned a HTTP error code (" + response.statusCode() +")");
+            }
+
+            // For any HTTP success/redirect status attempt to parse the body
             return Jwks.setParser().build().parse(response.body());
         } catch (SecurityException e) {
-            throw new KeyLoadException("JWKS URI " + jwksURI + " returned an invalid key set");
+            throw new KeyLoadException("JWKS URI " + jwksURI + " returned an invalid key set: " + e.getMessage());
         } catch (IOException e) {
             throw new KeyLoadException(
-                    "JWKS URI " + jwksURI + " could not be read successfully");
+                    "JWKS URI " + jwksURI + " could not be read successfully: " + e.getMessage());
         } catch (InterruptedException e) {
             throw new KeyLoadException(
                     "Interrupted while attempting to read from JWKS URI " + jwksURI);

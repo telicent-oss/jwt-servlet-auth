@@ -77,85 +77,118 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
     protected abstract String getAuthenticatedUser(TFilter filter, TRequest request);
 
     @Test(expectedExceptions = AuthenticationConfigurationError.class)
-    public void filter_not_configured_01() {
+    public void givenUnconfiguredFilter_whenFiltering_thenErrors() {
         TFilter filter = createFilter(null, null, null);
         invokeFilter(filter, createMockRequest(Collections.emptyMap()), createMockResponse());
     }
 
     @Test(expectedExceptions = AuthenticationConfigurationError.class)
-    public void filter_not_configured_02() {
+    public void givenPartiallyConfiguredFilter_whenFiltering_thenErrors() {
         TFilter filter = createFilter(createEngine(), null, null);
         invokeFilter(filter, createMockRequest(Collections.emptyMap()), createMockResponse());
     }
 
     @Test
-    public void filter_rejects_01() throws IOException {
+    public void givenNoAuthHeaders_whenFiltering_thenRejected() throws IOException {
+        // Given
         TFilter filter = createFilter(createEngine(), new FakeTokenVerifier(), null);
         TRequest request = createMockRequest(Collections.emptyMap());
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
 
-        verifyChallenge(request, response, 401, "Bearer");
+        // Then
+        verifyChallenge(request, response, 401, "Bearer", "No authentication");
     }
 
     @Test
-    public void filter_rejects_02() throws IOException {
+    public void givenIncompleteAuthHeader_whenFiltering_thenRejected() throws IOException {
+        // Given
         TFilter filter = createFilter(createEngine(), new FakeTokenVerifier(), null);
         TRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer"));
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
 
+        // Then
         verifyChallenge(request, response, 400, "Bearer", "invalid_request");
     }
 
     @Test
-    public void filter_rejects_03() throws IOException {
+    public void givenInvalidToken_whenFiltering_thenRejected() throws IOException {
+        // Given
         TFilter filter = createFilter(createEngine(), new InvalidTokenVerifier(), null);
         TRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer foo"));
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
 
+        // Then
         verifyChallenge(request, response, 401, "Bearer", "invalid_token");
     }
 
     @Test
-    public void filter_rejects_04() throws IOException {
+    public void givenTokenWithoutUsername_whenFiltering_thenRejected() throws IOException {
+        // Given
         TFilter filter = createFilter(createEngine(), new SubjectlessTokenVerifier(), null);
         TRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer foo"));
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
+
+        // Then
         verifyChallenge(request, response, 401, "Bearer", "invalid_token", "Failed to find a username");
     }
 
     @Test
-    public void filter_exclusions_01() {
+    public void givenPathExclusions_whenFilteringForExcludedPath_thenNoChallenge() {
+        // Given
         TFilter filter =
                 createFilter(createEngine(), new FakeTokenVerifier(), PathExclusion.parsePathPatterns("/healthz"));
         TRequest request = createMockRequest("/healthz", Collections.emptyMap());
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
+
+        // Then
         verifyNoChallenge(request, response);
     }
 
     @Test
-    public void filter_exclusions_02() throws IOException {
+    public void givenPathExclusions_whenFilteringForNonExcludedPath_thenRejected() throws IOException {
+        // Given
         TFilter filter =
                 createFilter(createEngine(), new FakeTokenVerifier(), PathExclusion.parsePathPatterns("/healthz"));
         TRequest request = createMockRequest("/foo", Collections.emptyMap());
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
+
+        // Then
         verifyChallenge(request, response, 401, "Bearer");
     }
 
     @Test
-    public void filter_exclusions_03() throws IOException {
+    public void givenWildcardPathExclusion_whenFilteringForMatchingPath_thenNoChallenge_andNonExcludedPathsAreRejected() throws IOException {
+        // Given
         TFilter filter =
                 createFilter(createEngine(), new FakeTokenVerifier(), PathExclusion.parsePathPatterns("/status/*"));
         TRequest request = createMockRequest("/status/health", Collections.emptyMap());
         TResponse response = createMockResponse();
+
+        // When
         invokeFilter(filter, request, response);
+
+        // Then
         verifyNoChallenge(request, response);
 
+        // And
         request = createMockRequest("/other", Collections.emptyMap());
         response = createMockResponse();
         invokeFilter(filter, request, response);
@@ -163,19 +196,20 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
     }
 
     @Test
-    public void filter_exclusions_04() throws IOException {
+    public void givenPathExclusions_whenFilteringForNonExcludedPath_thenRejected_andRequestsWithAuthPermitted() throws IOException {
+        // Given
         TFilter filter =
                 createFilter(createEngine(), new FakeTokenVerifier(), PathExclusion.parsePathPatterns("/status/*"));
-        TRequest request = createMockRequest("/status/health", Collections.emptyMap());
+        TRequest request = createMockRequest("/other", Collections.emptyMap());
         TResponse response = createMockResponse();
-        invokeFilter(filter, request, response);
-        verifyNoChallenge(request, response);
 
-        request = createMockRequest("/other", Collections.emptyMap());
-        response = createMockResponse();
+        // When
         invokeFilter(filter, request, response);
+
+        // Then
         verifyChallenge(request, response, 401);
 
+        // And
         request = createMockRequest("/other", Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer foo"));
         response = createMockResponse();
         invokeFilter(filter, request, response);
@@ -183,20 +217,16 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
     }
 
     @Test
-    public void filter_authenticated_01() {
+    public void givenValidToken_whenFiltering_thenAuthenticated() {
+        // Given
         TFilter filter = createFilter(createEngine(), new FakeTokenVerifier(), null);
         TRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer foo"));
         TResponse response = createMockResponse();
-        invokeFilter(filter, request, response);
-        Assert.assertEquals(getAuthenticatedUser(filter, request), "foo");
-    }
 
-    @Test
-    public void filter_authenticated_02() {
-        TFilter filter = createFilter(createEngine(), new FakeTokenVerifier(), null);
-        TRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer bar"));
-        TResponse response = createMockResponse();
+        // When
         invokeFilter(filter, request, response);
-        Assert.assertEquals(getAuthenticatedUser(filter, request), "bar");
+
+        // Then
+        Assert.assertEquals(getAuthenticatedUser(filter, request), "foo");
     }
 }
