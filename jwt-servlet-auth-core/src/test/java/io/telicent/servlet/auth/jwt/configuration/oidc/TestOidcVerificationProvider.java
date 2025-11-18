@@ -38,7 +38,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class TestOpenIdConnectVerificationProvider extends AbstractFactoryTests {
+public class TestOidcVerificationProvider extends AbstractFactoryTests {
 
     private static final Random RANDOM = new Random();
     private static final AtomicInteger TEST_PORT = new AtomicInteger(51000 + RANDOM.nextInt(50));
@@ -67,33 +67,43 @@ public class TestOpenIdConnectVerificationProvider extends AbstractFactoryTests 
     @Test
     public void givenRawDiscoveryUriWithCorrectSuffix_whenPreparing_thenUnchanged() {
         // Given
-        String rawUri = "https://example.com" + OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION;
+        String rawUri = "https://example.com" + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION;
 
         // When
-        URI preparedUri = OpenIdConnectVerificationProvider.prepareDiscoveryUri(rawUri);
+        URI preparedUri = OidcVerificationProvider.prepareDiscoveryUri(rawUri);
 
         // Then
         Assert.assertEquals(preparedUri.toString(), rawUri);
     }
 
-    @DataProvider(name = "wrongSuffixes")
-    private Object[][] discoveryUrisWithWrongSuffix() {
+    @DataProvider(name = "suffixes")
+    private Object[][] discoveryUrisWithSuffixes() {
         return new Object[][] {
-                { "/test" }, { "/test/" }, { "/foo/bar" }, { "/.well-known/wrong" }
-        };
+                { "/test", OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION },
+                { "/test/", "/test" + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION },
+                { "/foo/bar", "/foo" + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION },
+                { "/.well-known/wrong", OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION },
+                { "/.well-known/", OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION },
+                { "/.well-known", OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION },
+                {
+                        "/really/deeply/nested/",
+                        "/really/deeply/nested" + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION
+                },
+                };
     }
 
-    @Test(dataProvider = "wrongSuffixes")
-    public void givenRawDiscoveryUriWithWrongSuffix_whenPreparing_thenCorrectSuffixApplied(String wrongSuffix) {
+    @Test(dataProvider = "suffixes")
+    public void givenRawDiscoveryUriWithVariousSuffixes_whenPreparing_thenCorrectSuffixApplied(String suffix,
+                                                                                               String expectedSuffix) {
         // Given
-        String rawUri = "https://example.com" + wrongSuffix;
+        String rawUri = "https://example.com" + suffix;
 
         // When
-        URI preparedUri = OpenIdConnectVerificationProvider.prepareDiscoveryUri(rawUri);
+        URI preparedUri = OidcVerificationProvider.prepareDiscoveryUri(rawUri);
 
         // Then
         Assert.assertEquals(preparedUri.toString(),
-                            "https://example.com" + OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                            "https://example.com" + expectedSuffix);
     }
 
     @Test
@@ -102,11 +112,11 @@ public class TestOpenIdConnectVerificationProvider extends AbstractFactoryTests 
         String rawUri = "https://example.com";
 
         // When
-        URI preparedUri = OpenIdConnectVerificationProvider.prepareDiscoveryUri(rawUri);
+        URI preparedUri = OidcVerificationProvider.prepareDiscoveryUri(rawUri);
 
         // Then
         Assert.assertEquals(preparedUri.toString(),
-                            rawUri + OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                            rawUri + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
     }
 
     @Test(expectedExceptions = InvalidKeyException.class, expectedExceptionsMessageRegExp = "Unable to resolve JWKS URL.*")
