@@ -15,33 +15,32 @@
  */
 package io.telicent.servlet.auth.jwt.verification.jwks;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.telicent.servlet.auth.jwt.configuration.ConfigurationParameters;
-import io.telicent.servlet.auth.jwt.configuration.oidc.OpenIdConnectVerificationProvider;
-import io.telicent.servlet.auth.jwt.configuration.oidc.OpenIdDiscoveryConfiguration;
+import io.telicent.servlet.auth.jwt.configuration.oidc.OidcConfigurationLoader;
+import io.telicent.servlet.auth.jwt.configuration.oidc.OidcVerificationProvider;
+import io.telicent.servlet.auth.jwt.configuration.oidc.OidcConfiguration;
+import io.telicent.servlet.auth.jwt.errors.KeyLoadException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Objects;
 
 /**
  * A JWKS locator that discovers the JWKS URL via an Open ID Connect configuration endpoint
  */
-public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
+public class OidcDiscoveryLocator extends AbstractJwksLocator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenIdConnectDiscoveryLocator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OidcDiscoveryLocator.class);
 
     private final URI discoveryUri;
     private URI jwksUri = null;
+    private final OidcConfigurationLoader configLoader;
     private long lastDiscoveryAttemptAt = Long.MIN_VALUE;
     private final Duration retryInterval;
     private boolean nonStandardWarning = false;
@@ -50,10 +49,10 @@ public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
      * Creates a new OpenID Connect discovery locator
      *
      * @param discoveryUri Discovery URI, this should be the OpenID Connect configuration endpoint, which is usually the
-     *                     {@value OpenIdConnectVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint of your
+     *                     {@value OidcVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint of your
      *                     OpenID Connect compliant authentication server
      */
-    public OpenIdConnectDiscoveryLocator(URI discoveryUri) {
+    public OidcDiscoveryLocator(URI discoveryUri) {
         this(createDefaultClient(), discoveryUri, null);
     }
 
@@ -61,12 +60,12 @@ public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
      * Creates a new OpenID Connect discovery locator
      *
      * @param discoveryUri  Discovery URI, this should be the OpenID Connect configuration endpoint, which is usually
-     *                      the {@value OpenIdConnectVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint of
+     *                      the {@value OidcVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint of
      *                      your OpenID Connect compliant authentication server
      * @param retryInterval Retry interval to wait before re-attempting configuration discovery if a previous attempt
      *                      failed
      */
-    public OpenIdConnectDiscoveryLocator(URI discoveryUri, Duration retryInterval) {
+    public OidcDiscoveryLocator(URI discoveryUri, Duration retryInterval) {
         this(createDefaultClient(), discoveryUri, retryInterval);
     }
 
@@ -75,22 +74,23 @@ public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
      *
      * @param client        HTTP Client to use
      * @param discoveryUri  Discovery URI, this should be the OpenID Connect configuration endpoint, which is usually
-     *                      the {@value OpenIdConnectVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint of
+     *                      the {@value OidcVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint of
      *                      your OpenID Connect compliant authentication server
      * @param retryInterval Retry interval to wait before re-attempting configuration discovery if a previous attempt
      *                      failed
      */
-    public OpenIdConnectDiscoveryLocator(HttpClient client, URI discoveryUri, Duration retryInterval) {
+    public OidcDiscoveryLocator(HttpClient client, URI discoveryUri, Duration retryInterval) {
         super(client);
         this.discoveryUri =
-                Objects.requireNonNull(discoveryUri, "Open ID Connect configuration Discovery URL cannot be null");
+                Objects.requireNonNull(discoveryUri, "Open ID Connect configuration discovery URL cannot be null");
         this.nonStandardWarning = !Strings.CS.endsWith(discoveryUri.toString(),
-                                                      OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                                                       OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
         this.retryInterval = retryInterval != null ? retryInterval :
                              Duration.ofSeconds(ConfigurationParameters.DEFAULT_OIDC_RETRY_INTERVAL);
         if (this.retryInterval.isNegative()) {
             throw new IllegalArgumentException("retryInterval cannot be negative");
         }
+        this.configLoader = new OidcConfigurationLoader(this.client);
     }
 
     @Override
@@ -112,47 +112,33 @@ public class OpenIdConnectDiscoveryLocator extends AbstractJwksLocator {
         // Issue a warning once, and once only, if the configured Discovery URI is non-standard
         if (this.nonStandardWarning) {
             LOGGER.warn(
-                    "Non-standard OpenID Connect discovery endpoint in-use (does not end with expected " + OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION + " suffix)");
+                    "Non-standard OpenID Connect discovery endpoint in-use (does not end with expected " + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION + " suffix)");
             this.nonStandardWarning = false;
         }
 
         try {
-            // Make a GET request to obtain the OpenID Connect configuration
-            HttpRequest request = HttpRequest.newBuilder(discoveryUri).build();
             this.lastDiscoveryAttemptAt = System.currentTimeMillis();
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-
-            if (response.statusCode() == 200) {
-                // Assuming an OK response parse it and extract the bit of configuration we care about
-                OpenIdDiscoveryConfiguration configuration =
-                        new ObjectMapper().readValue(response.body(), OpenIdDiscoveryConfiguration.class);
-                if (StringUtils.isNotBlank(configuration.getJwksUri())) {
-                    LOGGER.info("Obtained OpenID Connect configuration from {} provided JWKS URL {}", discoveryUri,
-                                configuration.getJwksUri());
-                    this.jwksUri = URI.create(configuration.getJwksUri());
-                } else {
-                    LOGGER.warn("Obtained OpenID Connect configuration from {} did not specify a jwks_uri",
-                                discoveryUri);
-                }
+            OidcConfiguration configuration = this.configLoader.load(this.discoveryUri);
+            if (StringUtils.isNotBlank(configuration.getJwksUri())) {
+                LOGGER.info("Obtained OpenID Connect configuration from {} provided JWKS URL {}", discoveryUri,
+                            configuration.getJwksUri());
+                this.jwksUri = URI.create(configuration.getJwksUri());
             } else {
-                LOGGER.warn("Obtaining OpenID Connect configuration from {} failed with HTTP status {}", discoveryUri,
-                            response.statusCode());
+                throw new KeyLoadException(
+                        "Obtained OpenID Connect configuration from " + discoveryUri + " did not contain a jwks_uri field to indicate the JWKS URL");
             }
-
         } catch (Throwable e) {
             LOGGER.warn("Failed to obtain OpenID Connect discovery configuration: {}", e.getMessage());
+            throw new InvalidKeyException(
+                    "Unable to resolve JWKS URL via OpenID Connect configuration discovery: " + e.getMessage());
         }
 
-        if (this.jwksUri == null) {
-            throw new InvalidKeyException("Unable to resolve JWKS URL via OpenID Connect configuration discovery");
-        } else {
-            return this.jwksUri;
-        }
+        return this.jwksUri;
     }
 
     @Override
     public String toString() {
-        return "OpenIdDiscoveryLocator{discoveryUrl=" + this.discoveryUri.toString() + ", jwksUrl=" + (
+        return "OidcDiscoveryLocator{discoveryUrl=" + this.discoveryUri.toString() + ", jwksUrl=" + (
                 this.jwksUri != null ? this.jwksUri.toString() :
                 "<not yet discovered>") + ", retryInterval=" + this.retryInterval.toString() + "}";
     }

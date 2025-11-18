@@ -16,9 +16,8 @@
 package io.telicent.servlet.auth.jwt.verification.jwks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.jackson.io.JacksonSerializer;
 import io.jsonwebtoken.security.JwkSet;
-import io.telicent.servlet.auth.jwt.configuration.oidc.OpenIdConnectVerificationProvider;
+import io.telicent.servlet.auth.jwt.configuration.oidc.OidcVerificationProvider;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A minimalist server application that provides an
- * {@value OpenIdConnectVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint pointing back to its own JWKS
+ * {@value OidcVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint pointing back to its own JWKS
  * endpoint allowing us to test Open ID Connect configuration discovery in a test environment
  */
 public class OidcServer extends JwksServer {
@@ -46,7 +45,7 @@ public class OidcServer extends JwksServer {
     public String getConfigurationUrl() {
         if (this.server != null) {
             return String.format("http://localhost:%d%s", this.port,
-                                 OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                                 OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
         } else {
             return null;
         }
@@ -113,7 +112,7 @@ public class OidcServer extends JwksServer {
         ServletHolder holder = new ServletHolder();
         holder.setServlet(new ConfigurationServlet(this.getUrl(), this.counter));
         servletHandler.addServletWithMapping(holder,
-                                             OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                                             OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
         servletHandler.addServletWithMapping(holder, "/non-standard-configuration");
     }
 

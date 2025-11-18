@@ -22,7 +22,7 @@ import io.telicent.servlet.auth.jwt.configuration.Utils;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.jwks.CachedJwksKeyLocator;
-import io.telicent.servlet.auth.jwt.verification.jwks.OpenIdConnectDiscoveryLocator;
+import io.telicent.servlet.auth.jwt.verification.jwks.OidcDiscoveryLocator;
 import org.apache.commons.lang3.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +38,21 @@ import java.util.function.Function;
  * {@value #WELL_KNOWN_OPENID_CONFIGURATION} endpoint specified via the
  * {@value ConfigurationParameters#PARAM_OIDC_PROVIDER_URL} configuration parameter
  */
-public class OpenIdConnectVerificationProvider extends DefaultVerificationProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenIdConnectVerificationProvider.class);
+public class OidcVerificationProvider extends DefaultVerificationProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OidcVerificationProvider.class);
+
+    /**
+     * The {@code /.well-known/} path that is used for some automatic configuration patterns
+     */
+    public static final String WELL_KNOWN_PATH = "/.well-known/";
+    /**
+     * The {@code openid-configuration} path that is used for OpenID Connect configuration discovery
+     */
+    public static final String OPENID_CONFIGURATION = "openid-configuration";
     /**
      * The well known URL path for OpenID Connect Configuration discovery
      */
-    public static final String WELL_KNOWN_OPENID_CONFIGURATION = "/.well-known/openid-configuration";
+    public static final String WELL_KNOWN_OPENID_CONFIGURATION = WELL_KNOWN_PATH + OPENID_CONFIGURATION;
 
     /**
      * Supported parameters for this verification provider
@@ -70,13 +79,12 @@ public class OpenIdConnectVerificationProvider extends DefaultVerificationProvid
                                                         Integer::parseInt,
                                                         ConfigurationParameters.DEFAULT_JWKS_CACHE_KEYS_FOR);
             String rawDiscoveryUri = parameters.get(ConfigurationParameters.PARAM_OIDC_PROVIDER_URL);
-            URI discoveryUri = OpenIdConnectVerificationProvider.prepareDiscoveryUri(rawDiscoveryUri);
+            URI discoveryUri = OidcVerificationProvider.prepareDiscoveryUri(rawDiscoveryUri);
             LOGGER.info(
                     "Resolved raw OpenID Connect configuration discovery URI {} to {}, if this is not correct ensure your configuration provides the full URI with the {} suffix",
-                    rawDiscoveryUri, discoveryUri.toString(),
-                    OpenIdConnectVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                    rawDiscoveryUri, discoveryUri.toString(), OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
             CachedJwksKeyLocator locator = new CachedJwksKeyLocator(
-                    new OpenIdConnectDiscoveryLocator(discoveryUri, Duration.ofSeconds(retryInterval)),
+                    new OidcDiscoveryLocator(discoveryUri, Duration.ofSeconds(retryInterval)),
                     Duration.ofMinutes(cacheKeysFor));
             verifierConsumer.accept(create(parameters, Jwts.parser().keyLocator(locator),
                                            SignedJwtVerifier.debugStringForLocator(locator)));
@@ -97,8 +105,27 @@ public class OpenIdConnectVerificationProvider extends DefaultVerificationProvid
             LOGGER.info("Adding suffix " + WELL_KNOWN_OPENID_CONFIGURATION + " to raw discovery URI {}",
                         rawDiscoveryUri);
             URI baseUri = URI.create(rawDiscoveryUri);
-            return baseUri.resolve(WELL_KNOWN_OPENID_CONFIGURATION);
+            if (!rawDiscoveryUri.endsWith(WELL_KNOWN_PATH)) {
+                // Case of /.well-known/ in the path but not right at the end, leave the existing /.well-known/ intact
+                // if represents the penultimate path segment
+                if (rawDiscoveryUri.contains(WELL_KNOWN_PATH) && baseUri.getPath()
+                                                                        .lastIndexOf("/") + 1 >= baseUri.getPath()
+                                                                                                        .lastIndexOf(
+                                                                                                                WELL_KNOWN_PATH) + WELL_KNOWN_PATH.length()) {
+                    // Already contains a /.well-known/ as the penultimate section so just append the
+                    // openid-configuration portion
+                    return baseUri.resolve("./" + OPENID_CONFIGURATION);
+                } else {
+                    // Otherwise append the full /.well-known/openid-configuration
+                    return baseUri.resolve("./" + WELL_KNOWN_OPENID_CONFIGURATION);
+                }
+            } else {
+                // Already ends with /.well-known/ so just append the openid-configuration portion
+                return baseUri.resolve("./" + OPENID_CONFIGURATION);
+            }
         }
+
+        // Already has the correct suffix so nothing to do
         return URI.create(rawDiscoveryUri);
     }
 
