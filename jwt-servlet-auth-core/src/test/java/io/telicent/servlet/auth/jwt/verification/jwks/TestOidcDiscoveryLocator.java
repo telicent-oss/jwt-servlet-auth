@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.when;
 
-public class TestOpenIdConnectDiscoveryLocator {
+public class TestOidcDiscoveryLocator {
 
     private static final Random RANDOM = new Random();
     private static final AtomicInteger TEST_PORT = new AtomicInteger(52000 + RANDOM.nextInt(50));
@@ -63,15 +63,15 @@ public class TestOpenIdConnectDiscoveryLocator {
     @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*cannot be negative")
     public void givenNegativeRetryInterval_whenCreatingLocator_thenIllegalArgument() {
         // Given, When and Then
-        new OpenIdConnectDiscoveryLocator(URI.create(this.server.getConfigurationUrl()), Duration.ofSeconds(-3));
+        new OidcDiscoveryLocator(URI.create(this.server.getConfigurationUrl()), Duration.ofSeconds(-3));
     }
 
     @Test
     public void givenCompliantDiscoveryUrl_whenUsingLocator_thenKeyLocated_andSubsequentLocationDoesNotRequireDiscovery() throws
             Exception {
         // Given
-        OpenIdConnectDiscoveryLocator locator =
-                new OpenIdConnectDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
+        OidcDiscoveryLocator locator =
+                new OidcDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
         JwsHeader header = Mockito.mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
@@ -91,8 +91,8 @@ public class TestOpenIdConnectDiscoveryLocator {
     public void givenLocator_whenToString_thenHasNoJwksUrlPriorToDiscovery_andHasJwksUrlAfterDiscovery() throws
             Exception {
         // Given
-        OpenIdConnectDiscoveryLocator locator =
-                new OpenIdConnectDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
+        OidcDiscoveryLocator locator =
+                new OidcDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
 
         // When
         String stringForm = locator.toString();
@@ -112,8 +112,8 @@ public class TestOpenIdConnectDiscoveryLocator {
     @Test
     public void givenNonStandardDiscoveryUrl_whenUsingLocator_thenWarningIssued() {
         // Given and When
-        OpenIdConnectDiscoveryLocator locator =
-                new OpenIdConnectDiscoveryLocator(URI.create(this.server.getNonStandardConfigurationUrl()));
+        OidcDiscoveryLocator locator =
+                new OidcDiscoveryLocator(URI.create(this.server.getNonStandardConfigurationUrl()));
         JwsHeader header = Mockito.mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
@@ -126,8 +126,8 @@ public class TestOpenIdConnectDiscoveryLocator {
     @Test(expectedExceptions = InvalidKeyException.class, expectedExceptionsMessageRegExp = "Unable to resolve JWKS.*")
     public void givenDiscoveryUrlWhereConfigurationDoesNotContainJwksUrl_whenUsingLocator_thenInvalidKeyException() {
         // Given and When
-        OpenIdConnectDiscoveryLocator locator =
-                new OpenIdConnectDiscoveryLocator(URI.create(this.server.getEmptyConfigurationUrl()));
+        OidcDiscoveryLocator locator =
+                new OidcDiscoveryLocator(URI.create(this.server.getEmptyConfigurationUrl()));
         JwsHeader header = Mockito.mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
@@ -140,8 +140,8 @@ public class TestOpenIdConnectDiscoveryLocator {
     @Test(expectedExceptions = InvalidKeyException.class, expectedExceptionsMessageRegExp = "Unable to resolve JWKS.*")
     public void givenDiscoveryUrlWithNon200Response_whenUsingLocator_thenInvalidKeyException() {
         // Given and When
-        OpenIdConnectDiscoveryLocator locator =
-                new OpenIdConnectDiscoveryLocator(URI.create(this.server.getNotFoundConfigurationUrl()));
+        OidcDiscoveryLocator locator =
+                new OidcDiscoveryLocator(URI.create(this.server.getNotFoundConfigurationUrl()));
         JwsHeader header = Mockito.mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
