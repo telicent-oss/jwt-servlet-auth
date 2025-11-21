@@ -1,11 +1,16 @@
 # CHANGE LOG
 
-# 2.1.0
+# 2.0.2
 
 - Core improvements:
     - Initial challenge response now sets an informative `error_message` to aid debugging
         - `JwtAuthenticationEngine` implementations can optionally customise this message further if they desire
     - `UrlJwksLocator` provides more detailed error messages in some failure scenarios
+- Build improvements:
+    - Apache Commons IO upgraded to 2.21.0
+    - Caffeine upgraded to 3.2.3
+    - Jackson upgraded to 2.20.1
+    - Various build and test dependencies upgraded to latest available
 
 # 2.0.1
 
