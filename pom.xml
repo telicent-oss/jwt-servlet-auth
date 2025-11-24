@@ -83,7 +83,7 @@
         <plugin.dependency>3.9.0</plugin.dependency>
         <plugin.enforcer>3.6.2</plugin.enforcer>
         <plugin.jacoco>0.8.14</plugin.jacoco>
-        <plugin.jar>3.4.2</plugin.jar>
+        <plugin.jar>3.5.0</plugin.jar>
         <plugin.javadoc>3.12.0</plugin.javadoc>
         <plugin.license>5.0.0</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
@@ -91,20 +91,20 @@
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.3.1</plugin.source>
         <plugin.surefire>3.5.4</plugin.surefire>
-        <plugin.versions>2.19.1</plugin.versions>
+        <plugin.versions>2.20.0</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
         <dependency.caffeine>3.2.3</dependency.caffeine>
         <dependency.commons-io>2.21.0</dependency.commons-io>
-        <dependency.commons-lang>3.19.0</dependency.commons-lang>
+        <dependency.commons-lang>3.20.0</dependency.commons-lang>
         <dependency.jackson>2.20.1</dependency.jackson>
         <dependency.jackson-annotations>2.20</dependency.jackson-annotations>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
         <dependency.jersey3>3.1.11</dependency.jersey3>
         <dependency.jjwt>0.13.0</dependency.jjwt>
-        <dependency.jetty12>12.1.3</dependency.jetty12>
+        <dependency.jetty12>12.1.4</dependency.jetty12>
         <dependency.mockito>5.20.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
