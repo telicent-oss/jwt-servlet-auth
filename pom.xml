@@ -89,9 +89,9 @@
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.2.0</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
-        <plugin.source>3.3.1</plugin.source>
+        <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.5.4</plugin.surefire>
-        <plugin.versions>2.20.0</plugin.versions>
+        <plugin.versions>2.20.1</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
