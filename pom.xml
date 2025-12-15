@@ -12,6 +12,7 @@
         <module>jwt-servlet-auth-servlet5</module>
         <module>jwt-servlet-auth-aws</module>
         <module>jwt-servlet-auth-integration-tests</module>
+        <module>jwt-servlet-auth-benchmarks</module>
     </modules>
     <packaging>pom</packaging>
     <name>Telicent - JWT Servlet Auth - Parent</name>
@@ -105,6 +106,7 @@
         <dependency.jersey3>3.1.11</dependency.jersey3>
         <dependency.jjwt>0.13.0</dependency.jjwt>
         <dependency.jetty12>12.1.5</dependency.jetty12>
+        <dependency.jmh>1.37</dependency.jmh>
         <dependency.mockito>5.20.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
@@ -242,6 +244,21 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${dependency.commons-io}</version>
+            </dependency>
+
+            <!-- Benchmarking tests dependencies-->
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${dependency.jmh}</version>
+<!--                <scope>test</scope>-->
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${dependency.jmh}</version>
+<!--                <scope>test</scope>-->
             </dependency>
         </dependencies>
 
