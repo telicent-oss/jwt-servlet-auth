@@ -33,6 +33,7 @@ public class PathExclusion {
     private final boolean wildcard;
     private final String pattern;
     private final Pattern regex;
+    private final String prefix;
 
     /**
      * Creates a new path exclusion
@@ -47,7 +48,10 @@ public class PathExclusion {
         }
 
         this.wildcard = Strings.CS.contains(pathPattern, "*");
-        this.regex = this.wildcard ? parsePathPattern(pathPattern) : null;
+        this.prefix = this.wildcard && isSimplePrefixWildcard(pathPattern)
+                ? pathPattern.substring(0, pathPattern.length() - 1)
+                : null;
+        this.regex = this.wildcard && this.prefix == null ? parsePathPattern(pathPattern) : null;
         this.pattern = pathPattern;
     }
 
@@ -65,10 +69,11 @@ public class PathExclusion {
         String[] rawPatterns = StringUtils.split(rawPathPatterns, ",");
         List<PathExclusion> exclusions = new ArrayList<>();
         for (String rawPattern : rawPatterns) {
-            if (StringUtils.isBlank(rawPattern)) {
+            String trimmedPattern = StringUtils.strip(rawPattern);
+            if (StringUtils.isBlank(trimmedPattern)) {
                 continue;
             }
-            exclusions.add(new PathExclusion(rawPattern));
+            exclusions.add(new PathExclusion(trimmedPattern));
         }
         return exclusions;
     }
@@ -85,12 +90,24 @@ public class PathExclusion {
      */
     private static Pattern parsePathPattern(String pathPattern) {
         try {
-            return Pattern.compile(pathPattern.replace("*", ".*"));
+            String[] parts = pathPattern.split("\\*", -1);
+            StringBuilder regex = new StringBuilder();
+            for (int i = 0; i < parts.length; i++) {
+                regex.append(Pattern.quote(parts[i]));
+                if (i < parts.length - 1) {
+                    regex.append(".*");
+                }
+            }
+            return Pattern.compile(regex.toString());
         } catch (PatternSyntaxException e) {
             throw new IllegalArgumentException(
                     String.format("Path pattern %s can not be converted into a valid regular expression", pathPattern),
                     e);
         }
+    }
+
+    private static boolean isSimplePrefixWildcard(String pathPattern) {
+        return pathPattern.endsWith("*") && StringUtils.countMatches(pathPattern, "*") == 1;
     }
 
     /**
@@ -122,6 +139,9 @@ public class PathExclusion {
         if (StringUtils.isBlank(path)) {
             return false;
         } else if (this.wildcard) {
+            if (this.prefix != null) {
+                return StringUtils.startsWith(path, this.prefix);
+            }
             return this.regex.matcher(path).matches();
         } else {
             return Strings.CS.equals(this.pattern, path);

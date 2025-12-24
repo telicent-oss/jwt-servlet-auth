@@ -87,7 +87,7 @@ public class SignedJwtVerifier implements JwtVerifier {
      * @param signingKey Singing key
      */
     public SignedJwtVerifier(PublicKey signingKey) {
-        this(Jwts.parser().verifyWith(signingKey).build(),
+        this(JwtParsers.builder().verifyWith(signingKey).build(),
              debugStringForPublicKey(signingKey));
     }
 
@@ -97,7 +97,7 @@ public class SignedJwtVerifier implements JwtVerifier {
      * @param signingKey Singing key
      */
     public SignedJwtVerifier(SecretKey signingKey) {
-        this(Jwts.parser().verifyWith(signingKey).build(), SECRET_KEY_DEBUG_STRING);
+        this(JwtParsers.builder().verifyWith(signingKey).build(), SECRET_KEY_DEBUG_STRING);
     }
 
     /**
@@ -106,7 +106,7 @@ public class SignedJwtVerifier implements JwtVerifier {
      * @param locator Key locator
      */
     public SignedJwtVerifier(Locator<Key> locator) {
-        this(Jwts.parser().keyLocator(locator).build(),
+        this(JwtParsers.builder().keyLocator(locator).build(),
              debugStringForLocator(locator));
     }
 

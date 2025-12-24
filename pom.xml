@@ -314,6 +314,8 @@
                                 <exclude>**/*.key</exclude>
                                 <exclude>**/*.pem</exclude>
                                 <exclude>.trivy/**</exclude>
+                                <exclude>**/*.jfr</exclude>
+                                <exclude>**/*.txt</exclude>
                             </excludes>
                         </licenseSet>
                     </licenseSets>

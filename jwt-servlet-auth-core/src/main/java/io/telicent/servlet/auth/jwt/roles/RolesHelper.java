@@ -94,12 +94,15 @@ public class RolesHelper {
         } else if (rawRoles instanceof String singleRole) {
             // NB - Filter out empty roles and strip extra whitespace around role names
             if (Strings.CS.contains(singleRole, ",")) {
-                //@formatter:off
-                return Arrays.stream(StringUtils.split(singleRole, ","))
-                             .filter(StringUtils::isNotBlank)
-                             .map(StringUtils::strip)
-                             .collect(Collectors.toSet());
-                //@formatter:on
+                String[] roles = StringUtils.split(singleRole, ",");
+                if (roles == null || roles.length == 0) {
+                    return Collections.emptySet();
+                }
+                Set<String> parsedRoles = newRoleSet(roles.length);
+                for (String role : roles) {
+                    addRole(parsedRoles, role);
+                }
+                return parsedRoles.isEmpty() ? Collections.emptySet() : parsedRoles;
             } else if (StringUtils.isNotBlank(singleRole)) {
                 return Collections.singleton(StringUtils.strip(singleRole));
             } else {
@@ -108,24 +111,44 @@ public class RolesHelper {
         } else if (rawRoles instanceof Collection<?> roleSet) {
             // NB - Filter for nulls twice as objects may be non-null but could have a null string representation, also
             //      strip any extra whitespace around role names
-            //@formatter:off
-            return roleSet.stream()
-                          .filter(Objects::nonNull)
-                          .map(Object::toString)
-                          .filter(Objects::nonNull)
-                          .map(StringUtils::strip)
-                          .collect(Collectors.toSet());
-            //@formatter:on
+            if (roleSet.isEmpty()) {
+                return Collections.emptySet();
+            }
+            Set<String> parsedRoles = newRoleSet(roleSet.size());
+            for (Object role : roleSet) {
+                if (role == null) {
+                    continue;
+                }
+                String value = role.toString();
+                addRole(parsedRoles, value);
+            }
+            return parsedRoles.isEmpty() ? Collections.emptySet() : parsedRoles;
         } else if (rawRoles instanceof String[] roleArray) {
             // NB - Filter for empty roles and strip any extra whitespace around role names
-            //@formatter:off
-            return Arrays.stream(roleArray)
-                         .filter(StringUtils::isNotBlank)
-                         .map(StringUtils::strip)
-                         .collect(Collectors.toSet());
-            //@formatter:on
+            if (roleArray.length == 0) {
+                return Collections.emptySet();
+            }
+            Set<String> parsedRoles = newRoleSet(roleArray.length);
+            for (String role : roleArray) {
+                addRole(parsedRoles, role);
+            }
+            return parsedRoles.isEmpty() ? Collections.emptySet() : parsedRoles;
         } else {
             return Collections.emptySet();
+        }
+    }
+
+    private static Set<String> newRoleSet(int expectedSize) {
+        if (expectedSize <= 0) {
+            return new HashSet<>();
+        }
+        int capacity = (int) ((expectedSize / 0.75f) + 1);
+        return new HashSet<>(capacity);
+    }
+
+    private static void addRole(Set<String> roles, String role) {
+        if (StringUtils.isNotBlank(role)) {
+            roles.add(StringUtils.strip(role));
         }
     }
 }
