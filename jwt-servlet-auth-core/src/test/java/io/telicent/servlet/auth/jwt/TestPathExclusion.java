@@ -41,9 +41,12 @@ public class TestPathExclusion {
         new PathExclusion("    ");
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
-    public void givenInvalidRegex_whenCreatingExclusion_thenIllegalArgument() {
-        new PathExclusion("/path(unfinished_regex_clause*");
+    @Test
+    public void givenRegexChars_whenCreatingExclusion_thenTreatedAsLiterals() {
+        PathExclusion exclusion = new PathExclusion("/path(unfinished_regex_clause*");
+
+        Assert.assertTrue(exclusion.matches("/path(unfinished_regex_clause"));
+        Assert.assertFalse(exclusion.matches("/path/unfinished_regex_clause"));
     }
 
     @DataProvider(name = "excludeAllPatterns")
@@ -179,7 +182,7 @@ public class TestPathExclusion {
         boolean excluded = exclusion.matches("/$/status/health");
 
         // Then
-        Assert.assertFalse(excluded);
+        Assert.assertTrue(excluded);
     }
 
     @Test
@@ -191,7 +194,7 @@ public class TestPathExclusion {
         boolean excluded = exclusion.matches("/$/status/health");
 
         // Then
-        Assert.assertTrue(excluded);
+        Assert.assertFalse(excluded);
     }
 
     @Test

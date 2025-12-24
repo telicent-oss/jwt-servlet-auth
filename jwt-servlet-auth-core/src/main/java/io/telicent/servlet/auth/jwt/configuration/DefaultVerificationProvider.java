@@ -16,10 +16,10 @@
 package io.telicent.servlet.auth.jwt.configuration;
 
 import io.jsonwebtoken.JwtParserBuilder;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Locator;
 import io.telicent.servlet.auth.jwt.errors.KeyLoadException;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
+import io.telicent.servlet.auth.jwt.verification.JwtParsers;
 import io.telicent.servlet.auth.jwt.verification.KeyUtils;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.jwks.CachedJwksKeyLocator;
@@ -118,13 +118,13 @@ public class DefaultVerificationProvider implements VerificationProvider {
         if (StringUtils.isNotBlank(jwksUrl)) {
             Locator<Key> jwks = new CachedJwksKeyLocator(asURI(jwksUrl), HttpClient.newBuilder().build(),
                                                          Duration.ofMinutes(cacheKeysFor));
-            return create(parameters, Jwts.parser().keyLocator(jwks), SignedJwtVerifier.debugStringForLocator(jwks));
+            return create(parameters, JwtParsers.builder().keyLocator(jwks), SignedJwtVerifier.debugStringForLocator(jwks));
         } else if (StringUtils.isNotBlank(secretKey)) {
             SecretKey secret = KeyUtils.loadSecretKey(new File(secretKey));
-            return create(parameters, Jwts.parser().verifyWith(secret), SignedJwtVerifier.SECRET_KEY_DEBUG_STRING);
+            return create(parameters, JwtParsers.builder().verifyWith(secret), SignedJwtVerifier.SECRET_KEY_DEBUG_STRING);
         } else if (StringUtils.isNotBlank(publicKey)) {
             PublicKey key = KeyUtils.loadPublicKey(algorithm, new File(publicKey));
-            return create(parameters, Jwts.parser().verifyWith(key), SignedJwtVerifier.debugStringForPublicKey(key));
+            return create(parameters, JwtParsers.builder().verifyWith(key), SignedJwtVerifier.debugStringForPublicKey(key));
         } else {
             throw new KeyLoadException("No parameter available to supply a key or JWKS URL for JWT verification.");
         }

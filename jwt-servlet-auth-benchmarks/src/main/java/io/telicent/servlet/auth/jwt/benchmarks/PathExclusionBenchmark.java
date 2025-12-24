@@ -38,22 +38,29 @@ public class PathExclusionBenchmark {
 
         PathExclusion wildcardApi;
         PathExclusion exactHealth;
+        PathExclusion multiWildcard;
 
         String apiMatchingPath;
         String apiNonMatchingPath;
         String healthMatchingPath;
         String healthNonMatchingPath;
+        String multiWildcardMatchingPath;
+        String multiWildcardNonMatchingPath;
 
         @Setup(Level.Trial)
         public void setup() {
             this.wildcardApi = new PathExclusion("/api/*");
             this.exactHealth = new PathExclusion("/health");
+            this.multiWildcard = new PathExclusion("/api/*/resources/*");
 
             this.apiMatchingPath = "/api/v1/resources/123";
             this.apiNonMatchingPath = "/static/css/app.css";
 
             this.healthMatchingPath = "/health";
             this.healthNonMatchingPath = "/healthcheck";
+
+            this.multiWildcardMatchingPath = "/api/v1/resources/123";
+            this.multiWildcardNonMatchingPath = "/api/v1/other/123";
         }
     }
 
@@ -75,5 +82,15 @@ public class PathExclusionBenchmark {
     @Benchmark
     public boolean exactMiss(PathState state) {
         return state.exactHealth.matches(state.healthNonMatchingPath);
+    }
+
+    @Benchmark
+    public boolean multiWildcardMatch(PathState state) {
+        return state.multiWildcard.matches(state.multiWildcardMatchingPath);
+    }
+
+    @Benchmark
+    public boolean multiWildcardMiss(PathState state) {
+        return state.multiWildcard.matches(state.multiWildcardNonMatchingPath);
     }
 }

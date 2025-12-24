@@ -24,8 +24,11 @@ import org.eclipse.jetty.ee9.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHandler;
 import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.testng.SkipException;
 
 import java.io.IOException;
+import java.net.SocketException;
 
 /**
  * A minimalist server application that can serve a JWKS
@@ -52,7 +55,11 @@ public class JwksServer {
 
     public void start() throws Exception {
         if (this.server == null) {
-            this.server = new Server(this.port);
+            this.server = new Server();
+            ServerConnector connector = new ServerConnector(this.server);
+            connector.setHost("127.0.0.1");
+            connector.setPort(this.port);
+            this.server.addConnector(connector);
 
             ServletContextHandler handler = new ServletContextHandler();
             handler.setContextPath("/");
@@ -64,7 +71,14 @@ public class JwksServer {
             servletHandler.addServletWithMapping(holder, "/jwks.json");
             handler.setHandler(servletHandler);
 
-            this.server.start();
+            try {
+                this.server.start();
+            } catch (Exception e) {
+                if (isBindNotPermitted(e)) {
+                    throw new SkipException("Skipping JWKS server tests: socket bind not permitted", e);
+                }
+                throw e;
+            }
         }
     }
 
@@ -92,5 +106,16 @@ public class JwksServer {
                 resp.getOutputStream().println("{}");
             }
         }
+    }
+
+    private static boolean isBindNotPermitted(Throwable error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof SocketException && String.valueOf(current.getMessage()).contains("Operation not permitted")) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
