@@ -186,7 +186,7 @@ public class TestPathExclusion {
     }
 
     @Test
-    public void givenWildcardExclusionWithEscapedRegexChars_whenTestingForExclusion_thenSuccess() {
+    public void givenWildcardExclusionWithEscapedRegexChars_whenTestingForExclusion_thenNotExcluded() {
         // Given
         PathExclusion exclusion = new PathExclusion("/\\$/status/*");
 
