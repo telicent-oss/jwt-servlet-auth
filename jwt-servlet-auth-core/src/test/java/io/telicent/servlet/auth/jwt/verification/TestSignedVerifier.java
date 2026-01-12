@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.security.PublicKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -70,6 +72,15 @@ public class TestSignedVerifier {
         return jws;
     }
 
+    private String createUnsecuredJwt(String subject) {
+        String headerJson = "{\"alg\":\"none\",\"typ\":\"JWT\"}";
+        String payloadJson = "{\"sub\":\"" + subject + "\"}";
+        Base64.Encoder encoder = Base64.getUrlEncoder().withoutPadding();
+        String header = encoder.encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
+        String payload = encoder.encodeToString(payloadJson.getBytes(StandardCharsets.UTF_8));
+        return header + "." + payload + ".";
+    }
+
     @SuppressWarnings("unchecked")
     private Locator<Key> mockKeyResolver(Key key) {
         Locator<Key> resolver = mock(Locator.class);
@@ -92,17 +103,17 @@ public class TestSignedVerifier {
         // Given
         JwtParser parser = Jwts.parser().verifyWith(this.key).build();
         String jwt = Jwts.builder()
-                         .subject("test")
-                         .issuer("test")
-                         .audience()
-                         .add("apis")
-                         .and()
-                         .header()
-                         .add("foo", "bar")
-                         .and()
-                         .expiration(Date.from(Instant.now().plus(5, ChronoUnit.MINUTES)))
-                         .signWith(this.key)
-                         .compact();
+                .subject("test")
+                .issuer("test")
+                .audience()
+                .add("apis")
+                .and()
+                .header()
+                .add("foo", "bar")
+                .and()
+                .expiration(Date.from(Instant.now().plus(5, ChronoUnit.MINUTES)))
+                .signWith(this.key)
+                .compact();
 
         // When and Then
         verify(parser, jwt);
@@ -184,6 +195,19 @@ public class TestSignedVerifier {
         // When and Then
         // Token is expired but within the clock skew allowance so should pass verification
         verify(parser, jwt);
+    }
+
+    @Test(expectedExceptions = UnsupportedJwtException.class)
+    public void givenUnsecuredJwt_whenVerifying_thenUnsupportedJwtException() {
+        // Given
+        String jwt = createUnsecuredJwt("test");
+        SignedJwtVerifier verifier = new SignedJwtVerifier(this.key);
+
+        // When
+        verifier.verify(jwt);
+        // We should not reach here
+        Assert.fail("Expected unsecured JWT to be rejected");
+
     }
 
     @Test
