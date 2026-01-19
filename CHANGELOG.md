@@ -1,5 +1,14 @@
 # CHANGE LOG
 
+# 2.1.0 
+
+- Core improvements:
+  - Optimizes JWT parsing setup, path exclusions, and role parsing, and adds extra benchmarks
+
+
+**Note:** This release contains breaking changes. The regex handling now treats escaped metacharacters (e.g. `\\$`) as literal escapes; existing configs
+  that previously double-escaped may need to be updated.
+
 # 2.0.2
 
 - Core improvements:
