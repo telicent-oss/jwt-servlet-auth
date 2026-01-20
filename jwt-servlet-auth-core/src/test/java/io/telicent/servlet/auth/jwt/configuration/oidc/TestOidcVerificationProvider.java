@@ -51,11 +51,13 @@ public class TestOidcVerificationProvider extends AbstractFactoryTests {
         this.jwks = TestKeyUtils.buildComplexJwks();
         this.server = new OidcServer(TEST_PORT.getAndIncrement(), this.jwks);
         this.server.start();
+        OidcRegistry.reset();
     }
 
     @AfterMethod
     public void cleanup() {
         this.server.resetDiscoveryRequestsCount();
+        OidcRegistry.reset();
     }
 
     @AfterClass
