@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-# 2.1.0 
+# 3.0.0 
 
 - Core improvements:
   - Optimizes JWT parsing setup, path exclusions, and role parsing, and adds extra benchmarks
