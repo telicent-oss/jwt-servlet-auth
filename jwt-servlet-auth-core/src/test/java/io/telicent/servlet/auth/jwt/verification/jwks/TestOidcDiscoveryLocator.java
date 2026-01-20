@@ -19,6 +19,7 @@ import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Jwk;
 import io.jsonwebtoken.security.JwkSet;
+import io.telicent.servlet.auth.jwt.configuration.oidc.OidcRegistry;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
 import org.apache.commons.lang3.Strings;
 import org.mockito.Mockito;
@@ -48,11 +49,13 @@ public class TestOidcDiscoveryLocator {
         this.jwks = TestKeyUtils.buildComplexJwks();
         this.server = new OidcServer(TEST_PORT.getAndIncrement(), this.jwks);
         this.server.start();
+        OidcRegistry.reset();
     }
 
     @AfterMethod
     public void cleanup() {
         this.server.resetDiscoveryRequestsCount();
+        OidcRegistry.reset();
     }
 
     @AfterClass
@@ -135,6 +138,24 @@ public class TestOidcDiscoveryLocator {
 
         // Then
         locator.locate(header);
+    }
+
+    @Test
+    public void givenDiscoveryUrlWhereConfigurationDoesNotContainJwksUrl_whenUsingLocatorTwice_thenInvalidKeyExceptionBothTimes_andOnlyOneDiscoveryRequestMade() {
+        // Given and When
+        OidcDiscoveryLocator locator =
+                new OidcDiscoveryLocator(URI.create(this.server.getEmptyConfigurationUrl()));
+        JwsHeader header = Mockito.mock(JwsHeader.class);
+        String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
+        Assert.assertNotNull(keyId);
+        when(header.getKeyId()).thenReturn(keyId);
+
+        // Then
+        Assert.assertThrows(InvalidKeyException.class, () -> locator.locate(header));
+        Assert.assertThrows(InvalidKeyException.class, () -> locator.locate(header));
+
+        // And
+        Assert.assertEquals(this.server.getDiscoveryRequestsCount(), 1);
     }
 
     @Test(expectedExceptions = InvalidKeyException.class, expectedExceptionsMessageRegExp = "Unable to resolve JWKS.*")
