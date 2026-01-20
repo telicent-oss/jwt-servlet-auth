@@ -4,7 +4,7 @@
 
     <groupId>io.telicent.public</groupId>
     <artifactId>jwt-servlet-auth-parent</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <modules>
         <module>jwt-servlet-auth-core</module>
         <module>jwt-servlet-auth-jaxrs3</module>
@@ -314,6 +314,8 @@
                                 <exclude>**/*.key</exclude>
                                 <exclude>**/*.pem</exclude>
                                 <exclude>.trivy/**</exclude>
+                                <exclude>**/*.jfr</exclude>
+                                <exclude>**/*.txt</exclude>
                             </excludes>
                         </licenseSet>
                     </licenseSets>
