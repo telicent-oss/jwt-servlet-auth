@@ -24,12 +24,15 @@ import java.time.Duration;
 /**
  * A static registry of Open ID Connect discovery URIs to loaded {@link OidcConfiguration}'s, intended to allow
  * applications that need further access to the configuration beyond just the JWKS URL to access it
+ * <p>
+ * Discovered configurations are cached for a short period after their retrieval (15 minutes) to allow other parts of
+ * the application to access it and obtain any additional configuration needed.
+ * </p>
  */
 public class OidcRegistry {
 
     private static final Cache<URI, OidcConfiguration> CONFIGURATIONS =
-            Caffeine.newBuilder().maximumSize(5).expireAfterWrite(
-                    Duration.ofMinutes(15)).build();
+            Caffeine.newBuilder().maximumSize(5).expireAfterWrite(Duration.ofMinutes(15)).build();
 
     /**
      * Private constructor to prevent direct instantiation
@@ -66,5 +69,15 @@ public class OidcRegistry {
      */
     public static OidcConfiguration get(URI discoveryUri) {
         return CONFIGURATIONS.getIfPresent(discoveryUri);
+    }
+
+    /**
+     * Resets the configuration registry wiping any previously registered configurations
+     * <p>
+     * Primarily only needed for unit testing scenarios to ensure test isolation.
+     * </p>
+     */
+    public static void reset() {
+        CONFIGURATIONS.invalidateAll();
     }
 }

@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt.verification.jwks;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.telicent.servlet.auth.jwt.configuration.ConfigurationParameters;
 import io.telicent.servlet.auth.jwt.configuration.oidc.OidcConfigurationLoader;
+import io.telicent.servlet.auth.jwt.configuration.oidc.OidcRegistry;
 import io.telicent.servlet.auth.jwt.configuration.oidc.OidcVerificationProvider;
 import io.telicent.servlet.auth.jwt.configuration.oidc.OidcConfiguration;
 import io.telicent.servlet.auth.jwt.errors.KeyLoadException;
@@ -118,7 +119,12 @@ public class OidcDiscoveryLocator extends AbstractJwksLocator {
 
         try {
             this.lastDiscoveryAttemptAt = System.currentTimeMillis();
-            OidcConfiguration configuration = this.configLoader.load(this.discoveryUri);
+            OidcConfiguration configuration = OidcRegistry.get(this.discoveryUri);
+            if (configuration != null) {
+                LOGGER.info("Using previously cached OpenID Connect configuration from {}", discoveryUri);
+            } else {
+                configuration = this.configLoader.load(this.discoveryUri);
+            }
             if (StringUtils.isNotBlank(configuration.getJwksUri())) {
                 LOGGER.info("Obtained OpenID Connect configuration from {} provided JWKS URL {}", discoveryUri,
                             configuration.getJwksUri());

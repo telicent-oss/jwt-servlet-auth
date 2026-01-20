@@ -31,17 +31,28 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A minimalist server application that provides an
- * {@value OidcVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION} endpoint pointing back to its own JWKS
- * endpoint allowing us to test Open ID Connect configuration discovery in a test environment
+ * A minimalist server application that provides an {@value OidcVerificationProvider#WELL_KNOWN_OPENID_CONFIGURATION}
+ * endpoint pointing back to its own JWKS endpoint allowing us to test Open ID Connect configuration discovery in a test
+ * environment
  */
 public class OidcServer extends JwksServer {
     private final AtomicInteger counter = new AtomicInteger();
 
+    /**
+     * Creates a new OpenID Connect discovery enabled test key server
+     *
+     * @param port Port
+     * @param jwks JWKS
+     */
     public OidcServer(int port, JwkSet jwks) {
         super(port, jwks);
     }
 
+    /**
+     * Gets the OpenID Connect well known URL for configuration discovery
+     *
+     * @return Well known configuration URL
+     */
     public String getConfigurationUrl() {
         if (this.server != null) {
             return String.format("http://localhost:%d%s", this.port,
@@ -51,6 +62,11 @@ public class OidcServer extends JwksServer {
         }
     }
 
+    /**
+     * Gets an alternative non-standard URL at which OpenID Connect configuration can also be discovered
+     *
+     * @return Non-standard configuration URL
+     */
     public String getNonStandardConfigurationUrl() {
         if (this.server != null) {
             return String.format("http://localhost:%d/non-standard-configuration", this.port);
@@ -59,6 +75,11 @@ public class OidcServer extends JwksServer {
         }
     }
 
+    /**
+     * Gets an OpenID Connect configuration discovery endpoint that always returns empty configuration
+     *
+     * @return Empty configuration URL
+     */
     public String getEmptyConfigurationUrl() {
         if (this.server != null) {
             return String.format("http://localhost:%d/empty-configuration", this.port);
@@ -67,6 +88,11 @@ public class OidcServer extends JwksServer {
         }
     }
 
+    /**
+     * Gets an OpenID Connect configuration discovery URL that always returns a 404 Not Found response
+     *
+     * @return Not found configuration URL
+     */
     public String getNotFoundConfigurationUrl() {
         if (this.server != null) {
             return String.format("http://localhost:%d/not-found-configuration", this.port);
@@ -75,10 +101,18 @@ public class OidcServer extends JwksServer {
         }
     }
 
+    /**
+     * Gets how many times the OpenID configuration has been requested
+     *
+     * @return Number of configuration discovery requests
+     */
     public int getDiscoveryRequestsCount() {
         return this.counter.get();
     }
 
+    /**
+     * Resets the counter of OpenID configuration discovery requests
+     */
     public void resetDiscoveryRequestsCount() {
         this.counter.set(0);
     }
@@ -99,7 +133,7 @@ public class OidcServer extends JwksServer {
             addConfigurationDiscoveryServlets(servletHandler);
 
             ServletHolder holder = new ServletHolder();
-            holder.setServlet(new EmptyConfigurationServlet());
+            holder.setServlet(new EmptyConfigurationServlet(this.counter));
             servletHandler.addServletWithMapping(holder, "/empty-configuration");
 
             this.server.start();
@@ -111,8 +145,7 @@ public class OidcServer extends JwksServer {
     private void addConfigurationDiscoveryServlets(ServletHandler servletHandler) {
         ServletHolder holder = new ServletHolder();
         holder.setServlet(new ConfigurationServlet(this.getUrl(), this.counter));
-        servletHandler.addServletWithMapping(holder,
-                                             OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+        servletHandler.addServletWithMapping(holder, OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
         servletHandler.addServletWithMapping(holder, "/non-standard-configuration");
     }
 
@@ -148,8 +181,16 @@ public class OidcServer extends JwksServer {
 
     protected static class EmptyConfigurationServlet extends HttpServlet {
 
+        private final AtomicInteger counter;
+
+        public EmptyConfigurationServlet(AtomicInteger attemptCounter) {
+            this.counter = attemptCounter;
+        }
+
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+            this.counter.incrementAndGet();
+
             resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write("{}");

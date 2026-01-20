@@ -27,8 +27,8 @@ import java.security.Key;
 import java.time.Duration;
 
 /**
- * A variant of {@link UrlJwksKeyLocator} that adds a caching layer so that the underlying JWKS file/URL is only loaded
- * upon encountering a key that is not currently cached
+ * A decorator over another {@link AbstractJwksLocator} that adds a caching layer so that the underlying JWKS file/URL
+ * is only loaded upon encountering a key that is not currently cached
  */
 public class CachedJwksKeyLocator extends AbstractJwksLocator {
 
@@ -63,11 +63,7 @@ public class CachedJwksKeyLocator extends AbstractJwksLocator {
         this.cacheKeysFor = cacheKeysFor;
         // Generally speaking there are relatively few keys are used in a JWKS, so we set a relatively compact cache
         // size to minimise memory footprint
-        this.cache = Caffeine.newBuilder()
-                             .initialCapacity(10)
-                             .maximumSize(25)
-                             .expireAfterAccess(cacheKeysFor)
-                             .build();
+        this.cache = Caffeine.newBuilder().initialCapacity(10).maximumSize(25).expireAfterAccess(cacheKeysFor).build();
     }
 
     @Override

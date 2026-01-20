@@ -1,12 +1,27 @@
 # CHANGE LOG
 
+# 3.1.0
+
+- Core improvements:
+    - Added new `OidcDiscoveryLocator` and related classes for automatically discovering OpenID Connect (OIDC)
+      configuration, and thus the JWKS URL, from the configuration discovery endpoint of an OIDC compliant
+      authentication server
+        - New `jwt.oidc.provider.url` and `jwt.odic.retry.interval` configurations for automatically configuring OIDC
+          based verification
+    - Refactored some of the existing JWKS related implementations into new `AbstractJwksLocator` base class to allow
+      for OIDC support and improve extensibility
+    - `CachedJwksLocator` is now a decorator that may be used over any `AbstractJwksLocator` implementation
+- Build improvements:
+    - `jwt-servlet-auth-core` `tests` module includes new `OidcServer` as a test server that extends the existing
+      `JwksServer` test server with OIDC compliant configuration discovery endpoints for testing
+
 # 3.0.0 
 
 - Core improvements:
-  - Optimizes JWT parsing setup, path exclusions, and role parsing, and adds extra benchmarks
+    - Optimizes JWT parsing setup, path exclusions, and role parsing, and adds extra benchmarks
 
-**Note:** This release contains breaking changes. The regex handling now treats escaped metacharacters (e.g. `\\$`) as literal escapes; existing configs
-  that previously double-escaped may need to be updated.
+**Note:** This release contains breaking changes. The regex handling now treats escaped metacharacters (e.g. `\\$`) as
+  literal escapes; existing configs that previously double-escaped may need to be updated.
 
 # 2.0.2
 

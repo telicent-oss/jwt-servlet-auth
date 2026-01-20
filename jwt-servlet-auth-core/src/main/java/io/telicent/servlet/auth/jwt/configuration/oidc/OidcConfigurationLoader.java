@@ -47,6 +47,12 @@ public class OidcConfigurationLoader {
 
     /**
      * Loads configuration from the given (if possible)
+     * <p>
+     * Note that this intentionally always makes a fresh HTTP request to the configuration discovery endpoint provided
+     * and caches the result via {@link OidcRegistry#register(URI, OidcConfiguration)}.  If you need to use the
+     * configuration in multiple places consider calling {@link OidcRegistry#get(URI)} to see whether the configuration
+     * is already cached prior to calling this again.
+     * </p>
      *
      * @param discoveryUri Configuration discovery URI
      * @return Configuration, or {@code null} if unable to load
@@ -58,7 +64,7 @@ public class OidcConfigurationLoader {
             HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
 
             if (response.statusCode() == 200) {
-                // Assuming an OK response parse it and extract the bit of configuration we care about
+                // Assuming an OK response parse it and extract the bits of configuration we care about
                 OidcConfiguration configuration =
                         objectMapper.readValue(response.body(), OidcConfiguration.class);
                 OidcRegistry.register(discoveryUri, configuration);
