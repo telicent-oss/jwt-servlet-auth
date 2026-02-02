@@ -79,7 +79,7 @@
         <!-- Plugin Versions -->
         <plugin.central>0.10.0</plugin.central>
         <plugin.clean>3.1.0</plugin.clean>
-        <plugin.compiler>3.14.1</plugin.compiler>
+        <plugin.compiler>3.15.0</plugin.compiler>
         <plugin.cyclonedx>2.9.1</plugin.cyclonedx>
         <plugin.dependency>3.9.0</plugin.dependency>
         <plugin.enforcer>3.6.2</plugin.enforcer>
@@ -105,7 +105,7 @@
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
         <dependency.jersey3>3.1.11</dependency.jersey3>
         <dependency.jjwt>0.13.0</dependency.jjwt>
-        <dependency.jetty12>12.1.5</dependency.jetty12>
+        <dependency.jetty12>12.1.6</dependency.jetty12>
         <dependency.jmh>1.37</dependency.jmh>
         <dependency.mockito>5.21.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
