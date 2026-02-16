@@ -181,21 +181,21 @@ A path expression uses the `*` character as a wildcard to match zero or more cha
 authentication via overly broad exclusions any path expression that consists of only `/`, `*` and whitespace will be
 rejected.  So you cannot have an exclusion of `/*` as that effectively renders applying the filter pointless.
 
-When the wildcard character - `*` - is used the path is interpreted as a regular expression with the `*` replaced with
-`.*`.  When wildcards are used be careful that any other characters in the path expression which have special
-interpretation in Java regular expressions are appropriately escaped in your input expression.  For example
-`/$/status/*` would not work as an exclusion since `$` has special meaning as end of line anchor.  Instead the path
-expression would need to be `/\$/status/*` so that the `$` character is matched literally.  Since wildcard characters
-are interpreted as `.*` in the regular expressions this means they are greedy, so the example given here would exclude
-requests to both `/$/status/health` and `/$/status/components/1`.  If you don't want this greedy behaviour then you
-**MUST** instead enumerate each path you want to exclude.
+When the wildcard character - `*` - is used the path is interpreted as a regular expression with only the `*` replaced
+with `.*`.  Any other characters in the path expression which might normally have special interpretation in Java regular
+expressions are automatically treated as literal matches.  For example `/$/status/*` would work as an
+exclusion with `$` being matched literally.
 
-Please also note that if you're setting the exclusions programmatically in code you will need to escape the backslash
-escape character in order for it to be a valid Java string constant e.g.
+> **NB** Prior to `3.0.0` this was not the case and any special characters had to be explicitly escaped.  From `3.0.0`
+> onwards the above described behaviour applies since it proved to have performance benefits and simplifies
+> configuration.
+>
+> If you are still using an older release of this library then please ensure you refer to the `README.md` for that
+> release tag for documentation on this.
 
-```java
-new PathExclusion("/\\$/status/*");
-```
+Since wildcard characters are interpreted as `.*` in the regular expressions this means they are greedy, so the example
+given here would exclude requests to both `/$/status/health` and `/$/status/components/1`.  If you don't want this
+greedy behaviour then you **MUST** instead enumerate each path you want to exclude.
 
 Every time an excluded path is requested the filter will log a warning indicating that this is happened, this helps
 developers and administrators spot cases where the exclusions may have been overly broad.  See [Path Exclusion
@@ -400,20 +400,39 @@ contain certain claims, allowable clock skew, signing key etc.
 
 ### JWKS Verification
 
-If you want to use [JSON Web Key Sets (JWKS)][Rfc7517] for verifying your JWTs then you can use the `UrlJwksKeyLocator` for
-your `Locator<Key>` when constructing the `JwtParser`.  We also provide a `CachedJwksKeyLocator`, which we recommend for
-all production usage, as this only loads the underlying JWKS URL periodically when the cache entries expire.
+If you want to use [JSON Web Key Sets (JWKS)][Rfc7517] for verifying your JWTs then you can use the `UrlJwksKeyLocator`
+for your `Locator<Key>` when constructing the `JwtParser`.  We also provide a `CachedJwksKeyLocator`, which we recommend
+for all production usage, as this only loads the underlying JWKS URL periodically when the cache entries expire.
 
 ```java
 // Create a JWKS based key locator that caches keys for 15 minutes
 Locator<Key> jwks = 
-    new CachedJwksKeyLocator(yourJwksUrl, Duration.ofMinutes(15));
+  new CachedJwksKeyLocator(yourJwksUrl, Duration.ofMinutes(15));
 JwtVerifier verifier = 
   new SignedJwtVerifier(Jwts.parserBuilder().keyLocator(jwks));
 ```
 
 The JWKS URL **MUST** be either a `http`/`https` URL to identify a URL where the JWKS can be downloaded from, or a
 `file` URL to identify a JWKS file on the local filesystem.
+
+### OpenID Connect Verification
+
+If your authentication server is OpenID Connect compliant then from `3.1.0` onwards you can use the new
+`OidcDiscoveryLocator` for your `Locator<Key>` when constructing the `JwtParser`.  As already noted we provide a
+`CachedJwksKeyLocator`, which we recommend for all production usage, as this only loads the underlying JWKS URL
+periodically when the cache entries expire.
+
+```java
+// Create a OpenID Connect discovery based key locator that caches keys for 15 minutes
+OidcDiscoveryLocator oidcLocator = 
+  new OidcDiscoveryLocator("https://your-openid-provider.org/.well-known/openid-configuration");
+Locator<Key> jwks = 
+  new CachedJwksKeyLocator(oidcLocator, Duration.ofMinutes(15));
+JwtVerifier verifier = 
+  new SignedJwtVerifier(Jwts.parserBuilder().keyLocator(jwks));
+```
+Where the given OpenID Connect configuration discovery URL is used to automatically discover configuration for your
+OpenID Connect compliant provider, including the JWKS URL that provides the actual public keys used to verify JWTs.
 
 ### Customising Verification
 
@@ -503,6 +522,8 @@ and frameworks may choose to intentionally disable some parameters!
 | `jwt.aws.region`             | N/A     | An AWS region, e.g. `eu-west-1`, that matches the AWS region your application is deployed in and uses [AWS ELB Verification](#aws-integration) | `0.8.0` onwards |
 | `jwt.jwks.cache.minutes`     | `60`    | How long in minutes to cache retrieved [JWKS](#jwks-verification) for.  Note that if an unknown Key ID is encountered then the cache is always bypassed and the JWKS retrieved again. | `0.8.0` onwards |
 | `jwt.allowed.clock.skew`     | N/A     | How long in seconds of clock skew to permit when evaluating validity period for JWT. | `0.8.0` onwards |
+| `jwt.oidc.provider.url`      | N/A     | A URL from which [OpenID Connect configuration discovery](#openid-connect-verification) can be used to discover the JWKS URL. | `3.1.0` onwards |
+| `jwt.oidc.retry.interval`    | `15`    | Retry interval in seconds used to avoid retrying requesting OpenID Connect configuration too frequently if the configured URL does not return a successful response. | `3.1.0` onwards |
 
 # License
 

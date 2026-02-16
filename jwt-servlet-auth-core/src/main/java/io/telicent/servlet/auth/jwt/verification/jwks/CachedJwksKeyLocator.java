@@ -27,13 +27,14 @@ import java.security.Key;
 import java.time.Duration;
 
 /**
- * A variant of {@link UrlJwksKeyLocator} that adds a caching layer so that the underlying JWKS file/URL is only loaded
- * upon encountering a key that is not currently cached
+ * A decorator over another {@link AbstractJwksLocator} that adds a caching layer so that the underlying JWKS file/URL
+ * is only loaded upon encountering a key that is not currently cached
  */
-public class CachedJwksKeyLocator extends UrlJwksKeyLocator {
+public class CachedJwksKeyLocator extends AbstractJwksLocator {
 
     private final Cache<String, Jwk<?>> cache;
     private final Duration cacheKeysFor;
+    private final AbstractJwksLocator jwksLocator;
 
     /**
      * Creates a new JWKS key locator with caching of keys enabled
@@ -53,15 +54,21 @@ public class CachedJwksKeyLocator extends UrlJwksKeyLocator {
      * @param cacheKeysFor How long keys should be cached for
      */
     public CachedJwksKeyLocator(URI jwksURI, HttpClient client, Duration cacheKeysFor) {
-        super(jwksURI, client);
+        this(new UrlJwksKeyLocator(jwksURI, client), cacheKeysFor);
+    }
+
+    public CachedJwksKeyLocator(AbstractJwksLocator jwksLocator, Duration cacheKeysFor) {
+        super(jwksLocator.client);
+        this.jwksLocator = jwksLocator;
         this.cacheKeysFor = cacheKeysFor;
         // Generally speaking there are relatively few keys are used in a JWKS, so we set a relatively compact cache
         // size to minimise memory footprint
-        this.cache = Caffeine.newBuilder()
-                             .initialCapacity(10)
-                             .maximumSize(25)
-                             .expireAfterAccess(cacheKeysFor)
-                             .build();
+        this.cache = Caffeine.newBuilder().initialCapacity(10).maximumSize(25).expireAfterAccess(cacheKeysFor).build();
+    }
+
+    @Override
+    protected URI getJwksURI() {
+        return this.jwksLocator.getJwksURI();
     }
 
     @Override
@@ -75,7 +82,7 @@ public class CachedJwksKeyLocator extends UrlJwksKeyLocator {
         }
 
         // Otherwise load the JWKS and cache the contained keys
-        JwkSet jwks = this.loadJwks();
+        JwkSet jwks = this.jwksLocator.loadJwks(this.jwksLocator.getJwksURI());
         jwks.getKeys().forEach(k -> this.cache.put(k.getId(), k));
 
         // Then lookup the key again
@@ -86,6 +93,6 @@ public class CachedJwksKeyLocator extends UrlJwksKeyLocator {
 
     @Override
     public String toString() {
-        return "CachedJwksKeyLocator{jwksUrl=" + this.jwksURI.toString() + ", cacheKeysFor=" + this.cacheKeysFor.toString() + "}";
+        return "CachedJwksKeyLocator{jwksLocator=" + this.jwksLocator + ", cacheKeysFor=" + this.cacheKeysFor.toString() + "}";
     }
 }
