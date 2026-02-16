@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1770624844511,
+  "lastUpdate": 1771229553797,
   "repoUrl": "https://github.com/telicent-oss/jwt-servlet-auth",
   "entries": {
     "JWTAuthBenchmarks": [
@@ -770,6 +770,100 @@ window.BENCHMARK_DATA = {
           {
             "name": "io.telicent.servlet.auth.jwt.benchmarks.SignedJwtVerifierBenchmark.verifyJwt",
             "value": 127469.34408326098,
+            "unit": "ops/s",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "name": "Paul Gallagher",
+            "username": "TelicentPaul",
+            "email": "132362215+TelicentPaul@users.noreply.github.com"
+          },
+          "committer": {
+            "name": "GitHub",
+            "username": "web-flow",
+            "email": "noreply@github.com"
+          },
+          "id": "4d1ce3e9fcfec3d2fc40a4ef893a9c7aaa84b81a",
+          "message": "Merge pull request #111 from telicent-oss/dependabot/maven/patches-10755dabf8\n\nBump org.apache.maven.plugins:maven-dependency-plugin from 3.9.0 to 3.10.0 in the patches group",
+          "timestamp": "2026-02-09T12:15:45Z",
+          "url": "https://github.com/telicent-oss/jwt-servlet-auth/commit/4d1ce3e9fcfec3d2fc40a4ef893a9c7aaa84b81a"
+        },
+        "date": 1771229553467,
+        "tool": "jmh",
+        "benches": [
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.JwtParserBuilderBenchmark.buildParserDefault",
+            "value": 7320.283882753461,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.JwtParserBuilderBenchmark.buildParserSharedDeserializer",
+            "value": 7470.035996579842,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.PathExclusionBenchmark.exactMatch",
+            "value": 368108.99368829606,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.PathExclusionBenchmark.exactMiss",
+            "value": 325142.0613231479,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.PathExclusionBenchmark.multiWildcardMatch",
+            "value": 6859.568707064408,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.PathExclusionBenchmark.multiWildcardMiss",
+            "value": 8850.881972644795,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.PathExclusionBenchmark.wildcardMatch",
+            "value": 104722.8898330064,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.PathExclusionBenchmark.wildcardMiss",
+            "value": 145942.71450224094,
+            "unit": "ops/ms",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.RolesHelperBenchmark.coldIsUserInRole",
+            "value": 10055276.623287212,
+            "unit": "ops/s",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.RolesHelperBenchmark.warmIsUserInRole",
+            "value": 101766720.87855712,
+            "unit": "ops/s",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.SignedJwtVerifierBenchmark.createVerifierAndVerify",
+            "value": 119096.42448562747,
+            "unit": "ops/s",
+            "extra": "iterations: 5\nforks: 1\nthreads: 1"
+          },
+          {
+            "name": "io.telicent.servlet.auth.jwt.benchmarks.SignedJwtVerifierBenchmark.verifyJwt",
+            "value": 125806.1225981119,
             "unit": "ops/s",
             "extra": "iterations: 5\nforks: 1\nthreads: 1"
           }
