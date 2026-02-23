@@ -91,7 +91,7 @@
         <plugin.release>3.3.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
         <plugin.source>3.4.0</plugin.source>
-        <plugin.surefire>3.5.4</plugin.surefire>
+        <plugin.surefire>3.5.5</plugin.surefire>
         <plugin.versions>2.21.0</plugin.versions>
 
         <!-- Dependency Versions -->
@@ -99,7 +99,7 @@
         <dependency.caffeine>3.2.3</dependency.caffeine>
         <dependency.commons-io>2.21.0</dependency.commons-io>
         <dependency.commons-lang>3.20.0</dependency.commons-lang>
-        <dependency.jackson>2.21.0</dependency.jackson>
+        <dependency.jackson>2.21.1</dependency.jackson>
         <dependency.jackson-annotations>2.21</dependency.jackson-annotations>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
         <dependency.jaxrs31>3.1.0</dependency.jaxrs31>
