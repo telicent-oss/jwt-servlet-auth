@@ -24,7 +24,7 @@ jobs:
       # Want SNAPSHOTs to be published from main
       PUBLISH_SNAPSHOTS: true
       MAIN_BRANCH: main
-      # Use JDK 17 to maximise portability
-      JAVA_VERSION: 17
+      # Use JDK 21 as the standard Java toolchain
+      JAVA_VERSION: 21
       CHANGELOG_FILE: CHANGELOG.md
     secrets: inherit
