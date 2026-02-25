@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+# 4.0.0
+
+- Build improvements:
+    - **BREAKING** Minimum Java Version is now 21
+    - Jackson upgraded to 2.21.1
+    - Various build and test dependencies upgraded to latest available
+
 # 3.0.0 
 
 - Core improvements:
