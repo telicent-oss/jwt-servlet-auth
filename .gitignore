@@ -5,6 +5,7 @@ pom.xml.*
 release.properties
 *.key
 jwks.*
+*/dependency-reduced-pom.xml
 
 # IntelliJ
 .idea/
