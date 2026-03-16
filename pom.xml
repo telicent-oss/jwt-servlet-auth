@@ -107,7 +107,7 @@
         <dependency.jjwt>0.13.0</dependency.jjwt>
         <dependency.jetty12>12.1.7</dependency.jetty12>
         <dependency.jmh>1.37</dependency.jmh>
-        <dependency.mockito>5.22.0</dependency.mockito>
+        <dependency.mockito>5.23.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
         <dependency.slf4j>2.0.17</dependency.slf4j>
