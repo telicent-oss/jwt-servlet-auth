@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+# 4.0.1
+
+- Build improvements
+    - Various build and test dependencies upgraded to latest available
+
 # 4.0.0
 
 - Build improvements:
