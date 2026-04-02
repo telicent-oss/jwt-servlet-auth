@@ -66,10 +66,8 @@ public class JwksServer {
             this.server.setHandler(handler);
 
             ServletHandler servletHandler = new ServletHandler();
-            ServletHolder holder = new ServletHolder();
-            holder.setServlet(new JwksServlet(this.jwks));
-            servletHandler.addServletWithMapping(holder, "/jwks.json");
             handler.setHandler(servletHandler);
+            addJwksServlet(servletHandler);
 
             try {
                 this.server.start();
@@ -80,6 +78,12 @@ public class JwksServer {
                 throw e;
             }
         }
+    }
+
+    protected void addJwksServlet(ServletHandler handler) {
+        ServletHolder holder = new ServletHolder();
+        holder.setServlet(new JwksServlet(this.jwks));
+        handler.addServletWithMapping(holder, "/jwks.json");
     }
 
     public void stop() throws Exception {
