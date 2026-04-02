@@ -91,6 +91,10 @@ public class TestOidcVerificationProvider extends AbstractFactoryTests {
                         "/really/deeply/nested/",
                         "/really/deeply/nested" + OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION
                 },
+                {
+                        "/realms/my-realm/.well-known/openid-configuration",
+                        "/realms/my-realm/.well-known/openid-configuration"
+                }
                 };
     }
 
