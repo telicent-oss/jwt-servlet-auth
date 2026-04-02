@@ -419,7 +419,7 @@ The JWKS URL **MUST** be either a `http`/`https` URL to identify a URL where the
 
 ### OpenID Connect Verification
 
-If your authentication server is OpenID Connect compliant then from `3.1.0` onwards you can use the new
+If your authentication server is OpenID Connect compliant then from `4.1.0` onwards you can use the new
 `OidcDiscoveryLocator` for your `Locator<Key>` when constructing the `JwtParser`.  As already noted we provide a
 `CachedJwksKeyLocator`, which we recommend for all production usage, as this only loads the underlying JWKS URL
 periodically when the cache entries expire.
