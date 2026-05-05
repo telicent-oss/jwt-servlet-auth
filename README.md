@@ -524,8 +524,8 @@ and frameworks may choose to intentionally disable some parameters!
 | `jwt.aws.region`             | N/A     | An AWS region, e.g. `eu-west-1`, that matches the AWS region your application is deployed in and uses [AWS ELB Verification](#aws-integration) | `0.8.0` onwards |
 | `jwt.jwks.cache.minutes`     | `60`    | How long in minutes to cache retrieved [JWKS](#jwks-verification) for.  Note that if an unknown Key ID is encountered then the cache is always bypassed and the JWKS retrieved again. | `0.8.0` onwards |
 | `jwt.allowed.clock.skew`     | N/A     | How long in seconds of clock skew to permit when evaluating validity period for JWT. | `0.8.0` onwards |
-| `jwt.oidc.provider.url`      | N/A     | A URL from which [OpenID Connect configuration discovery](#openid-connect-verification) can be used to discover the JWKS URL. | `3.1.0` onwards |
-| `jwt.oidc.retry.interval`    | `15`    | Retry interval in seconds used to avoid retrying requesting OpenID Connect configuration too frequently if the configured URL does not return a successful response. | `3.1.0` onwards |
+| `jwt.oidc.provider.url`      | N/A     | A URL from which [OpenID Connect configuration discovery](#openid-connect-verification) can be used to discover the JWKS URL. | `4.1.0` onwards |
+| `jwt.oidc.retry.interval`    | `15`    | Retry interval in seconds used to avoid retrying requesting OpenID Connect configuration too frequently if the configured URL does not return a successful response. | `4.1.0` onwards |
 
 # License
 
