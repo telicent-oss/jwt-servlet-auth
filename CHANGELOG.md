@@ -14,6 +14,10 @@
 - Build improvements:
     - `jwt-servlet-auth-core` `tests` module includes new `OidcServer` as a test server that extends the existing
       `JwksServer` test server with OIDC compliant configuration discovery endpoints for testing
+    - Apache Commons IO upgraded to 2.22.0
+    - Caffeine upgraded to 3.2.4
+    - Jackson upgraded to 2.21.3
+    - Various build and test dependencies upgraded to latest available
 
 # 4.0.1
 
