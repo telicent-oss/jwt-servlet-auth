@@ -27,4 +27,5 @@ jobs:
       # Use JDK 21 as the standard Java toolchain
       JAVA_VERSION: 21
       CHANGELOG_FILE: CHANGELOG.md
+      RUN_WINDOWS_BUILD: false
     secrets: inherit
