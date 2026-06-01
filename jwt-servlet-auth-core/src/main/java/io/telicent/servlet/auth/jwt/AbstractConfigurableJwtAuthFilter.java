@@ -123,7 +123,7 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
      */
     public final void doFilter(TRequest request, TResponse response, BiConsumer<TRequest, TResponse> onSuccess) {
         this.lastAuthenticatedRequest = null;
-        MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
+        MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
 
         if (this.config.getExclusions() == null) {
             this.config.tryFreezeExclusionsConfiguration(

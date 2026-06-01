@@ -20,6 +20,7 @@ import io.telicent.servlet.auth.jwt.verification.FakeTokenVerifier;
 import io.telicent.servlet.auth.jwt.verification.InvalidTokenVerifier;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.SubjectlessTokenVerifier;
+import org.slf4j.MDC;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -70,7 +71,8 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
 
     /**
      * Gets the authenticated user (if any)
-     * @param filter Filter
+     *
+     * @param filter  Filter
      * @param request Request
      * @return Authenticated user, or {@code null} if not authenticated
      */
@@ -175,7 +177,8 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
     }
 
     @Test
-    public void givenWildcardPathExclusion_whenFilteringForMatchingPath_thenNoChallenge_andNonExcludedPathsAreRejected() throws IOException {
+    public void givenWildcardPathExclusion_whenFilteringForMatchingPath_thenNoChallenge_andNonExcludedPathsAreRejected() throws
+            IOException {
         // Given
         TFilter filter =
                 createFilter(createEngine(), new FakeTokenVerifier(), PathExclusion.parsePathPatterns("/status/*"));
@@ -196,7 +199,8 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
     }
 
     @Test
-    public void givenPathExclusions_whenFilteringForNonExcludedPath_thenRejected_andRequestsWithAuthPermitted() throws IOException {
+    public void givenPathExclusions_whenFilteringForNonExcludedPath_thenRejected_andRequestsWithAuthPermitted() throws
+            IOException {
         // Given
         TFilter filter =
                 createFilter(createEngine(), new FakeTokenVerifier(), PathExclusion.parsePathPatterns("/status/*"));
@@ -228,5 +232,17 @@ public abstract class AbstractFilterTests<TRequest, TResponse, TFilter extends A
 
         // Then
         Assert.assertEquals(getAuthenticatedUser(filter, request), "foo");
+    }
+
+    @Test
+    public void givenLoggingContext_whenFilteringValidRequest_thenLoggingContextUpdated() {
+        // Given
+        MDC.put(JwtLoggingConstants.MDC_JWT_USER, "other");
+
+        // When
+        givenValidToken_whenFiltering_thenAuthenticated();
+
+        // Then
+        Assert.assertNull(MDC.get(JwtLoggingConstants.MDC_JWT_USER));
     }
 }

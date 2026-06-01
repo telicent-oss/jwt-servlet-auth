@@ -17,6 +17,8 @@ package io.telicent.servlet.auth.jwt.servlet3;
 
 import io.telicent.servlet.auth.jwt.AbstractConfigurableJwtAuthFilter;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
+import io.telicent.servlet.auth.jwt.JwtLoggingConstants;
+import org.slf4j.MDC;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -49,6 +51,10 @@ public class JwtAuthFilter extends AbstractConfigurableJwtAuthFilter<HttpServlet
                 filterChain.doFilter(req, resp);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
+            } finally {
+                // Ensure we remove the authenticated user from the logging context at the end of request processing
+                // otherwise it could leak to subsequent requests and cause them to be logged against the wrong user
+                MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
             }
         });
     }
