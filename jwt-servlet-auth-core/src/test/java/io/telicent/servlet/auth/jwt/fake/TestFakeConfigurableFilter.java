@@ -21,6 +21,7 @@ import io.telicent.servlet.auth.jwt.configuration.MapRuntimeConfigAdaptor;
 import io.telicent.servlet.auth.jwt.configuration.RuntimeConfigurationAdaptor;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
+import org.slf4j.MDC;
 import org.testng.Assert;
 
 import java.io.IOException;
@@ -58,7 +59,9 @@ public class TestFakeConfigurableFilter
 
     @Override
     protected void invokeFilter(FakeConfigurableFilter filter, FakeRequest fakeRequest, FakeResponse fakeResponse) {
-        filter.doFilter(fakeRequest, fakeResponse, (authenticatedRequest, authenticatedResponse) -> {});
+        filter.doFilter(fakeRequest, fakeResponse, (authenticatedRequest, authenticatedResponse) -> {
+            MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
+        });
     }
 
     @Override

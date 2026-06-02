@@ -134,7 +134,10 @@ public class TestJaxRs3Filter
     protected void invokeFilter(JwtAuthFilter filter, ContainerRequestContext containerRequestContext,
                                 ContainerResponseContext containerResponseContext) {
         try {
+            // JAX-RS filter is a request and response filter so would get invoked twice at the different stages of
+            // JAX-RS request processing
             filter.filter(containerRequestContext);
+            filter.filter(containerRequestContext, containerResponseContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

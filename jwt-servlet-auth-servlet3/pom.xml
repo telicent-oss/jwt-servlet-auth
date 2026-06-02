@@ -47,6 +47,12 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.valfirst</groupId>
+            <artifactId>slf4j-test</artifactId>
+            <version>${dependency.slf4j-test}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

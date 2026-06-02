@@ -23,6 +23,7 @@ import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ import java.util.function.Function;
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext, ContainerResponseContext>
-        implements ContainerRequestFilter {
+        implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthFilter.class);
 
@@ -60,7 +61,9 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
 
     @Override
     public void filter(ContainerRequestContext request) throws IOException {
-        MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
+        // Reset the logging context user at the start of filtering to ensure that the logging context doesn't contain a
+        // username unless we successfully authenticate this request
+        MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
 
         if (this.config.getExclusions() == null) {
             this.config.tryFreezeExclusionsConfiguration(
@@ -95,5 +98,13 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
         if (this.config.getEngine().authenticate(request, null, this.config.getVerifier()) == null) {
             LOGGER.warn("Request to {} rejected as unauthenticated", request.getUriInfo().getRequestUri().toString());
         }
+    }
+
+    @Override
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
+        // NB - It's important that we explicitly remove the user from the Logging MDC upon completion of request
+        //      processing otherwise a subsequent request that fails prior to this filter in the JAX-RS request
+        //      processing could be incorrectly logged against the successfully authenticated user for this request
+        MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
     }
 }

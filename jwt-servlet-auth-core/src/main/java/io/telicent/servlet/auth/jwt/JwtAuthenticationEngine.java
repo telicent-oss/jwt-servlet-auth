@@ -70,7 +70,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      */
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {
-            MDC.put(JwtLoggingConstants.MDC_JWT_USER, null);
+            MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
             if (!hasRequiredParameters(request)) {
                 // No authentication parameters provided so abort immediately
                 sendChallenge(request, response, new Challenge(401, "", noParametersMessage()));
@@ -148,6 +148,8 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
             // If we reach here then at least one token was considered valid, so we go ahead and prepare an
             // authenticated request that records the authenticated user identity
+            // We also ensure that we put the username in the logging context so loggers can be configured to include
+            // the authenticated username in the log pattern
             MDC.put(JwtLoggingConstants.MDC_JWT_USER, username);
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_SOURCE, jws.candidateToken().source());
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT,

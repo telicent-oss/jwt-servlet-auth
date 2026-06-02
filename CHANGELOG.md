@@ -1,5 +1,15 @@
 # CHANGE LOG
 
+# 4.1.1
+
+- Core improvements:
+    - Fixed an edge case bug where in some circumstances the Logging Context (MDC) did not properly clear the 
+      authenticated username at the conclusion of a request which could result in subsequent logging statements 
+      incorrectly being attributed to the wrong username
+- Build improvements:
+    - SLF4J upgraded to 2.0.18
+    - Various build and test dependencies upgraded to latest available
+
 # 4.1.0
 
 - Core improvements:
