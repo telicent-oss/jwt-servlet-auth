@@ -109,7 +109,7 @@
         <dependency.jmh>1.37</dependency.jmh>
         <dependency.mockito>5.23.0</dependency.mockito>
         <dependency.servlet3>3.1.0</dependency.servlet3>
-        <dependency.servlet5>5.0.0</dependency.servlet5>
+        <dependency.servlet5>6.0.0</dependency.servlet5>
         <dependency.slf4j>2.0.18</dependency.slf4j>
         <dependency.slf4j-test>3.0.3</dependency.slf4j-test>
         <dependency.testng>7.12.0</dependency.testng>
