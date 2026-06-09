@@ -7,6 +7,8 @@
       authenticated username at the conclusion of a request which could result in subsequent logging statements 
       incorrectly being attributed to the wrong username
 - Build improvements:
+    - Jackson upgraded to 2.21.4
+    - Jackson Annotations upgraded to 2.22
     - SLF4J upgraded to 2.0.18
     - Various build and test dependencies upgraded to latest available
 
