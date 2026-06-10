@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+# 4.1.2
+
+- Build improvements:
+    - Jackson upgraded to 2.22.0
+    - Various build and test dependencies upgraded to latest available
+
 # 4.1.1
 
 - Core improvements:
