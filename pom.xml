@@ -77,6 +77,13 @@
         <coverage.minimum>0.8</coverage.minimum>
         <coverage.skip>false</coverage.skip>
 
+        <!-- Whether tests and test-sources JARs are skipped -->
+        <!--
+        These are skipped by default, any module that needs to expose code to downstream consumers can override this
+        property to false in order to produce those JARs
+        -->
+        <skip.testJars>true</skip.testJars>
+
         <!-- Plugin Versions -->
         <plugin.central>0.11.0</plugin.central>
         <plugin.clean>3.1.0</plugin.clean>
@@ -358,6 +365,10 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                            <skipIfEmpty>true</skipIfEmpty>
+                            <skip>${skip.testJars}</skip>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -373,8 +384,17 @@
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-test-sources</id>
+                        <phase>package</phase>
+                        <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                            <skipSource>${skip.testJars}</skipSource>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -471,6 +491,7 @@
                     <!-- Central Publishing can be much slower than old Nexus publishing process -->
                     <waitMaxTime>3600</waitMaxTime>
                     <deploymentName>JWT Servlet Auth ${project.version}</deploymentName>
+                    <checksums>required</checksums>
                 </configuration>
             </plugin>
 

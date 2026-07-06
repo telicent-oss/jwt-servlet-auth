@@ -13,6 +13,7 @@
     <properties>
         <license.header.path>${project.parent.basedir}</license.header.path>
         <coverage.minimum>0.9</coverage.minimum>
+        <skip.testJars>false</skip.testJars>
     </properties>
 
     <dependencies>
