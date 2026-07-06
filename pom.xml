@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.telicent.public</groupId>
@@ -75,6 +76,13 @@
         -->
         <coverage.minimum>0.8</coverage.minimum>
         <coverage.skip>false</coverage.skip>
+
+        <!-- Whether tests and test-sources JARs are skipped -->
+        <!--
+        These are skipped by default, any module that needs to expose code to downstream consumers can override this
+        property to false in order to produce those JARs
+        -->
+        <skip.testJars>true</skip.testJars>
 
         <!-- Plugin Versions -->
         <plugin.central>0.11.0</plugin.central>
@@ -252,14 +260,14 @@
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-core</artifactId>
                 <version>${dependency.jmh}</version>
-<!--                <scope>test</scope>-->
+                <!--                <scope>test</scope>-->
             </dependency>
 
             <dependency>
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${dependency.jmh}</version>
-<!--                <scope>test</scope>-->
+                <!--                <scope>test</scope>-->
             </dependency>
         </dependencies>
 
@@ -357,6 +365,10 @@
                         <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                            <skipIfEmpty>true</skipIfEmpty>
+                            <skip>${skip.testJars}</skip>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -372,8 +384,17 @@
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-test-sources</id>
+                        <phase>package</phase>
+                        <goals>
                             <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                            <skipSource>${skip.testJars}</skipSource>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -383,7 +404,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${plugin.javadoc}</version>
-                <configuration />
+                <configuration/>
                 <executions>
                     <execution>
                         <goals>
@@ -404,7 +425,9 @@
                     <includes>
                         <include>**/Test*.java</include>
                     </includes>
-                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -XX:+EnableDynamicAgentLoading -Xshare:off</argLine>
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -XX:+EnableDynamicAgentLoading
+                        -Xshare:off
+                    </argLine>
                 </configuration>
             </plugin>
             <plugin>
@@ -452,6 +475,7 @@
                 <configuration>
                     <outputName>${project.artifactId}-${project.version}-bom</outputName>
                     <skipNotDeployed>false</skipNotDeployed>
+                    <outputFormat>json</outputFormat>
                 </configuration>
             </plugin>
 
@@ -467,6 +491,8 @@
                     <waitUntil>validated</waitUntil>
                     <!-- Central Publishing can be much slower than old Nexus publishing process -->
                     <waitMaxTime>3600</waitMaxTime>
+                    <deploymentName>JWT Servlet Auth ${project.version}</deploymentName>
+                    <checksums>required</checksums>
                 </configuration>
             </plugin>
 
