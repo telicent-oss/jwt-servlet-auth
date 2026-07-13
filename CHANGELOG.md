@@ -1,5 +1,15 @@
 # CHANGE LOG
 
+# 4.1.3
+
+- Build improvements:
+    - Don't publish internal only modules (integration tests and benchmarks) to Maven Central
+    - Don't produce `tests` and `test-sources` JARs except on modules that provide reusable test code
+    - Only produce CycloneDX SBOMs in JSON format
+    - Only publish minimum required checksums
+    - Use named Maven Central deployment
+    - Various build and test dependencies upgraded to latest available
+
 # 4.1.2
 
 - Build improvements:
