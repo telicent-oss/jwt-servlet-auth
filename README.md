@@ -62,7 +62,8 @@ To depend on this library add the following to your Maven dependencies:
 ```
 
 Where `IMPLEMENTATION` is the desired implementation module for your target servlet container runtime and `X.Y.Z` is the
-desired version. The current stable version is `4.0.0`, development snapshots are `4.0.1-SNAPSHOT`.
+desired version. The current stable version may be found via [GitHub
+Releases](https://github.com/telicent-oss/jwt-serv;et-auth/releases/latest), we do not currently publish `SNAPSHOT` builds publicly.
 
 We follow semantic versioning so please refer to the [CHANGELOG](CHANGELOG.md) for notes on changes, particularly any
 breaking changes that may have led to a given major version bump.
