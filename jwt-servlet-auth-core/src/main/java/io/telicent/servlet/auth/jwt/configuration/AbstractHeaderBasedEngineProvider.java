@@ -85,8 +85,7 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     // configuration supplied" from "configuration supplied but empty", which are different states: configure()
     // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
     // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
-    @SuppressWarnings("java:S1168")
-    @SuppressWarnings("java:S4276")
+    @SuppressWarnings({"java:S1168", "java:S4276"})
     protected List<ClaimPath> configureUsernameClaims(Function<String, String> paramSupplier) {
         List<String> rawClaims =
                 Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USERNAME_CLAIMS),
