@@ -88,6 +88,11 @@ public class RolesHelper {
      * @param rawRoles Raw roles claim value, may be {@code null} if no such claim present in the JWT
      * @return Loaded roles
      */
+    // Sonar S3776 - suppressed pending a decision on refactoring.  The cognitive complexity comes from the four
+    // supported claim shapes (String, Collection, String[], other), each with its own empty/blank handling.  This
+    // method is documented above as an extension point for subclasses and sits on the authorisation path, so it is
+    // not being restructured as part of a Sonar clean-up sweep.  See CORE-1468.
+    @SuppressWarnings("java:S3776")
     protected Set<String> loadRoles(Object rawRoles) {
         if (rawRoles == null) {
             return Collections.emptySet();
