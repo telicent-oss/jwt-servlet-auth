@@ -40,8 +40,9 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     protected List<HeaderSource> configureHeaders(Function<String, String> paramSupplier) {
         List<HeaderSource> sources = new ArrayList<>();
 
-        if (Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS),
-                                 Boolean::parseBoolean, false)) {
+        if (Boolean.TRUE.equals(
+                Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS),
+                                     Boolean::parseBoolean, false))) {
             sources.addAll(JwtHttpConstants.DEFAULT_HEADER_SOURCES);
         }
         List<String> headers = Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_HEADER_NAMES),
