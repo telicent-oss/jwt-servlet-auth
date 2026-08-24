@@ -189,6 +189,9 @@ public class DefaultVerificationProvider implements VerificationProvider {
         return new KeyLoadException("Parameter " + ConfigurationParameters.PARAM_JWKS_URL + " is not a valid URL", e);
     }
 
+    // Sonar S1135 - the TODO below records a real outstanding gap (issuer/audience validation is not currently
+    // configurable) and is more useful kept in the code than deleted.  Suppressed rather than removed.
+    @SuppressWarnings("java:S1135")
     protected JwtVerifier create(Map<String, String> parameters, JwtParserBuilder builder, String debugString) {
         Integer allowedClockSkew =
                 Utils.parseParameter(parameters, ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, Integer::parseInt,

@@ -95,6 +95,9 @@ public class TestFrozenFilterConfiguration {
     }
 
     @Test
+    // Sonar S1135 - the TODO below records that this test does not yet assert the warning was issued, which needs a
+    // log capturing appender to do properly.  Kept as a marker rather than deleted.
+    @SuppressWarnings("java:S1135")
     public void givenFrozenFilterConfiguration_whenCheckingForWarningWithDifferentObject_thenWarningIssued() {
         // Given
         FrozenFilterConfiguration config = new FrozenFilterConfiguration();
