@@ -63,6 +63,12 @@
 
         <!-- SonarQube analysis, invoked from CI via mvn sonar:sonar -->
         <sonar.projectKey>telicent-oss_jwt-auth</sonar.projectKey>
+        <!--
+        The benchmarks module contains JMH harness code that is never published as a release artifact.  Production
+        rules (e.g. S1192 on duplicated string literals) produce findings there that say nothing about the quality of
+        the shipped libraries, so it is excluded from analysis to keep the quality gate meaningful.
+        -->
+        <sonar.exclusions>jwt-servlet-auth-benchmarks/**/*</sonar.exclusions>
 
         <!-- License Plugin Configuration -->
         <!--
