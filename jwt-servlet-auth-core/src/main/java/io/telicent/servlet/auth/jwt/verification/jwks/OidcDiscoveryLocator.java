@@ -125,6 +125,15 @@ public class OidcDiscoveryLocator extends AbstractJwksLocator {
             } else {
                 configuration = this.configLoader.load(this.discoveryUri);
             }
+            if (configuration == null) {
+                // NB - OidcConfigurationLoader.load() is documented to return null on every failure path (non-200,
+                //      parse error, interrupt, connection failure).  Without this guard the dereference below threw
+                //      an NPE which the enclosing catch reported to operators as
+                //      "...discovery: Cannot invoke getJwksUri() because configuration is null", hiding the actual
+                //      HTTP status or parse error that caused the failure.
+                throw new KeyLoadException(
+                        "Unable to load OpenID Connect configuration from " + discoveryUri + ", see earlier warnings for the underlying cause");
+            }
             if (StringUtils.isNotBlank(configuration.getJwksUri())) {
                 LOGGER.info("Obtained OpenID Connect configuration from {} provided JWKS URL {}", discoveryUri,
                             configuration.getJwksUri());
