@@ -33,51 +33,7 @@ import static io.telicent.servlet.auth.jwt.verifier.aws.TestAwsElbKeyResolver.TE
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestAwsElbKeyUrlRegistry {
-
-    private AwsElbServer keyServer;
-    private JwkSet jwks;
-
-    private Object[][] keyIds;
-
-    private static final AtomicInteger TEST_PORT = new AtomicInteger(35791);
-
-    @BeforeClass
-    public void setup() throws Exception {
-        List<KeyPair> keyPairs = List.of(Jwts.SIG.ES256.keyPair().build(), Jwts.SIG.ES384.keyPair().build(),
-                                         Jwts.SIG.ES512.keyPair().build());
-        JwkSetBuilder privateJwks = Jwks.set();
-        JwkSetBuilder publicJwks = Jwks.set();
-        keyPairs.forEach(p -> {
-            privateJwks.add(Jwks.builder().keyPair(p).idFromThumbprint().build());
-            publicJwks.add(Jwks.builder().key(p.getPublic()).idFromThumbprint().build());
-        });
-        this.jwks = privateJwks.build();
-
-        this.keyIds = new Object[keyPairs.size()][];
-        for (int i = 0; i < this.jwks.getKeys().size(); i++) {
-            this.keyIds[i] =
-                    new Object[] { this.jwks.getKeys().stream().skip(i).map(k -> k.getId()).findFirst().orElse(null) };
-        }
-
-        this.keyServer = new AwsElbServer(TEST_PORT.getAndIncrement(), publicJwks.build());
-        this.keyServer.start();
-    }
-
-    @AfterMethod
-    public void testCleanup() {
-        AwsElbKeyUrlRegistry.reset();
-    }
-
-    @AfterClass
-    public void teardown() throws Exception {
-        this.keyServer.stop();
-    }
-
-    @DataProvider(name = "keyIds")
-    public Object[][] keyIds() {
-        return this.keyIds;
-    }
+public class TestAwsElbKeyUrlRegistry extends AbstractAwsKeyResolverTests {
 
     @Test
     public void givenNormalRegion_whenLookingUpKeys_thenDefaultUrlIsUsed() {

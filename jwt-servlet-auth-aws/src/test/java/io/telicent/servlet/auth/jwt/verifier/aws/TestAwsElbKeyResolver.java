@@ -17,29 +17,66 @@ package io.telicent.servlet.auth.jwt.verifier.aws;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.InvalidKeyException;
+import io.jsonwebtoken.security.Jwk;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.security.Key;
+import java.sql.Date;
+import java.time.Instant;
+import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 import static org.mockito.Mockito.*;
 
-public class TestAwsElbKeyResolver {
+public class TestAwsElbKeyResolver extends AbstractAwsKeyResolverTests {
 
     public static final String TEST_AWS_REGION = "eu-west-1";
-
-    private static final String TEST_AWS_ELB_KEY_ID = "00770e84-91d7-4a1d-bab7-2fbe9de4b5ab";
-
-    private static final String TEST_JWT =
-            "eyJ0eXAiOiJKV1QiLCJraWQiOiIwMDc3MGU4NC05MWQ3LTRhMWQtYmFiNy0yZmJlOWRlNGI1YWIiLCJhbGciOiJFUzI1NiIsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAuZXUtd2VzdC0xLmFtYXpvbmF3cy5jb20vZXUtd2VzdC0xX0hSMWMxWGozTiIsImNsaWVudCI6IjU2NXZqOW42ZnQ5b2ZicnFvbTA5NW10cWIiLCJzaWduZXIiOiJhcm46YXdzOmVsYXN0aWNsb2FkYmFsYW5jaW5nOmV1LXdlc3QtMTowOTg2Njk1ODk1NDE6bG9hZGJhbGFuY2VyL2FwcC9UZWxpYy1BcHBsaS02TDhBMFhPVkJQOFgvMGQ0MzA0NWI3NmVlNjFhNSIsImV4cCI6MTY1NDYxNjkxOH0=.eyJzdWIiOiI1Zjc0ZmNjYS1jZjBhLTRjZGQtOGM4ZC1iZmM4NjhjYWY0NGMiLCJlbWFpbF92ZXJpZmllZCI6InRydWUiLCJlbWFpbCI6InRvbUB0ZWxpY2VudC5pbyIsInVzZXJuYW1lIjoiNWY3NGZjY2EtY2YwYS00Y2RkLThjOGQtYmZjODY4Y2FmNDRjIiwiZXhwIjoxNjU0NjE2OTE4LCJpc3MiOiJodHRwczovL2NvZ25pdG8taWRwLmV1LXdlc3QtMS5hbWF6b25hd3MuY29tL2V1LXdlc3QtMV9IUjFjMVhqM04ifQ==.SdlxvcVug6g4xM6seIUIfsq56CW4A9aZynvlWmT3ry939KgrZc9JXoYe9zBVptPxs_7FHkFzBSfocAp4A7I1Mg==";
 
     private Key verifyKeyResolution(String region, String keyId) {
         AwsElbKeyResolver resolver = new AwsElbKeyResolver(region);
         JwsHeader header = mock(JwsHeader.class);
         when(header.getKeyId()).thenReturn(keyId);
         return resolver.locate(header);
+    }
+
+    @BeforeMethod
+    public void testSetup() {
+        // August 2026 - AWS changed something that means the previous Test Key ID we used no longer resolved (produces
+        //               a 403 error) so have to use a fake key server instead which is less than ideal but we don't
+        //               have a good way to reliably get an AWS Key ID that we can reliably access outside AWS infra
+        AwsElbKeyUrlRegistry.register(TEST_AWS_REGION, this.keyServer.getUrl() + "/%s");
+    }
+
+    /**
+     * Gets the Test Key ID in use
+     *
+     * @return Test Key ID
+     */
+    public String getTestKeyId() {
+        return (String) this.keyIds()[0][0];
+    }
+
+    public String prepareJwt(UnaryOperator<JwtBuilder> customiser) {
+        String testKeyId = getTestKeyId();
+        JwtBuilder builder = Jwts.builder()
+                                 .header()
+                                 .keyId(testKeyId)
+                                 .and()
+                                 .subject("test")
+                                 .expiration(Date.from(
+                                         Instant.now().plusSeconds(15)))
+                                 .signWith(this.jwks.getKeys()
+                                                    .stream()
+                                                    .filter(k -> Objects.equals(k.getId(), testKeyId))
+                                                    .map(Jwk::toKey)
+                                                    .findFirst()
+                                                    .orElse(null));
+        return customiser.apply(builder).compact();
     }
 
     @Test(expectedExceptions = InvalidKeyException.class)
@@ -64,7 +101,7 @@ public class TestAwsElbKeyResolver {
     @Test
     public void givenValidRegionAndKey_whenResolving_thenSuccess() {
         // Given and When
-        Key key = verifyKeyResolution(TEST_AWS_REGION, TEST_AWS_ELB_KEY_ID);
+        Key key = verifyKeyResolution(TEST_AWS_REGION, getTestKeyId());
 
         // Then
         Assert.assertNotNull(key);
@@ -75,18 +112,20 @@ public class TestAwsElbKeyResolver {
         // Given
         AwsElbKeyResolver resolver = new AwsElbKeyResolver(TEST_AWS_REGION);
         SignedJwtVerifier verifier = new SignedJwtVerifier(resolver);
+        String jwt = prepareJwt(b -> b.expiration(Date.from(Instant.now().minusSeconds(10))));
 
         // When and Then
-        verifier.verify(TEST_JWT);
+        verifier.verify(jwt);
     }
 
     @Test(expectedExceptions = ExpiredJwtException.class)
     public void givenExpiredJwt_whenResolving_thenError() {
         // Given
         AwsElbJwtVerifier verifier = new AwsElbJwtVerifier(TEST_AWS_REGION);
+        String jwt = prepareJwt(b -> b.expiration(Date.from(Instant.now().minusSeconds(10))));
 
         // When and Then
-        verifier.verify(TEST_JWT);
+        verifier.verify(jwt);
     }
 
     @Test
@@ -94,12 +133,13 @@ public class TestAwsElbKeyResolver {
         // Given
         AwsElbKeyResolver resolver = new AwsElbKeyResolver(TEST_AWS_REGION);
         SignedJwtVerifier verifier = new SignedJwtVerifier(Jwts.parser().keyLocator(resolver)
-                                                               // We know the test JWT has long expired but want to verify that if we ignore the expiry we can
+                                                               // We know the test JWT has expired but want to verify that if we ignore the expiry we can
                                                                // successfully verify.  We're setting the largest possible clock skew here to achieve this.
                                                                .clockSkewSeconds(Long.MAX_VALUE / 1000).build());
+        String jwt = prepareJwt(b -> b.expiration(Date.from(Instant.now().minusSeconds(10))));
 
         // When and Then
-        Jws<Claims> jws = verifier.verify(TEST_JWT);
+        Jws<Claims> jws = verifier.verify(jwt);
         Assert.assertNotNull(jws);
     }
 
