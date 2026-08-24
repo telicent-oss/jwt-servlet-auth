@@ -30,7 +30,7 @@ public class TestEngineFactory extends AbstractFactoryTests {
         AtomicReference<JwtAuthenticationEngine<?, ?>> configured = new AtomicReference<>();
 
         // When
-        EngineFactory.configure(NULL_PARAM_SUPPLIER, x -> configured.set(x));
+        EngineFactory.configure(NULL_PARAM_SUPPLIER, configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -46,7 +46,7 @@ public class TestEngineFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_HEADER_PREFIXES, "Bearer,Bearer");
 
         // When
-        EngineFactory.configure(supplierForMap(config), x -> configured.set(x));
+        EngineFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured);
@@ -62,7 +62,7 @@ public class TestEngineFactory extends AbstractFactoryTests {
                                             ConfigurationParameters.PARAM_REALM, "Secret Squirrel HQ");
 
         // When
-        EngineFactory.configure(supplierForMap(config), x -> configured.set(x));
+        EngineFactory.configure(supplierForMap(config), configured::set);
 
         // Then
         Assert.assertNotNull(configured);

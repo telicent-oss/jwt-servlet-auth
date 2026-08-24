@@ -27,7 +27,7 @@ import java.util.function.Function;
 public class TestAwsVerificationProvider {
 
     public static Function<String, String> mapSupplier(Map<String, String> map) {
-        return x -> map.get(x);
+        return map::get;
     }
 
     @Test
@@ -36,7 +36,7 @@ public class TestAwsVerificationProvider {
         AtomicReference<JwtVerifier> verifier = new AtomicReference<>();
 
         // When
-        VerificationFactory.configure(x -> null, y -> verifier.set(y));
+        VerificationFactory.configure(x -> null, verifier::set);
 
         // Then
         Assert.assertNull(verifier.get());
@@ -49,7 +49,7 @@ public class TestAwsVerificationProvider {
         Map<String, String> config = Map.of(AwsVerificationProvider.PARAM_AWS_REGION, "eu-west-1");
 
         // When
-        VerificationFactory.configure(mapSupplier(config), x -> verifier.set(x));
+        VerificationFactory.configure(mapSupplier(config), verifier::set);
 
         // Then
         Assert.assertNotNull(verifier.get());

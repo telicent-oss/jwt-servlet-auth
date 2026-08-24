@@ -22,6 +22,6 @@ public abstract class AbstractFactoryTests {
     public static final Function<String, String> NULL_PARAM_SUPPLIER = x -> null;
 
     public static final Function<String, String> supplierForMap(Map<String, String> map) {
-        return x -> map.get(x);
+        return map::get;
     }
 }

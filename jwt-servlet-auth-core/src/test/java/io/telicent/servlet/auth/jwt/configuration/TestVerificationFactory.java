@@ -49,7 +49,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
 
         // When
-        VerificationFactory.configure(NULL_PARAM_SUPPLIER, x -> configured.set(x));
+        VerificationFactory.configure(NULL_PARAM_SUPPLIER, configured::set);
 
         // Then
         Assert.assertNull(configured.get());
