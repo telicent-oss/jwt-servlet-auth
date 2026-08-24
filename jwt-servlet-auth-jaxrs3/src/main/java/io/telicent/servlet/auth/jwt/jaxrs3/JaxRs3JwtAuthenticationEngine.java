@@ -31,7 +31,6 @@ import org.apache.commons.lang3.Strings;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * A JWT authentication engine for use with JAX-RS 3.x web applications
@@ -76,7 +75,7 @@ public class JaxRs3JwtAuthenticationEngine
                                                 .stream()
                                                 .filter(e -> Strings.CI.equals(e.getKey(), h.getHeader()))
                                                 .flatMap(e -> e.getValue().stream().map(v -> new TokenCandidate(h, v))))
-                           .collect(Collectors.toList());
+                           .toList();
     }
 
     @Override

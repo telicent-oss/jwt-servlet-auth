@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * An abstract base class for use by concrete {@link EngineProvider} implementations
@@ -73,7 +72,7 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
         if (rawClaims == null) {
             return null;
         }
-        return rawClaims.stream().map(AbstractHeaderBasedEngineProvider::parseClaimPath).collect(Collectors.toList());
+        return rawClaims.stream().map(AbstractHeaderBasedEngineProvider::parseClaimPath).toList();
     }
 
     /**
@@ -129,7 +128,7 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
         return Arrays.stream(value.split("\\."))
                      .filter(StringUtils::isNotBlank)
                      .map(StringUtils::strip)
-                     .collect(Collectors.toList());
+                     .toList();
     }
 
     /**

@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
 
@@ -502,7 +501,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
     public JwtAuthenticationEngine<TRequest, TResponse> createMultiClaimEngine(String... usernameClaims) {
         return createEngine((List<HeaderSource>) JwtHttpConstants.DEFAULT_HEADER_SOURCES, null,
-                            Arrays.stream(usernameClaims).map(ClaimPath::topLevel).collect(Collectors.toList()));
+                            Arrays.stream(usernameClaims).map(ClaimPath::topLevel).toList());
     }
 
     @Test
