@@ -44,8 +44,10 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
     /**
      * No longer used.
+     *
+     * @deprecated No longer used, and always {@code null}.  Will be removed in the next major release.
      */
-    @Deprecated
+    @Deprecated(since = "4.1.5", forRemoval = true)
     protected static final String NO_AUTH_TOKEN_FOUND = null;
 
     /**
