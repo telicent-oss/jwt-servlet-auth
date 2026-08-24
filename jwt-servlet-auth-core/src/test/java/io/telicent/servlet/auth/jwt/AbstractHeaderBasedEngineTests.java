@@ -423,9 +423,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         List<HeaderSource> headerSources = new ArrayList<>(JwtHttpConstants.DEFAULT_HEADER_SOURCES);
         headerSources.add(new HeaderSource(CUSTOM_AUTH_HEADER, JwtHttpConstants.AUTH_SCHEME_BEARER));
 
-        JwtAuthenticationEngine<TRequest, TResponse> engine =
-                createEngine(headerSources, realm, usernameClaim != null ? List.of(usernameClaim) : null);
-        return engine;
+        return createEngine(headerSources, realm, usernameClaim != null ? List.of(usernameClaim) : null);
     }
 
     protected void verifyChallenge(String authHeader, JwtVerifier verifier, int expectedStatus,
