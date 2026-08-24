@@ -42,6 +42,11 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import java.net.http.HttpResponse;
+import java.net.http.HttpRequest;
 
 public class TestKeyUtils {
 
@@ -379,5 +384,30 @@ public class TestKeyUtils {
 
         // When and Then
         KeyUtils.loadJwks(jwksURI, HTTP_CLIENT);
+    }
+
+    @Test
+    public void givenInterruptedHttpClient_whenLoadingJwksFromUrl_thenKeyLoadException_andInterruptFlagRestored() throws
+            Exception {
+        // Given
+        HttpClient client = mock(HttpClient.class);
+        when(client.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(
+                new InterruptedException("Simulated interrupt"));
+        boolean interrupted;
+
+        // When
+        try {
+            KeyUtils.loadJwks(URI.create("https://example.org/jwks.json"), client);
+            Assert.fail("Expected a KeyLoadException");
+        } catch (KeyLoadException e) {
+            Assert.assertTrue(StringUtils.contains(e.getMessage(), "Interrupted"));
+            Assert.assertNotNull(e.getCause(), "Expected the InterruptedException to be carried as the cause");
+        } finally {
+            // NB - Thread.interrupted() also clears the flag so that it cannot leak into subsequent tests
+            interrupted = Thread.interrupted();
+        }
+
+        // Then
+        Assert.assertTrue(interrupted, "Expected the interrupt flag to have been restored on the current thread");
     }
 }
