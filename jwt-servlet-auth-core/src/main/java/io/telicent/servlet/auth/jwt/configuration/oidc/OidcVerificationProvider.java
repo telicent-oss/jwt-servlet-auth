@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -57,12 +58,12 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
     /**
      * Supported parameters for this verification provider
      */
-    public static String[] OPENID_PARAMETERS = new String[] {
+    public static final List<String> OPENID_PARAMETERS = List.of(
             ConfigurationParameters.PARAM_OIDC_PROVIDER_URL,
             ConfigurationParameters.PARAM_OIDC_RETRY_INTERVAL,
             ConfigurationParameters.PARAM_JWKS_CACHE_KEYS_FOR,
             ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW
-    };
+    );
 
     @Override
     public boolean configure(Function<String, String> paramSupplier, Consumer<JwtVerifier> verifierConsumer) {

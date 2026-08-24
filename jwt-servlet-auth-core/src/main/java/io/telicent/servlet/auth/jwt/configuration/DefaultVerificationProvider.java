@@ -34,7 +34,10 @@ import java.net.http.HttpClient;
 import java.security.Key;
 import java.security.PublicKey;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -51,13 +54,13 @@ public class DefaultVerificationProvider implements VerificationProvider {
     /**
      * Available configuration parameters
      */
-    public static final String[] PARAMETERS = new String[] {
+    public static final List<String> PARAMETERS = List.of(
             ConfigurationParameters.PARAM_PUBLIC_KEY,
             ConfigurationParameters.PARAM_SECRET_KEY,
             ConfigurationParameters.PARAM_JWKS_URL,
             ConfigurationParameters.PARAM_KEY_ALGORITHM,
             ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW
-    };
+    );
 
     /**
      * Creates the new default verification provider
@@ -69,6 +72,17 @@ public class DefaultVerificationProvider implements VerificationProvider {
     }
 
     public static Map<String, String> prepareParameters(Function<String, String> paramSupplier, String[] allowedParameters) {
+        return prepareParameters(paramSupplier, Arrays.asList(allowedParameters));
+    }
+
+    /**
+     * Collects the values of the allowed configuration parameters
+     *
+     * @param paramSupplier     Supplier function where configuration parameters can be obtained from
+     * @param allowedParameters Allowed parameter names
+     * @return Parameter names and values, with any parameter that had no value omitted
+     */
+    public static Map<String, String> prepareParameters(Function<String, String> paramSupplier, Collection<String> allowedParameters) {
         Map<String, String> parameters = new HashMap<>();
         for (String param : allowedParameters) {
             parameters.put(param, paramSupplier.apply(param));
