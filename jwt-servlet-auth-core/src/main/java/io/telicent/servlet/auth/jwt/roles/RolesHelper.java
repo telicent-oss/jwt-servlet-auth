@@ -98,12 +98,12 @@ public class RolesHelper {
         } else if (rawRoles instanceof String singleRole) {
             // NB - Filter out empty roles and strip extra whitespace around role names
             if (Strings.CS.contains(singleRole, ",")) {
-                String[] roles = StringUtils.split(singleRole, ",");
-                if (roles == null || roles.length == 0) {
+                String[] splitRoles = StringUtils.split(singleRole, ",");
+                if (splitRoles == null || splitRoles.length == 0) {
                     return Collections.emptySet();
                 }
-                Set<String> parsedRoles = newRoleSet(roles.length);
-                for (String role : roles) {
+                Set<String> parsedRoles = newRoleSet(splitRoles.length);
+                for (String role : splitRoles) {
                     addRole(parsedRoles, role);
                 }
                 return parsedRoles.isEmpty() ? Collections.emptySet() : parsedRoles;

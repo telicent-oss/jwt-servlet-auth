@@ -213,11 +213,11 @@ public class TestSignedVerifier {
     @Test
     public void givenPublicKey_whenCreatingSignedVerifier_thenToStringContainsKeyFingerprint() {
         // Given
-        PublicKey key = Jwts.SIG.ES512.keyPair().build().getPublic();
-        String expectedFingerprint = Jwks.builder().key(key).build().thumbprint().toString();
+        PublicKey publicKey = Jwts.SIG.ES512.keyPair().build().getPublic();
+        String expectedFingerprint = Jwks.builder().key(publicKey).build().thumbprint().toString();
 
         // When
-        SignedJwtVerifier verifier = new SignedJwtVerifier(key);
+        SignedJwtVerifier verifier = new SignedJwtVerifier(publicKey);
 
         // Then
         Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=PublicKey"));
@@ -227,10 +227,10 @@ public class TestSignedVerifier {
     @Test
     public void givenSecretKey_whenCreatingSignedVerifier_thenToStringIndicatesSecretKeyMode() {
         // Given
-        SecretKey key = Jwts.SIG.HS256.key().build();
+        SecretKey secretKey = Jwts.SIG.HS256.key().build();
 
         // When
-        SignedJwtVerifier verifier = new SignedJwtVerifier(key);
+        SignedJwtVerifier verifier = new SignedJwtVerifier(secretKey);
 
         // Then
         Assert.assertTrue(Strings.CS.contains(verifier.toString(), "verificationMethod=SecretKey"));

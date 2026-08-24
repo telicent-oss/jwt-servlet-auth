@@ -54,9 +54,11 @@ public class TestServlet3Filter extends
     @Override
     protected HttpServletRequest createMockRequest(FilterConfigAdaptorWrapper config, Map<String, String> headers) {
         HttpServletRequest request = TestServlet3Engine.mockRequest(null, headers);
-        ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(any())).thenAnswer(a -> config.getAttribute(a.getArgument(0, String.class)));
-        when(request.getServletContext()).thenReturn(context);
+        // NB - Deliberately NOT published to this.context; this overload wires the request to the supplied
+        //      FilterConfigAdaptorWrapper instead, and assigning the field would break that test path
+        ServletContext configContext = mock(ServletContext.class);
+        when(configContext.getAttribute(any())).thenAnswer(a -> config.getAttribute(a.getArgument(0, String.class)));
+        when(request.getServletContext()).thenReturn(configContext);
         return request;
     }
 
@@ -64,11 +66,11 @@ public class TestServlet3Filter extends
     protected JwtAuthFilter createFilter(JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> engine,
                                          JwtVerifier verifier, List<PathExclusion> exclusions) {
         this.context = null;
-        ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE)).thenReturn(engine);
-        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER)).thenReturn(verifier);
-        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS)).thenReturn(exclusions);
-        this.context = context;
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE)).thenReturn(engine);
+        when(servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER)).thenReturn(verifier);
+        when(servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS)).thenReturn(exclusions);
+        this.context = servletContext;
 
         return new JwtAuthFilter();
     }

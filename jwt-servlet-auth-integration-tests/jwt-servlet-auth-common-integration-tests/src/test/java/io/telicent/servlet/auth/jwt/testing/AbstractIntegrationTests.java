@@ -98,13 +98,12 @@ public abstract class AbstractIntegrationTests {
 
         File jwksFile = new File("jwks.json");
         if (this.jwks == null) {
-            JwkSet jwks = Jwks.set()
-                              .add(Jwks.builder().key(this.secretKey).id("secret").build())
-                              .add(Jwks.builder().key(this.publicKey).id("public").build())
-                              .build();
-            this.jwks = jwks;
+            this.jwks = Jwks.set()
+                            .add(Jwks.builder().key(this.secretKey).id("secret").build())
+                            .add(Jwks.builder().key(this.publicKey).id("public").build())
+                            .build();
             try (FileOutputStream output = new FileOutputStream(jwksFile)) {
-                new JacksonSerializer<>().serialize(jwks, output);
+                new JacksonSerializer<>().serialize(this.jwks, output);
             }
         }
     }

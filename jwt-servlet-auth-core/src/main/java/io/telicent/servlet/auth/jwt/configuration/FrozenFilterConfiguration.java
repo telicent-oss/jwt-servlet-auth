@@ -110,23 +110,23 @@ public final class FrozenFilterConfiguration<TRequest, TResponse> {
     @SuppressWarnings("unchecked")
     private JwtAuthenticationEngine<TRequest, TResponse> prepareEngine(Object rawEngine,
                                                                        JwtAuthenticationEngine<TRequest, TResponse> defaultEngine) {
-        JwtAuthenticationEngine<TRequest, TResponse> engine;
+        JwtAuthenticationEngine<TRequest, TResponse> preparedEngine;
         if (rawEngine == null) {
-            engine = defaultEngine;
+            preparedEngine = defaultEngine;
         } else if (rawEngine instanceof JwtAuthenticationEngine) {
-            engine = (JwtAuthenticationEngine<TRequest, TResponse>) rawEngine;
+            preparedEngine = (JwtAuthenticationEngine<TRequest, TResponse>) rawEngine;
         } else {
             throw new AuthenticationConfigurationError(
                     "JwtAuthFilter not properly configured, servlet context provides an engine of the wrong type " + rawEngine.getClass()
                                                                                                                               .getCanonicalName());
         }
 
-        if (engine == null) {
+        if (preparedEngine == null) {
             throw new AuthenticationConfigurationError(
                     "JwtAuthFilter not properly configured, no authentication engine available");
         }
 
-        return engine;
+        return preparedEngine;
     }
 
     /**
