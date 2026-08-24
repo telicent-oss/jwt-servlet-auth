@@ -88,9 +88,4 @@ public class JwtAuthFilter extends AbstractConfigurableJwtAuthFilter<HttpServlet
     final HttpServletRequest lastResult() {
         return this.lastAuthenticatedRequest;
     }
-
-    @Override
-    public void destroy() {
-
-    }
 }
