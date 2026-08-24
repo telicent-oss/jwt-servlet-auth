@@ -82,7 +82,7 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
             URI discoveryUri = OidcVerificationProvider.prepareDiscoveryUri(rawDiscoveryUri);
             LOGGER.info(
                     "Resolved raw OpenID Connect configuration discovery URI {} to {}, if this is not correct ensure your configuration provides the full URI with the {} suffix",
-                    rawDiscoveryUri, discoveryUri.toString(), OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                    rawDiscoveryUri, discoveryUri, OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
             CachedJwksKeyLocator locator = new CachedJwksKeyLocator(
                     new OidcDiscoveryLocator(discoveryUri, Duration.ofSeconds(retryInterval)),
                     Duration.ofMinutes(cacheKeysFor));

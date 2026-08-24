@@ -96,7 +96,7 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
         }
 
         if (this.config.getEngine().authenticate(request, null, this.config.getVerifier()) == null) {
-            LOGGER.warn("Request to {} rejected as unauthenticated", request.getUriInfo().getRequestUri().toString());
+            LOGGER.warn("Request to {} rejected as unauthenticated", request.getUriInfo().getRequestUri());
         }
     }
 
