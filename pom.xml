@@ -269,14 +269,12 @@
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-core</artifactId>
                 <version>${dependency.jmh}</version>
-                <!--                <scope>test</scope>-->
             </dependency>
 
             <dependency>
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${dependency.jmh}</version>
-                <!--                <scope>test</scope>-->
             </dependency>
         </dependencies>
 
