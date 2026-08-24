@@ -292,4 +292,33 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         // Then
         Assert.assertNull(configured.get());
     }
+
+    @Test
+    public void givenParameterArray_whenPreparingParameters_thenPresentValuesAreCollected() {
+        // Given
+        Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "https://example.org/jwks.json");
+        String[] allowed =
+                new String[] { ConfigurationParameters.PARAM_JWKS_URL, ConfigurationParameters.PARAM_SECRET_KEY };
+
+        // When
+        Map<String, String> prepared = DefaultVerificationProvider.prepareParameters(supplierForMap(config), allowed);
+
+        // Then
+        Assert.assertEquals(prepared.size(), 1, "Parameters with no value should be omitted");
+        Assert.assertEquals(prepared.get(ConfigurationParameters.PARAM_JWKS_URL), "https://example.org/jwks.json");
+    }
+
+    @Test
+    public void givenPlainExistingFilename_whenConvertingToUri_thenAFileUriIsReturned() throws Exception {
+        // Given
+        File existing = new File("src/test/resources" + TestKeyUtils.TEST_RSA_KEY_RESOURCE);
+        Assert.assertTrue(existing.exists(), "Test resource is expected to exist: " + existing.getPath());
+
+        // When
+        URI uri = DefaultVerificationProvider.asURI(existing.getPath());
+
+        // Then
+        Assert.assertEquals(uri.getScheme(), "file", "A scheme-less filename should resolve to a file URI");
+        Assert.assertTrue(Strings.CS.contains(uri.getPath(), "test-rsa-key.pem"));
+    }
 }

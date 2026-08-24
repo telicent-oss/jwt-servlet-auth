@@ -231,4 +231,20 @@ public class TestRolesHelper {
         // Then
         Assert.assertFalse(helper.isUserInRole("test"));
     }
+
+    @Test
+    public void givenTokenWithRolesClaimOfOnlySeparators_whenUsingHelper_thenUserNotInAnyRoles() {
+        // Given
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("roles")).thenReturn(",,");
+        when(jwt.getPayload()).thenReturn(claims);
+
+        // When
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.topLevel("roles"));
+
+        // Then
+        Assert.assertFalse(helper.isUserInRole("user"));
+        Assert.assertFalse(helper.isUserInRole(""));
+    }
 }
