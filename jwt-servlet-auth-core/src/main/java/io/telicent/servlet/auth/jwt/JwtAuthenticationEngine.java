@@ -162,7 +162,14 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT,
                                 jws.candidateToken().source().getRawToken(jws.candidateToken().value()));
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
-            LOGGER.info("Request to {} successfully authenticated as {}", getRequestUrl(request), username);
+            // NB - Fluent API with a supplier so getRequestUrl() is not evaluated when INFO is disabled.  This runs
+            //      on every successful authentication, and for JAX-RS getRequestUrl() rebuilds the URI and allocates
+            //      a string.
+            LOGGER.atInfo()
+                  .setMessage("Request to {} successfully authenticated as {}")
+                  .addArgument(() -> getRequestUrl(request))
+                  .addArgument(username)
+                  .log();
             return prepareRequest(request, jws.verifiedToken(), username);
         } catch (Exception e) {
             sendError(response, e);
