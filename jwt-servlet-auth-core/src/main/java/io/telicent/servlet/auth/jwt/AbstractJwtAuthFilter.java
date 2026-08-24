@@ -31,6 +31,11 @@ import java.util.List;
  * @param <TRequest>  Request type
  * @param <TResponse> Response type
  */
+// Sonar S2326 - the type parameters are not referenced in this class body, but they exist to type the published
+// hierarchy below it: AbstractConfigurableJwtAuthFilter<TRequest, TResponse> uses both, and jaxrs3's JwtAuthFilter
+// extends AbstractJwtAuthFilter<ContainerRequestContext, ContainerResponseContext>.  Removing them would turn every
+// downstream AbstractJwtAuthFilter<X, Y> reference into a wrong-arity compile error.
+@SuppressWarnings("java:S2326")
 public class AbstractJwtAuthFilter<TRequest, TResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJwtAuthFilter.class);

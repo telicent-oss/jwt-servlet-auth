@@ -74,7 +74,10 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
     // eight sequential catch blocks that map jjwt exception types onto RFC 6750 challenges, which is an explicit and
     // readable mapping rather than accidental complexity.  This is the primary authentication path, so it is not
     // being restructured as part of a Sonar clean-up sweep.  See CORE-1468.
-    @SuppressWarnings("java:S3776")
+    // Sonar S1141 - the nested try is the eight-way jjwt exception to RFC 6750 challenge mapping inside the
+    // candidate token loop.  Extracting the loop body would resolve this and much of S3776 together, so it is
+    // deferred with that refactor rather than changed in a lint sweep.  See CORE-1468.
+    @SuppressWarnings({"java:S3776", "java:S1141"})
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {
             MDC.remove(JwtLoggingConstants.MDC_JWT_USER);

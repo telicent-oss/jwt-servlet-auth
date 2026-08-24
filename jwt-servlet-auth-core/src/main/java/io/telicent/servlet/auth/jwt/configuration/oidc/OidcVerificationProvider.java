@@ -45,6 +45,9 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
     /**
      * The {@code /.well-known/} path that is used for some automatic configuration patterns
      */
+    // Sonar S1075 - this is the path segment mandated by RFC 8615 and OpenID Connect Discovery, i.e. a protocol
+    // constant rather than deployment configuration.  Making it configurable would be incorrect.
+    @SuppressWarnings("java:S1075")
     public static final String WELL_KNOWN_PATH = "/.well-known/";
     /**
      * The {@code openid-configuration} path that is used for OpenID Connect configuration discovery

@@ -73,6 +73,11 @@ public class CachedJwksKeyLocator extends AbstractJwksLocator {
     }
 
     @Override
+    // Sonar S2259 - the reported null dereference on jwk.toKey() is unreachable: ensureKeyPresent() throws
+    // InvalidKeyException when jwk is null.  Sonar cannot see that contract because the method is inherited from
+    // AbstractJwksLocator in a different compilation unit, while Caffeine's getIfPresent() carries a @Nullable
+    // annotation that it does trust.
+    @SuppressWarnings("java:S2259")
     protected Key locate(JwsHeader header) {
         String keyId = this.ensureValidKeyId(header);
 
