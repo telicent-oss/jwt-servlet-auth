@@ -19,6 +19,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +29,17 @@ import java.util.Map;
  * @param path Sequence of path elements
  */
 public record ClaimPath(String[] path) {
+
+    /**
+     * Creates a claim path, defensively copying the supplied path elements
+     *
+     * @param path Sequence of path elements, may be {@code null}
+     */
+    public ClaimPath {
+        // NB - Defensive copy so that a caller mutating their array afterwards cannot corrupt this instance, which
+        //      matters now that equals()/hashCode() are derived from the contents
+        path = path != null ? path.clone() : null;
+    }
 
     /**
      * The null claim path
@@ -87,7 +99,55 @@ public record ClaimPath(String[] path) {
      * @return True if a top level claim, false otherwise
      */
     public boolean isTopLevel() {
-        return this.path.length == 1;
+        return this.path != null && this.path.length == 1;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to return a copy so that a caller cannot mutate this instance's path elements, which would
+     * otherwise change its {@code equals()} and {@code hashCode()} results.
+     * </p>
+     */
+    @Override
+    public String[] path() {
+        return this.path != null ? this.path.clone() : null;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden because the {@code path} component is an array.  The record's implicitly generated
+     * {@code equals()} would compare array references rather than contents, so two claim paths with identical
+     * elements would not be equal and could not be used interchangeably as map keys or set members.
+     * </p>
+     */
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ClaimPath other && Arrays.equals(this.path, other.path);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden for consistency with {@link #equals(Object)}, see the note there.
+     * </p>
+     */
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(this.path);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden because the implicitly generated {@code toString()} would render the array component as its
+     * identity hash rather than its contents.
+     * </p>
+     */
+    @Override
+    public String toString() {
+        return "ClaimPath[path=" + Arrays.toString(this.path) + "]";
     }
 
     /**
