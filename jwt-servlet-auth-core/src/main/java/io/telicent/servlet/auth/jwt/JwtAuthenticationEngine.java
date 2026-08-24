@@ -77,7 +77,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
     // Sonar S1141 - the nested try is the eight-way jjwt exception to RFC 6750 challenge mapping inside the
     // candidate token loop.  Extracting the loop body would resolve this and much of S3776 together, so it is
     // deferred with that refactor rather than changed in a lint sweep.  See CORE-1468.
-    @SuppressWarnings({"java:S3776", "java:S1141"})
+    @SuppressWarnings({"java:S3776", "java:S1141", "java:S2629"})
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {
             MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
@@ -150,6 +150,9 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             if (jws == null) {
                 // Should be at least one challenge if we reach here so just send the first challenge from our list
                 Challenge challenge = challenges.get(0);
+                // Sonar S2629 - arguments are evaluated eagerly, but this is an authentication FAILURE path only,
+                // where WARN is almost certainly enabled, and the challenge list is bounded by the number of
+                // configured header sources so the cost is not attacker-amplifiable.
                 LOGGER.warn("Request to {} not authenticated, {} challenge(s) recorded: {}", getRequestUrl(request),
                             challenges.size(), StringUtils.join(challenges, ", "));
                 sendChallenge(request, response, challenge);

@@ -74,7 +74,7 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
     // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
     // rather than the reverse, so narrowing the declared type would break external implementations at compile time
     // and pre-compiled ones with AbstractMethodError.
-    @SuppressWarnings("java:S4276")
+    @SuppressWarnings({"java:S4276", "java:S2629"})
     public boolean configure(Function<String, String> paramSupplier, Consumer<JwtVerifier> verifierConsumer) {
         Map<String, String> parameters =
                 DefaultVerificationProvider.prepareParameters(paramSupplier, OPENID_PARAMETERS);
@@ -90,6 +90,7 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
                                                         ConfigurationParameters.DEFAULT_JWKS_CACHE_KEYS_FOR);
             String rawDiscoveryUri = parameters.get(ConfigurationParameters.PARAM_OIDC_PROVIDER_URL);
             URI discoveryUri = OidcVerificationProvider.prepareDiscoveryUri(rawDiscoveryUri);
+            // Sonar S2629 - runs once at startup
             LOGGER.info(
                     "Resolved raw OpenID Connect configuration discovery URI {} to {}, if this is not correct ensure your configuration provides the full URI with the {} suffix",
                     rawDiscoveryUri, discoveryUri, OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
