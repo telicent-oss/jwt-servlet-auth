@@ -71,6 +71,12 @@ public class DefaultVerificationProvider implements VerificationProvider {
     public DefaultVerificationProvider() {
     }
 
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     public static Map<String, String> prepareParameters(Function<String, String> paramSupplier, String[] allowedParameters) {
         return prepareParameters(paramSupplier, Arrays.asList(allowedParameters));
     }
@@ -82,6 +88,12 @@ public class DefaultVerificationProvider implements VerificationProvider {
      * @param allowedParameters Allowed parameter names
      * @return Parameter names and values, with any parameter that had no value omitted
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     public static Map<String, String> prepareParameters(Function<String, String> paramSupplier, Collection<String> allowedParameters) {
         Map<String, String> parameters = new HashMap<>();
         for (String param : allowedParameters) {
@@ -98,6 +110,12 @@ public class DefaultVerificationProvider implements VerificationProvider {
      * @param verifierConsumer Consumer function that takes the configured verifier
      */
     @Override
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     public boolean configure(Function<String, String> paramSupplier, Consumer<JwtVerifier> verifierConsumer) {
         Map<String, String> parameters = prepareParameters(paramSupplier, PARAMETERS);
         if (parameters.isEmpty()) {

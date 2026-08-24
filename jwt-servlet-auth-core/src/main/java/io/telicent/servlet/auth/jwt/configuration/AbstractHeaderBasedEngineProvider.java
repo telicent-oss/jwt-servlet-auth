@@ -41,6 +41,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Header sources, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected List<HeaderSource> configureHeaders(Function<String, String> paramSupplier) {
         List<HeaderSource> sources = new ArrayList<>();
 
@@ -70,6 +76,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Username claims, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected List<ClaimPath> configureUsernameClaims(Function<String, String> paramSupplier) {
         List<String> rawClaims =
                 Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USERNAME_CLAIMS),
@@ -86,6 +98,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Realm, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected String configureRealm(Function<String, String> paramSupplier) {
         return paramSupplier.apply(ConfigurationParameters.PARAM_REALM);
     }
@@ -96,6 +114,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Roles claim, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected ClaimPath configureRolesClaim(Function<String, String> paramSupplier) {
         return Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_ROLES_CLAIM),
                                     AbstractHeaderBasedEngineProvider::parseClaimPath, null);
@@ -153,6 +177,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     }
 
     @Override
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     public <TRequest, TResponse> boolean configure(Function<String, String> paramSupplier,
                                                    Consumer<JwtAuthenticationEngine<TRequest, TResponse>> jwtAuthenticationEngineConsumer) {
         List<HeaderSource> headerSources = this.configureHeaders(paramSupplier);
