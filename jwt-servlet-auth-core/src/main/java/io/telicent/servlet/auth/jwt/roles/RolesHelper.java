@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A helper for obtaining roles information from a JWT

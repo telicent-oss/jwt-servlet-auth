@@ -17,7 +17,6 @@ package io.telicent.servlet.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.RequiredTypeException;
 import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.configuration.Utils;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;

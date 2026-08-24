@@ -16,18 +16,11 @@
 package io.telicent.servlet.auth.jwt.verifier.aws;
 
 import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.InvalidKeyException;
-import io.jsonwebtoken.security.JwkSet;
-import io.jsonwebtoken.security.JwkSetBuilder;
-import io.jsonwebtoken.security.Jwks;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
 import java.security.Key;
-import java.security.KeyPair;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.telicent.servlet.auth.jwt.verifier.aws.TestAwsElbKeyResolver.TEST_AWS_REGION;
 import static org.mockito.Mockito.mock;
