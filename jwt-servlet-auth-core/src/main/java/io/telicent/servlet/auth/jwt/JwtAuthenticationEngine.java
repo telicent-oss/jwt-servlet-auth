@@ -68,6 +68,11 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      * @param verifier JWT Verifier
      * @return Authenticated request if successful, or {@code null} if authentication failed
      */
+    // Sonar S3776 - suppressed pending a decision on refactoring.  Most of the cognitive complexity comes from the
+    // eight sequential catch blocks that map jjwt exception types onto RFC 6750 challenges, which is an explicit and
+    // readable mapping rather than accidental complexity.  This is the primary authentication path, so it is not
+    // being restructured as part of a Sonar clean-up sweep.  See CORE-1468.
+    @SuppressWarnings("java:S3776")
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {
             MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
