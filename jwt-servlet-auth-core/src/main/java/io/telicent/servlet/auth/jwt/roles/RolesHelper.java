@@ -146,8 +146,7 @@ public class RolesHelper {
         if (expectedSize <= 0) {
             return new HashSet<>();
         }
-        int capacity = (int) ((expectedSize / 0.75f) + 1);
-        return new HashSet<>(capacity);
+        return HashSet.newHashSet(expectedSize);
     }
 
     private static void addRole(Set<String> roles, String role) {
