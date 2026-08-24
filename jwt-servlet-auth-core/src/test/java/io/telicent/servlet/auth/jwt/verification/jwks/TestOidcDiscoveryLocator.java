@@ -22,7 +22,6 @@ import io.jsonwebtoken.security.JwkSet;
 import io.telicent.servlet.auth.jwt.configuration.oidc.OidcRegistry;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
 import org.apache.commons.lang3.Strings;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;

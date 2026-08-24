@@ -17,12 +17,12 @@ package io.telicent.servlet.auth.jwt.configuration;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+
 import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("unchecked")

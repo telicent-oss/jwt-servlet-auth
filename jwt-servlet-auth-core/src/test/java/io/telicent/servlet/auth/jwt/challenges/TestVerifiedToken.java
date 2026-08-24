@@ -20,9 +20,9 @@ import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.Strings;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
 import static org.mockito.Mockito.mock;
 
 public class TestVerifiedToken {

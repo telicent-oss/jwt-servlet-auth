@@ -20,12 +20,12 @@ import io.telicent.servlet.auth.jwt.PathExclusion;
 import io.telicent.servlet.auth.jwt.fake.FakeEngine;
 import io.telicent.servlet.auth.jwt.verification.FakeTokenVerifier;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+
 import static org.mockito.Mockito.mock;
 
 @SuppressWarnings({"unchecked", "rawtypes"})

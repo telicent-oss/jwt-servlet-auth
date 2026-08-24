@@ -18,7 +18,6 @@ package io.telicent.servlet.auth.jwt.roles;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

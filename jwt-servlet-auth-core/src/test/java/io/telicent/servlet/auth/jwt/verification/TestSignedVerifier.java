@@ -19,17 +19,16 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Jwks;
 import io.jsonwebtoken.security.SignatureException;
 import org.apache.commons.lang3.Strings;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.security.PublicKey;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Date;
 
 import static org.mockito.ArgumentMatchers.any;

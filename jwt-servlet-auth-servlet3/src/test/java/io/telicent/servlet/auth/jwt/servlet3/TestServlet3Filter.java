@@ -21,7 +21,6 @@ import io.telicent.servlet.auth.jwt.configuration.RuntimeConfigurationAdaptor;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.testng.Assert;
 
 import javax.servlet.FilterChain;
