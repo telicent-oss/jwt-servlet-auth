@@ -173,7 +173,7 @@ public class TestServlet5Filter extends
 
             @Override
             public ServletContext getServletContext() {
-                return Mockito.mock(ServletContext.class);
+                return mock(ServletContext.class);
             }
 
             @Override

@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import static org.mockito.Mockito.mock;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class TestFrozenFilterConfiguration {
@@ -34,12 +35,12 @@ public class TestFrozenFilterConfiguration {
     public void givenFrozenFilterConfiguration_whenSettingEngine_thenOldValueIsPreserved() {
         // Given
         FrozenFilterConfiguration config = new FrozenFilterConfiguration();
-        config.tryFreezeEngineConfiguration(Mockito.mock(JwtAuthenticationEngine.class), Mockito.mock(
+        config.tryFreezeEngineConfiguration(mock(JwtAuthenticationEngine.class), mock(
                 JwtAuthenticationEngine.class));
         JwtAuthenticationEngine<?, ?> other = new FakeEngine();
 
         // When
-        config.tryFreezeEngineConfiguration(other, Mockito.mock(JwtAuthenticationEngine.class));
+        config.tryFreezeEngineConfiguration(other, mock(JwtAuthenticationEngine.class));
 
         // Then
         Assert.assertNotEquals(config.getEngine(), other);
@@ -49,7 +50,7 @@ public class TestFrozenFilterConfiguration {
     public void givenFrozenFilterConfiguration_whenSettingVerifier_thenOldValueIsPreserved() {
         // Given
         FrozenFilterConfiguration config = new FrozenFilterConfiguration();
-        config.tryFreezeVerifierConfiguration(Mockito.mock(JwtVerifier.class));
+        config.tryFreezeVerifierConfiguration(mock(JwtVerifier.class));
         JwtVerifier other = new FakeTokenVerifier();
 
         // When
@@ -87,7 +88,7 @@ public class TestFrozenFilterConfiguration {
         // Given
         FrozenFilterConfiguration config = new FrozenFilterConfiguration();
         FakeEngine engine = new FakeEngine();
-        config.tryFreezeEngineConfiguration(engine, Mockito.mock(JwtAuthenticationEngine.class));
+        config.tryFreezeEngineConfiguration(engine, mock(JwtAuthenticationEngine.class));
 
         // When and Then
         config.warnIfModificationAttempted("test", x -> engine, config.getEngine());
@@ -99,7 +100,7 @@ public class TestFrozenFilterConfiguration {
         FrozenFilterConfiguration config = new FrozenFilterConfiguration();
         FakeEngine engine = new FakeEngine();
         FakeEngine other = new FakeEngine();
-        config.tryFreezeEngineConfiguration(engine, Mockito.mock(JwtAuthenticationEngine.class));
+        config.tryFreezeEngineConfiguration(engine, mock(JwtAuthenticationEngine.class));
 
         // When
         config.warnIfModificationAttempted("test", x -> other, config.getEngine());

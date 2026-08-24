@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
@@ -38,7 +39,7 @@ public class TestUtils {
     @Test
     public void givenNoClaimPath_whenFindingClaim_thenNull() {
         // Given
-        Jws<Claims> jws = Mockito.mock(Jws.class);
+        Jws<Claims> jws = mock(Jws.class);
 
         // When and Then
         Assert.assertNull(Utils.findClaim(jws, null));
@@ -47,7 +48,7 @@ public class TestUtils {
     @Test
     public void givenEmptyClaimPath_whenFindingClaim_thenNull() {
         // Given
-        Jws<Claims> jws = Mockito.mock(Jws.class);
+        Jws<Claims> jws = mock(Jws.class);
 
         // When and Then
         Assert.assertNull(Utils.findClaim(jws, ClaimPath.EMPTY));
@@ -57,8 +58,8 @@ public class TestUtils {
     @SuppressWarnings("unused")
     public void givenTopLevelClaimPath_whenFindingClaimWithWrongType_thenClassCastException() {
         // Given
-        Jws<Claims> jws = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("test")).thenReturn("foo");
         when(jws.getPayload()).thenReturn(claims);
 
@@ -69,8 +70,8 @@ public class TestUtils {
     @Test
     public void givenTopLevelClaimPath_whenFindingClaim_thenReturned() {
         // Given
-        Jws<Claims> jws = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         List<String> value = List.of("a", "b");
         when(claims.get("test")).thenReturn(value);
         when(jws.getPayload()).thenReturn(claims);
@@ -86,8 +87,8 @@ public class TestUtils {
     @Test
     public void givenDeeplyNestedClaimPath_whenFindingClaim_thenReturned() {
         // Given
-        Jws<Claims> jws = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("test")).thenReturn(Map.of("a", Map.of("b", Map.of("c", Map.of("d", true)))));
         when(jws.getPayload()).thenReturn(claims);
 

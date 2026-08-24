@@ -251,7 +251,7 @@ public class TestSignedVerifier {
     @Test
     public void givenCustomParser_whenCreatingSignedVerified_thenToStringContainsCustomParserMode() {
         // Given
-        JwtParser parser = Mockito.mock(JwtParser.class);
+        JwtParser parser = mock(JwtParser.class);
 
         // When
         SignedJwtVerifier verifier = new SignedJwtVerifier(parser);

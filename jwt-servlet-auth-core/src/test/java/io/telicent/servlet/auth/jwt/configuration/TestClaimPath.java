@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("unchecked")
 public class TestClaimPath {
@@ -49,7 +50,7 @@ public class TestClaimPath {
     public void givenEmptyClaimPath_whenFindingValue_thenNull() {
         // Given
         ClaimPath path = ClaimPath.EMPTY;
-        Jws<Claims> jws = Mockito.mock(Jws.class);
+        Jws<Claims> jws = mock(Jws.class);
 
         // When and Then
         Assert.assertNull(path.find(jws));

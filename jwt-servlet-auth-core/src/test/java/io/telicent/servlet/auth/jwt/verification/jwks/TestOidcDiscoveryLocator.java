@@ -34,6 +34,7 @@ import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TestOidcDiscoveryLocator {
@@ -75,7 +76,7 @@ public class TestOidcDiscoveryLocator {
         // Given
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
-        JwsHeader header = Mockito.mock(JwsHeader.class);
+        JwsHeader header = mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
         when(header.getKeyId()).thenReturn(keyId);
@@ -104,7 +105,7 @@ public class TestOidcDiscoveryLocator {
         Assert.assertTrue(Strings.CI.contains(stringForm, "<not yet discovered>"));
 
         // And
-        JwsHeader header = Mockito.mock(JwsHeader.class);
+        JwsHeader header = mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
         when(header.getKeyId()).thenReturn(keyId);
@@ -117,7 +118,7 @@ public class TestOidcDiscoveryLocator {
         // Given and When
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getNonStandardConfigurationUrl()));
-        JwsHeader header = Mockito.mock(JwsHeader.class);
+        JwsHeader header = mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
         when(header.getKeyId()).thenReturn(keyId);
@@ -131,7 +132,7 @@ public class TestOidcDiscoveryLocator {
         // Given and When
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getEmptyConfigurationUrl()));
-        JwsHeader header = Mockito.mock(JwsHeader.class);
+        JwsHeader header = mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
         when(header.getKeyId()).thenReturn(keyId);
@@ -145,7 +146,7 @@ public class TestOidcDiscoveryLocator {
         // Given and When
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getEmptyConfigurationUrl()));
-        JwsHeader header = Mockito.mock(JwsHeader.class);
+        JwsHeader header = mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
         when(header.getKeyId()).thenReturn(keyId);
@@ -163,7 +164,7 @@ public class TestOidcDiscoveryLocator {
         // Given and When
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getNotFoundConfigurationUrl()));
-        JwsHeader header = Mockito.mock(JwsHeader.class);
+        JwsHeader header = mock(JwsHeader.class);
         String keyId = this.jwks.getKeys().stream().findFirst().map(Jwk::getId).orElse(null);
         Assert.assertNotNull(keyId);
         when(header.getKeyId()).thenReturn(keyId);
