@@ -65,9 +65,9 @@ public class TestServlet3Filter extends
                                          JwtVerifier verifier, List<PathExclusion> exclusions) {
         this.context = null;
         ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
+        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE)).thenReturn(engine);
+        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER)).thenReturn(verifier);
+        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS)).thenReturn(exclusions);
         this.context = context;
 
         return new JwtAuthFilter();

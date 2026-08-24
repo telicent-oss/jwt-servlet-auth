@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class TestJaxRs3Filter
@@ -121,9 +120,9 @@ public class TestJaxRs3Filter
             JwtAuthenticationEngine<ContainerRequestContext, ContainerResponseContext> engine, JwtVerifier verifier,
             List<PathExclusion> exclusions) {
         ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
+        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE)).thenReturn(engine);
+        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER)).thenReturn(verifier);
+        when(context.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS)).thenReturn(exclusions);
 
         JwtAuthFilter filter = new JwtAuthFilter();
         filter.setContext(context);
