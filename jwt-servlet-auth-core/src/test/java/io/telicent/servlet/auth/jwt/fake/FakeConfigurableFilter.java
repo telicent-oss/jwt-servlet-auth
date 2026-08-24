@@ -54,6 +54,9 @@ public class FakeConfigurableFilter extends AbstractConfigurableJwtAuthFilter<Fa
                     return this.exclusions;
                 }
                 break;
+            default:
+                // Any other attribute is resolved from the request's own attribute map below
+                break;
         }
         return fakeRequest.attributes.get(attribute);
     }
