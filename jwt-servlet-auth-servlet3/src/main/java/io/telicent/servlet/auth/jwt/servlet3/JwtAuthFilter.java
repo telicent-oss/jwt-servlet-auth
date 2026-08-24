@@ -90,6 +90,9 @@ public class JwtAuthFilter extends AbstractConfigurableJwtAuthFilter<HttpServlet
 
     @Override
     public void destroy() {
-
+        // No cleanup required - this filter holds no resources that need releasing.  Filter state is either
+        // immutable (the default engine singleton) or scoped to a single request.
+        // NB - Servlet 3.x declares destroy() as abstract so the override cannot simply be omitted here, unlike in
+        //      the Servlet 5 module where the interface provides a default no-op implementation.
     }
 }
