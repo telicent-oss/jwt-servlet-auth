@@ -48,7 +48,7 @@ public abstract class AbstractJwksLocator extends LocatorAdapter<Key> {
      *
      * @param client HTTP Client to use
      */
-    public AbstractJwksLocator(HttpClient client) {
+    protected AbstractJwksLocator(HttpClient client) {
         this.client = Objects.requireNonNull(client, "HTTP Client cannot be null");
     }
 

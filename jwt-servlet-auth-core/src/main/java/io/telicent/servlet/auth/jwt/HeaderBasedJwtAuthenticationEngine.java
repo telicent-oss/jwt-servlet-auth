@@ -66,7 +66,7 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
      *                       claim contains the roles information, a longer array would indicate that a nested claim
      *                       contains the roles information.
      */
-    public HeaderBasedJwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
+    protected HeaderBasedJwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
                                               Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         Objects.requireNonNull(headers, "Header sources cannot be null");
         if (headers.isEmpty()) {
