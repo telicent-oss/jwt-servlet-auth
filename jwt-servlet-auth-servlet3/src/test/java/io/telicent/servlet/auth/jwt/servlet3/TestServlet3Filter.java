@@ -38,6 +38,8 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import org.testng.annotations.Test;
+import io.telicent.servlet.auth.jwt.verification.FakeTokenVerifier;
 
 public class TestServlet3Filter extends
         AbstractConfigurableFilterTests<HttpServletRequest, HttpServletResponse, JwtAuthFilter> {
@@ -201,5 +203,25 @@ public class TestServlet3Filter extends
         Object value = captor.getValue();
         Assert.assertNotNull(value, "Attribute " + attribute + " value unexpectedly null");
         return value;
+    }
+
+    @Test
+    public void givenFilterChainThrowingIOException_whenFiltering_thenWrappedInARuntimeException() throws Exception {
+        // Given
+        JwtAuthFilter filter = createFilter(createEngine(), new FakeTokenVerifier(), null);
+        HttpServletRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer test"));
+        HttpServletResponse response = createMockResponse();
+        FilterChain chain = mock(FilterChain.class);
+        IOException downstream = new IOException("Simulated downstream failure");
+        doThrow(downstream).when(chain).doFilter(any(), any());
+
+        // When and Then
+        try {
+            filter.doFilter(request, response, chain);
+            Assert.fail("Expected the checked IOException to be wrapped in a RuntimeException");
+        } catch (RuntimeException e) {
+            Assert.assertSame(e.getCause(), downstream,
+                              "The original IOException should be carried through as the cause");
+        }
     }
 }
