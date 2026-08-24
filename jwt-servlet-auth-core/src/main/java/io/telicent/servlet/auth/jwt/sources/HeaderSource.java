@@ -23,7 +23,8 @@ import org.apache.commons.lang3.Strings;
  */
 public class HeaderSource implements TokenSource {
 
-    private final String header, prefix;
+    private final String header;
+    private final String prefix;
 
     /**
      * Creates a new header source
