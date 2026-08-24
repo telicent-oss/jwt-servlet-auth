@@ -98,8 +98,10 @@ public class RolesHelper {
         } else if (rawRoles instanceof String singleRole) {
             // NB - Filter out empty roles and strip extra whitespace around role names
             if (Strings.CS.contains(singleRole, ",")) {
+                // NB - StringUtils.split() only returns null for a null input, and singleRole is non-null here by
+                //      virtue of the pattern match above, so only the empty case needs guarding
                 String[] splitRoles = StringUtils.split(singleRole, ",");
-                if (splitRoles == null || splitRoles.length == 0) {
+                if (splitRoles.length == 0) {
                     return Collections.emptySet();
                 }
                 Set<String> parsedRoles = newRoleSet(splitRoles.length);
