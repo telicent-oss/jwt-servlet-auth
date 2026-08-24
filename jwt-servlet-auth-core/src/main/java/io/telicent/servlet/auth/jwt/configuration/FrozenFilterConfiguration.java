@@ -137,22 +137,16 @@ public final class FrozenFilterConfiguration<TRequest, TResponse> {
      * @throws RuntimeException Thrown if no verifier is provided, or it's of the wrong type
      */
     private JwtVerifier prepareVerifier(Object rawVerifier) {
-        JwtVerifier verifier = null;
-        if (rawVerifier != null) {
-            if (rawVerifier instanceof JwtVerifier) {
-                verifier = (JwtVerifier) rawVerifier;
-            } else {
-                throw new AuthenticationConfigurationError(
-                        "JwtAuthFilter not properly configured, servlet context provides a JWT verifier of the wrong type " + rawVerifier.getClass()
-                                                                                                                                         .getCanonicalName());
-            }
-        }
-        if (verifier == null) {
+        if (rawVerifier == null) {
             throw new AuthenticationConfigurationError(
                     "JwtAuthFilter not properly configured, servlet context does not provide a JWT verifier");
         }
-
-        return verifier;
+        if (rawVerifier instanceof JwtVerifier jwtVerifier) {
+            return jwtVerifier;
+        }
+        throw new AuthenticationConfigurationError(
+                "JwtAuthFilter not properly configured, servlet context provides a JWT verifier of the wrong type " + rawVerifier.getClass()
+                                                                                                                                .getCanonicalName());
     }
 
     /**
