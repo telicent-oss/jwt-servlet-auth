@@ -141,11 +141,9 @@ public class DefaultVerificationProvider implements VerificationProvider {
                 // Possible that the URL is just a plain local filename, try that and see if it works?
                 File jwksFile = new File(jwksUrl);
                 if (jwksFile.exists()) {
-                    try {
-                        return jwksFile.toURI();
-                    } catch (IllegalArgumentException e) {
-                        throw invalidJwksUrl(e);
-                    }
+                    // NB - Any IllegalArgumentException from toURI() is handled by the outer catch, which produces
+                    //      exactly the same KeyLoadException
+                    return jwksFile.toURI();
                 }
                 throw invalidJwksUrl(null);
             }
