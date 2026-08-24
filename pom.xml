@@ -61,6 +61,9 @@
         <jdk.version>21</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- SonarQube analysis, invoked from CI via mvn sonar:sonar -->
+        <sonar.projectKey>telicent-jwt-auth</sonar.projectKey>
+
         <!-- License Plugin Configuration -->
         <!--
         Note that all sub-modules need to declare this appropriately as well so that the plugin can correctly find
@@ -97,6 +100,7 @@
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.3.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
+        <plugin.sonar>5.7.0.6970</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.5.6</plugin.surefire>
         <plugin.versions>2.21.0</plugin.versions>
@@ -605,6 +609,12 @@
                     <configuration>
                         <ignoredVersions>.*[-\.]M.*,.*-alpha.*,.*-beta.*,.*-RC.*,.*rc.*</ignoredVersions>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${plugin.sonar}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
