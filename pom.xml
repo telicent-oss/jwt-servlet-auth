@@ -62,7 +62,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- SonarQube analysis, invoked from CI via mvn sonar:sonar -->
-        <sonar.projectKey>telicent-jwt-auth</sonar.projectKey>
+        <sonar.projectKey>telicent-oss_jwt-auth</sonar.projectKey>
 
         <!-- License Plugin Configuration -->
         <!--
