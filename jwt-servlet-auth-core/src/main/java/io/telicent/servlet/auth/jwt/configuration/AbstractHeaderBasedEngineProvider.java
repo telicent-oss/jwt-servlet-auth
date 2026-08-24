@@ -81,6 +81,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
     // rather than the reverse, so narrowing the declared type would break external implementations at compile time
     // and pre-compiled ones with AbstractMethodError.
+    // Sonar S1168 - null is a documented, load-bearing sentinel here, not an oversight.  It distinguishes "no
+    // configuration supplied" from "configuration supplied but empty", which are different states: configure()
+    // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
+    // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
+    @SuppressWarnings("java:S1168")
     @SuppressWarnings("java:S4276")
     protected List<ClaimPath> configureUsernameClaims(Function<String, String> paramSupplier) {
         List<String> rawClaims =
@@ -148,6 +153,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param value Dot separated path
      * @return Path array
      */
+    // Sonar S1168 - null is a documented, load-bearing sentinel here, not an oversight.  It distinguishes "no
+    // configuration supplied" from "configuration supplied but empty", which are different states: configure()
+    // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
+    // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
+    @SuppressWarnings("java:S1168")
     protected static List<String> parseDottedPath(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
@@ -166,6 +176,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param value Comma-separated string.
      * @return A List of values
      */
+    // Sonar S1168 - null is a documented, load-bearing sentinel here, not an oversight.  It distinguishes "no
+    // configuration supplied" from "configuration supplied but empty", which are different states: configure()
+    // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
+    // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
+    @SuppressWarnings("java:S1168")
     protected static List<String> parseList(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
