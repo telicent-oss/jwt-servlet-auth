@@ -75,15 +75,13 @@ public class AbstractJwtAuthFilter<TRequest, TResponse> {
         }
 
         boolean excluded = exclusions.stream().anyMatch(e -> e.matches(path));
-        if (excluded) {
-            // Use a cache to prevent these warnings being spammed endlessly, this is especially true when something
-            // like a health status endpoint is excluded from authentication and being regularly hit by automated
-            // monitoring tools
-            if (EXCLUSION_WARNINGS_CACHE.getIfPresent(path) == null) {
-                LOGGER.warn("Request to path {} is excluded from JWT Authentication filtering by filter configuration",
-                            path);
-                EXCLUSION_WARNINGS_CACHE.put(path, Boolean.TRUE);
-            }
+        // Use a cache to prevent these warnings being spammed endlessly, this is especially true when something
+        // like a health status endpoint is excluded from authentication and being regularly hit by automated
+        // monitoring tools
+        if (excluded && EXCLUSION_WARNINGS_CACHE.getIfPresent(path) == null) {
+            LOGGER.warn("Request to path {} is excluded from JWT Authentication filtering by filter configuration",
+                        path);
+            EXCLUSION_WARNINGS_CACHE.put(path, Boolean.TRUE);
         }
         return excluded;
     }
