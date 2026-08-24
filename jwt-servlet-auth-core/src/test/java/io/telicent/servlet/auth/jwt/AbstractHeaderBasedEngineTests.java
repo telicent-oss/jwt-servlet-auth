@@ -322,6 +322,10 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
                                                  new AlternateClaimTokenVerifier(CUSTOM_CLAIM), "test"));
     }
 
+    // Sonar S4144 - this case is currently identical to _03.  Suppressed rather than deleted or reimplemented: it is
+    // one slot in a numbered 6-case matrix (_05 and _06 are genuinely distinct), so removing it would renumber the
+    // series, and deciding what it was intended to vary needs a call from whoever added it.
+    @SuppressWarnings("java:S4144")
     @Test
     public void engine_authenticated_multiple_token_sources_04() {
         JwtAuthenticationEngine<TRequest, TResponse> engine =
