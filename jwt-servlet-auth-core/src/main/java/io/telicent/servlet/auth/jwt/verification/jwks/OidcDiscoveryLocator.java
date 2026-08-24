@@ -133,7 +133,7 @@ public class OidcDiscoveryLocator extends AbstractJwksLocator {
                 throw new KeyLoadException(
                         "Obtained OpenID Connect configuration from " + discoveryUri + " did not contain a jwks_uri field to indicate the JWKS URL");
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LOGGER.warn("Failed to obtain OpenID Connect discovery configuration: {}", e.getMessage());
             throw new InvalidKeyException(
                     "Unable to resolve JWKS URL via OpenID Connect configuration discovery: " + e.getMessage());

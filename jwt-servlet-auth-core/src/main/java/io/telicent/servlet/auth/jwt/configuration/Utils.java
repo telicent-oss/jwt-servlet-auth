@@ -62,7 +62,7 @@ public class Utils {
     public static <T> T parseParameter(String value, Function<String, T> parser, T defaultValue) {
         try {
             return parser.apply(value);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return defaultValue;
         }
     }

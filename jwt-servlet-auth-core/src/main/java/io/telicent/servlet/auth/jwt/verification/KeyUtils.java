@@ -81,7 +81,7 @@ public class KeyUtils {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
             return keyFactory.generatePublic(keySpec);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new KeyLoadException(e);
         }
     }

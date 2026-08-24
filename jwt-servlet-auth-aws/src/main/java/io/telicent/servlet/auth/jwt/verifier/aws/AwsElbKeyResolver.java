@@ -52,17 +52,17 @@ public class AwsElbKeyResolver extends LocatorAdapter<Key> {
                     "JWT contained no Key ID (kid) in Header, unable to resolve an AWS ELB Key without a valid Key ID");
         }
 
+        String rawKeyUrl = AwsElbKeyUrlRegistry.prepareKeyUrl(this.region, header.getKeyId());
         try {
-            String rawKeyUrl = AwsElbKeyUrlRegistry.prepareKeyUrl(this.region, header.getKeyId());
             URL keyUrl = new URL(rawKeyUrl);
             URLConnection connection = keyUrl.openConnection();
             try (InputStream input = connection.getInputStream()) {
                 return KeyUtils.loadPublicKey(KeyUtils.EC, input);
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new InvalidKeyException(
-                    String.format("Failed to resolve AWS ELB Key %s from URL %s: %s", header.getKeyId(),
-                                  AwsElbKeyUrlRegistry.prepareKeyUrl(this.region, header.getKeyId()), e.getMessage()));
+                    String.format("Failed to resolve AWS ELB Key %s from URL %s: %s", header.getKeyId(), rawKeyUrl,
+                                  e.getMessage()), e);
         }
     }
 

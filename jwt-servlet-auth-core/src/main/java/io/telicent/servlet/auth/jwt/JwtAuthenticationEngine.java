@@ -164,8 +164,14 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
             LOGGER.info("Request to {} successfully authenticated as {}", getRequestUrl(request), username);
             return prepareRequest(request, jws.verifiedToken(), username);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             sendError(response, e);
+        } catch (Error e) {
+            // NB - Deliberately NOT converted into an error response.  An Error here means a JVM or classpath level
+            //      fault (e.g. NoClassDefFoundError from a mis-provisioned jjwt), and turning that into an opaque
+            //      HTTP 500 on every request hides it.  Log it loudly and let the container deal with it.
+            LOGGER.error("Fatal error during JWT authentication, request not processed", e);
+            throw e;
         }
 
         return null;

@@ -19,6 +19,8 @@ import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +32,8 @@ import java.util.function.Function;
  * An abstract base class for use by concrete {@link EngineProvider} implementations
  */
 public abstract class AbstractHeaderBasedEngineProvider implements EngineProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHeaderBasedEngineProvider.class);
 
     /**
      * Tries to configure the header sources
@@ -167,7 +171,9 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
             }
             jwtAuthenticationEngineConsumer.accept(engine);
             return true;
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            // NB - Previously this failure was entirely silent, which made a broken engine provider invisible
+            LOGGER.warn("Failed to create a JWT authentication engine: {}", e.getMessage(), e);
             return false;
         }
     }
