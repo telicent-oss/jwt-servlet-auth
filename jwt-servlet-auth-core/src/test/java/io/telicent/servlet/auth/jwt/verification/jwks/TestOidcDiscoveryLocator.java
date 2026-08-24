@@ -71,8 +71,7 @@ public class TestOidcDiscoveryLocator {
     }
 
     @Test
-    public void givenCompliantDiscoveryUrl_whenUsingLocator_thenKeyLocated_andSubsequentLocationDoesNotRequireDiscovery() throws
-            Exception {
+    public void givenCompliantDiscoveryUrl_whenUsingLocator_thenKeyLocated_andSubsequentLocationDoesNotRequireDiscovery() {
         // Given
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));
@@ -92,8 +91,7 @@ public class TestOidcDiscoveryLocator {
     }
 
     @Test
-    public void givenLocator_whenToString_thenHasNoJwksUrlPriorToDiscovery_andHasJwksUrlAfterDiscovery() throws
-            Exception {
+    public void givenLocator_whenToString_thenHasNoJwksUrlPriorToDiscovery_andHasJwksUrlAfterDiscovery() {
         // Given
         OidcDiscoveryLocator locator =
                 new OidcDiscoveryLocator(URI.create(this.server.getConfigurationUrl()));

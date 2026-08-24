@@ -72,8 +72,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
     }
 
     @Test
-    public void givenNoKeyConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() throws
-            IOException {
+    public void givenNoKeyConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() {
         // Given
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, "10");
@@ -269,7 +268,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
     }
 
     @Test
-    public void givenBadJwksConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() throws IOException {
+    public void givenBadJwksConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() {
         // Given
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "not a valid URL");
@@ -282,8 +281,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
     }
 
     @Test
-    public void givenBadJwksConfigurationUsingPlainFilename_whenConfiguringVerifier_thenNothingIsConfigured() throws
-            IOException {
+    public void givenBadJwksConfigurationUsingPlainFilename_whenConfiguringVerifier_thenNothingIsConfigured() {
         // Given
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "no-such-file.json");

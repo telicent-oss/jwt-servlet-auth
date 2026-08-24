@@ -87,7 +87,7 @@ public class TestKeyUtils {
     }
 
     @Test
-    public void load_rsa_key_good_03() throws KeyLoadException, IOException {
+    public void load_rsa_key_good_03() throws KeyLoadException {
         KeyUtils.loadPublicKey(KeyUtils.RSA, new File("src/test/resources" + TEST_RSA_KEY_RESOURCE));
     }
 
@@ -109,7 +109,7 @@ public class TestKeyUtils {
     }
 
     @Test
-    public void load_ecdsa_key_good_03() throws KeyLoadException, IOException {
+    public void load_ecdsa_key_good_03() throws KeyLoadException {
         KeyUtils.loadPublicKey(KeyUtils.EC, new File("src/test/resources" + TEST_ECDSA_KEY_RESOURCE));
     }
 
@@ -195,7 +195,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenNonExistentSecretKey_whenLoadingFromFile_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenNonExistentSecretKey_whenLoadingFromFile_thenErrorIsThrown() throws KeyLoadException {
         // Given
         File keyFile = new File("no-such-file.key");
 
@@ -278,7 +278,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenNonExistentJwksFile_whenLoadingFromFile_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenNonExistentJwksFile_whenLoadingFromFile_thenErrorIsThrown() throws KeyLoadException {
         // Given
         File jwksFile = new File("no-such-file.json");
 
@@ -346,7 +346,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenUnreachableJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenUnreachableJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = URI.create("http://localhost:" + JWKS_TEST_PORT.get() + "/jwks.json");
 
@@ -355,7 +355,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenNoJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenNoJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = null;
 
@@ -364,7 +364,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenJwksUrlAndNullClient_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenJwksUrlAndNullClient_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = URI.create("https://example.org/jwks.json");
 
@@ -373,7 +373,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenUnsupportedSchemaJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenUnsupportedSchemaJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = URI.create("ftp://example.org/files/jwks.json");
 

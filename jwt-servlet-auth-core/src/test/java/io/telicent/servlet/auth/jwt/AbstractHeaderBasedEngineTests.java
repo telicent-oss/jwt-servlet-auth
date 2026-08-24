@@ -213,17 +213,17 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_01() throws IOException {
+    public void engine_authenticated_01() {
         Assert.assertNotNull(verifyAuthenticated("Bearer test", new FakeTokenVerifier(), "test"));
     }
 
     @Test
-    public void engine_authenticated_02() throws IOException {
+    public void engine_authenticated_02() {
         Assert.assertNotNull(verifyAuthenticated("Bearer eve", new FakeTokenVerifier(), "eve"));
     }
 
     @Test
-    public void engine_authenticated_03() throws IOException {
+    public void engine_authenticated_03() {
         // HTTP Headers should be treated as case-insensitive
         Assert.assertNotNull(
                 verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION.toLowerCase(Locale.ROOT), "Bearer lower",
@@ -231,7 +231,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_04() throws IOException {
+    public void engine_authenticated_04() {
         // HTTP Headers should be treated as case-insensitive
         Assert.assertNotNull(
                 verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION.toUpperCase(Locale.ROOT), "Bearer upper",
@@ -239,7 +239,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_custom_header_01() throws IOException {
+    public void engine_authenticated_custom_header_01() {
         Assert.assertNotNull(verifyAuthenticated(CUSTOM_AUTH_HEADER, "Bearer adam",
                                                  this.createEngine(CUSTOM_AUTH_HEADER,
                                                                    JwtHttpConstants.AUTH_SCHEME_BEARER, null, null),
@@ -247,7 +247,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_custom_header_02() throws IOException {
+    public void engine_authenticated_custom_header_02() {
         Assert.assertNotNull(
                 verifyAuthenticated(CUSTOM_AUTH_HEADER, "eve", this.createEngine(CUSTOM_AUTH_HEADER, null, null, null),
                                     new FakeTokenVerifier(), "eve"));
@@ -324,7 +324,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_multiple_token_sources_04() throws IOException {
+    public void engine_authenticated_multiple_token_sources_04() {
         JwtAuthenticationEngine<TRequest, TResponse> engine =
                 createMultiHeaderSourceEngine(null, ClaimPath.topLevel(CUSTOM_CLAIM));
         Assert.assertNotNull(verifyAuthenticated(CUSTOM_AUTH_HEADER, "Bearer test", engine,
