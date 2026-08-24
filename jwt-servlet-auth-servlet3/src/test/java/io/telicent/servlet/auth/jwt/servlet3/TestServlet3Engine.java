@@ -111,8 +111,15 @@ public class TestServlet3Engine extends AbstractHeaderBasedEngineTests<HttpServl
 
     public static void verifyStatusCode(HttpServletResponse httpServletResponse, int expectedStatus) throws
             IOException {
-        verify(httpServletResponse, atMostOnce()).sendError(eq(expectedStatus));
-        verify(httpServletResponse, atMostOnce()).sendError(eq(expectedStatus), any());
+        // NB - This previously used atMostOnce(), i.e. atMost(1), which passes on ZERO matching invocations and so
+        //      could never fail for any status code, including no response at all.  The engines send a challenge via
+        //      sendError(status) and an unexpected error via sendError(500, message), so assert that exactly one of
+        //      the two overloads was invoked with the expected status.
+        if (expectedStatus >= 500) {
+            verify(httpServletResponse, times(1)).sendError(eq(expectedStatus), any());
+        } else {
+            verify(httpServletResponse, times(1)).sendError(expectedStatus);
+        }
     }
 
     @Override
