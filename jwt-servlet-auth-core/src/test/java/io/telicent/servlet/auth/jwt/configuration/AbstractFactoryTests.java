@@ -18,7 +18,7 @@ package io.telicent.servlet.auth.jwt.configuration;
 import java.util.Map;
 import java.util.function.Function;
 
-public class AbstractFactoryTests {
+public abstract class AbstractFactoryTests {
     public static final Function<String, String> NULL_PARAM_SUPPLIER = x -> null;
 
     public static final Function<String, String> supplierForMap(Map<String, String> map) {
