@@ -73,7 +73,11 @@ public class OidcConfigurationLoader {
                 LOGGER.warn("Obtaining OpenID Connect configuration from {} failed with HTTP status {}", discoveryUri,
                             response.statusCode());
             }
-        } catch (Throwable e) {
+        } catch (InterruptedException e) {
+            // NB - Restore the interrupt flag so that the interrupt is not lost
+            Thread.currentThread().interrupt();
+            LOGGER.warn("Interrupted while obtaining OpenID Connect discovery configuration from {}", discoveryUri);
+        } catch (Exception e) {
             LOGGER.warn("Failed to obtain OpenID Connect discovery configuration: {}", e.getMessage());
         }
 
