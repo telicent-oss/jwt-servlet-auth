@@ -62,6 +62,9 @@ public class DefaultVerificationProvider implements VerificationProvider {
     /**
      * Creates the new default verification provider
      */
+    // Sonar S1186 - the explicit no-arg constructor exists solely so that it can carry Javadoc, which the Javadoc
+    // plugin requires for public API types.  It is already documented above, so there is nothing further to add.
+    @SuppressWarnings("java:S1186")
     public DefaultVerificationProvider() {
     }
 
