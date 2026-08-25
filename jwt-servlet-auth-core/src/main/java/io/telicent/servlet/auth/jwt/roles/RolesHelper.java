@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A helper for obtaining roles information from a JWT
@@ -88,18 +87,25 @@ public class RolesHelper {
      * @param rawRoles Raw roles claim value, may be {@code null} if no such claim present in the JWT
      * @return Loaded roles
      */
+    // Sonar S3776 - suppressed pending a decision on refactoring.  The cognitive complexity comes from the four
+    // supported claim shapes (String, Collection, String[], other), each with its own empty/blank handling.  This
+    // method is documented above as an extension point for subclasses and sits on the authorisation path, so it is
+    // not being restructured as part of a Sonar clean-up sweep.  See CORE-1468.
+    @SuppressWarnings("java:S3776")
     protected Set<String> loadRoles(Object rawRoles) {
         if (rawRoles == null) {
             return Collections.emptySet();
         } else if (rawRoles instanceof String singleRole) {
             // NB - Filter out empty roles and strip extra whitespace around role names
             if (Strings.CS.contains(singleRole, ",")) {
-                String[] roles = StringUtils.split(singleRole, ",");
-                if (roles == null || roles.length == 0) {
+                // NB - StringUtils.split() only returns null for a null input, and singleRole is non-null here by
+                //      virtue of the pattern match above, so only the empty case needs guarding
+                String[] splitRoles = StringUtils.split(singleRole, ",");
+                if (splitRoles.length == 0) {
                     return Collections.emptySet();
                 }
-                Set<String> parsedRoles = newRoleSet(roles.length);
-                for (String role : roles) {
+                Set<String> parsedRoles = newRoleSet(splitRoles.length);
+                for (String role : splitRoles) {
                     addRole(parsedRoles, role);
                 }
                 return parsedRoles.isEmpty() ? Collections.emptySet() : parsedRoles;
@@ -142,8 +148,7 @@ public class RolesHelper {
         if (expectedSize <= 0) {
             return new HashSet<>();
         }
-        int capacity = (int) ((expectedSize / 0.75f) + 1);
-        return new HashSet<>(capacity);
+        return HashSet.newHashSet(expectedSize);
     }
 
     private static void addRole(Set<String> roles, String role) {

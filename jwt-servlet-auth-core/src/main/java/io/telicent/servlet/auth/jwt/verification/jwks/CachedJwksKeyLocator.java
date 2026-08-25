@@ -20,6 +20,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.security.Jwk;
 import io.jsonwebtoken.security.JwkSet;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -72,6 +73,11 @@ public class CachedJwksKeyLocator extends AbstractJwksLocator {
     }
 
     @Override
+    // Sonar S2259 - the reported null dereference on jwk.toKey() is unreachable: ensureKeyPresent() throws
+    // InvalidKeyException when jwk is null.  Sonar cannot see that contract because the method is inherited from
+    // AbstractJwksLocator in a different compilation unit, while Caffeine's getIfPresent() carries a @Nullable
+    // annotation that it does trust.
+    @SuppressWarnings("java:S2259")
     protected Key locate(JwsHeader header) {
         String keyId = this.ensureValidKeyId(header);
 
@@ -83,7 +89,11 @@ public class CachedJwksKeyLocator extends AbstractJwksLocator {
 
         // Otherwise load the JWKS and cache the contained keys
         JwkSet jwks = this.jwksLocator.loadJwks(this.jwksLocator.getJwksURI());
-        jwks.getKeys().forEach(k -> this.cache.put(k.getId(), k));
+        // NB - The kid header is optional per RFC 7517, so Jwk.getId() can be null, and Caffeine rejects null keys
+        //      with a NullPointerException.  Without this filter a single keyless entry anywhere in the JWKS would
+        //      make every verification through this locator fail with an NPE escaping locate(), which surfaces as a
+        //      500 rather than a 401.  Keys without an id cannot be looked up by kid anyway.
+        jwks.getKeys().stream().filter(k -> StringUtils.isNotBlank(k.getId())).forEach(k -> this.cache.put(k.getId(), k));
 
         // Then lookup the key again
         jwk = this.cache.getIfPresent(keyId);

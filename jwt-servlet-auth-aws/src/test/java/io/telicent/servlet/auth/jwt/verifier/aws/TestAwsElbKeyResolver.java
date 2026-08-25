@@ -21,7 +21,6 @@ import io.jsonwebtoken.security.Jwk;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import org.apache.commons.lang3.Strings;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 

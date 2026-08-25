@@ -20,9 +20,10 @@ import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.Strings;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import static org.mockito.Mockito.mock;
 
 public class TestVerifiedToken {
 
@@ -38,7 +39,7 @@ public class TestVerifiedToken {
     @Test(expectedExceptions = NullPointerException.class)
     public void givenNullVerified_whenConstructingVerifiedToken_thenError() {
         // Given
-        TokenCandidate candidate = Mockito.mock(TokenCandidate.class);
+        TokenCandidate candidate = mock(TokenCandidate.class);
         Jws<Claims> jws = null;
 
         // When and Then
@@ -50,7 +51,7 @@ public class TestVerifiedToken {
     public void givenCandidateAndVerified_whenConstructingVerifiedToken_thenSuccess_andToStringIsCorrect() {
         // Given
         TokenCandidate candidate = new TokenCandidate(new HeaderSource(JwtHttpConstants.HEADER_AUTHORIZATION, JwtHttpConstants.AUTH_SCHEME_BEARER), "Bearer foo");
-        Jws<Claims> jws = Mockito.mock(Jws.class);
+        Jws<Claims> jws = mock(Jws.class);
 
         // When
         VerifiedToken token =  new VerifiedToken(candidate, jws);

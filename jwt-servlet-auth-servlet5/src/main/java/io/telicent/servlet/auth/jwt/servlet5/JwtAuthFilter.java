@@ -70,7 +70,9 @@ public class JwtAuthFilter extends AbstractConfigurableJwtAuthFilter<HttpServlet
         super.doFilter(request, response, (req, resp) -> {
             try {
                 filterChain.doFilter(req, resp);
-            } catch (Throwable e) {
+            } catch (IOException | ServletException e) {
+                // NB - The onSuccess callback is a BiConsumer so it cannot declare checked exceptions; only those
+                //      need wrapping.  RuntimeException and Error propagate untouched.
                 throw new RuntimeException(e);
             } finally {
                 // Ensure we remove the authenticated user from the logging context at the end of request processing
@@ -87,10 +89,5 @@ public class JwtAuthFilter extends AbstractConfigurableJwtAuthFilter<HttpServlet
      */
     final HttpServletRequest lastResult() {
         return this.lastAuthenticatedRequest;
-    }
-
-    @Override
-    public void destroy() {
-
     }
 }

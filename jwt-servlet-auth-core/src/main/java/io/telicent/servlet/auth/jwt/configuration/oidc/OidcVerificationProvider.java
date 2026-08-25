@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,6 +45,9 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
     /**
      * The {@code /.well-known/} path that is used for some automatic configuration patterns
      */
+    // Sonar S1075 - this is the path segment mandated by RFC 8615 and OpenID Connect Discovery, i.e. a protocol
+    // constant rather than deployment configuration.  Making it configurable would be incorrect.
+    @SuppressWarnings("java:S1075")
     public static final String WELL_KNOWN_PATH = "/.well-known/";
     /**
      * The {@code openid-configuration} path that is used for OpenID Connect configuration discovery
@@ -57,14 +61,20 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
     /**
      * Supported parameters for this verification provider
      */
-    public static String[] OPENID_PARAMETERS = new String[] {
+    public static final List<String> OPENID_PARAMETERS = List.of(
             ConfigurationParameters.PARAM_OIDC_PROVIDER_URL,
             ConfigurationParameters.PARAM_OIDC_RETRY_INTERVAL,
             ConfigurationParameters.PARAM_JWKS_CACHE_KEYS_FOR,
             ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW
-    };
+    );
 
     @Override
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings({"java:S4276", "java:S2629"})
     public boolean configure(Function<String, String> paramSupplier, Consumer<JwtVerifier> verifierConsumer) {
         Map<String, String> parameters =
                 DefaultVerificationProvider.prepareParameters(paramSupplier, OPENID_PARAMETERS);
@@ -80,9 +90,10 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
                                                         ConfigurationParameters.DEFAULT_JWKS_CACHE_KEYS_FOR);
             String rawDiscoveryUri = parameters.get(ConfigurationParameters.PARAM_OIDC_PROVIDER_URL);
             URI discoveryUri = OidcVerificationProvider.prepareDiscoveryUri(rawDiscoveryUri);
+            // Sonar S2629 - runs once at startup
             LOGGER.info(
                     "Resolved raw OpenID Connect configuration discovery URI {} to {}, if this is not correct ensure your configuration provides the full URI with the {} suffix",
-                    rawDiscoveryUri, discoveryUri.toString(), OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
+                    rawDiscoveryUri, discoveryUri, OidcVerificationProvider.WELL_KNOWN_OPENID_CONFIGURATION);
             CachedJwksKeyLocator locator = new CachedJwksKeyLocator(
                     new OidcDiscoveryLocator(discoveryUri, Duration.ofSeconds(retryInterval)),
                     Duration.ofMinutes(cacheKeysFor));

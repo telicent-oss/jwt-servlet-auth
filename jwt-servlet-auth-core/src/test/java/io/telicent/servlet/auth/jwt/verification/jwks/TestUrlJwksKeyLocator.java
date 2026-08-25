@@ -282,4 +282,15 @@ public class TestUrlJwksKeyLocator {
         Assert.assertTrue(Strings.CS.contains(verifier.toString(), "jwksUrl=" + this.jwksFile.toString()));
         Assert.assertTrue(Strings.CS.contains(verifier.toString(), "cacheKeysFor=" + cacheKeysFor.toString()));
     }
+
+    @Test(expectedExceptions = IllegalArgumentException.class,
+          expectedExceptionsMessageRegExp = "JWKS URI does not use any of the supported schemes.*")
+    public void givenJwksUriWithNoScheme_whenCreatingLocator_thenIllegalArgument() {
+        // Given
+        URI noScheme = URI.create("some/relative/jwks.json");
+        Assert.assertNull(noScheme.getScheme(), "Test URI is expected to have no scheme");
+
+        // When and Then
+        new UrlJwksKeyLocator(noScheme, this.client);
+    }
 }

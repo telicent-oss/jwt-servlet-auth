@@ -35,6 +35,12 @@ public interface EngineProvider extends ConfigurationProvider {
      * @param <TResponse>    Response type
      * @return True if an engine was configured, false otherwise
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     <TRequest, TResponse> boolean configure(Function<String, String> paramSupplier,
                                             Consumer<JwtAuthenticationEngine<TRequest, TResponse>> engineConsumer);
 }

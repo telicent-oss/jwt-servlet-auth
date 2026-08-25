@@ -60,6 +60,7 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
     }
 
     @Override
+    @SuppressWarnings("java:S2629")
     public void filter(ContainerRequestContext request) throws IOException {
         // Reset the logging context user at the start of filtering to ensure that the logging context doesn't contain a
         // username unless we successfully authenticate this request
@@ -96,7 +97,8 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
         }
 
         if (this.config.getEngine().authenticate(request, null, this.config.getVerifier()) == null) {
-            LOGGER.warn("Request to {} rejected as unauthenticated", request.getUriInfo().getRequestUri().toString());
+            // Sonar S2629 - authentication rejection path only, not the hot success path, and at WARN level
+            LOGGER.warn("Request to {} rejected as unauthenticated", request.getUriInfo().getRequestUri());
         }
     }
 

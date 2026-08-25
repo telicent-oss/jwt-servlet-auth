@@ -17,7 +17,6 @@ package io.telicent.servlet.auth.jwt.configuration;
 
 import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 
-import java.time.Duration;
 
 /**
  * Configuration parameters used for {@link AutomatedConfiguration} of filters

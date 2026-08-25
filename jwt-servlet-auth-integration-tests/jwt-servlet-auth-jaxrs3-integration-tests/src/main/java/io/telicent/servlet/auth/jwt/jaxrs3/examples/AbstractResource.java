@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Response;
 /**
  * Abstract test resource
  */
-public class AbstractResource {
+public abstract class AbstractResource {
     /**
      * Returns a simple {@code text/plain} response containing the text {@code Hello World!}
      * @return Response

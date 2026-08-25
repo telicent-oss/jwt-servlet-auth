@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.mock;
 
@@ -213,17 +212,17 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_01() throws IOException {
+    public void engine_authenticated_01() {
         Assert.assertNotNull(verifyAuthenticated("Bearer test", new FakeTokenVerifier(), "test"));
     }
 
     @Test
-    public void engine_authenticated_02() throws IOException {
+    public void engine_authenticated_02() {
         Assert.assertNotNull(verifyAuthenticated("Bearer eve", new FakeTokenVerifier(), "eve"));
     }
 
     @Test
-    public void engine_authenticated_03() throws IOException {
+    public void engine_authenticated_03() {
         // HTTP Headers should be treated as case-insensitive
         Assert.assertNotNull(
                 verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION.toLowerCase(Locale.ROOT), "Bearer lower",
@@ -231,7 +230,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_04() throws IOException {
+    public void engine_authenticated_04() {
         // HTTP Headers should be treated as case-insensitive
         Assert.assertNotNull(
                 verifyAuthenticated(JwtHttpConstants.HEADER_AUTHORIZATION.toUpperCase(Locale.ROOT), "Bearer upper",
@@ -239,7 +238,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_custom_header_01() throws IOException {
+    public void engine_authenticated_custom_header_01() {
         Assert.assertNotNull(verifyAuthenticated(CUSTOM_AUTH_HEADER, "Bearer adam",
                                                  this.createEngine(CUSTOM_AUTH_HEADER,
                                                                    JwtHttpConstants.AUTH_SCHEME_BEARER, null, null),
@@ -247,7 +246,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
     }
 
     @Test
-    public void engine_authenticated_custom_header_02() throws IOException {
+    public void engine_authenticated_custom_header_02() {
         Assert.assertNotNull(
                 verifyAuthenticated(CUSTOM_AUTH_HEADER, "eve", this.createEngine(CUSTOM_AUTH_HEADER, null, null, null),
                                     new FakeTokenVerifier(), "eve"));
@@ -323,8 +322,12 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
                                                  new AlternateClaimTokenVerifier(CUSTOM_CLAIM), "test"));
     }
 
+    // Sonar S4144 - this case is currently identical to _03.  Suppressed rather than deleted or reimplemented: it is
+    // one slot in a numbered 6-case matrix (_05 and _06 are genuinely distinct), so removing it would renumber the
+    // series, and deciding what it was intended to vary needs a call from whoever added it.
+    @SuppressWarnings("java:S4144")
     @Test
-    public void engine_authenticated_multiple_token_sources_04() throws IOException {
+    public void engine_authenticated_multiple_token_sources_04() {
         JwtAuthenticationEngine<TRequest, TResponse> engine =
                 createMultiHeaderSourceEngine(null, ClaimPath.topLevel(CUSTOM_CLAIM));
         Assert.assertNotNull(verifyAuthenticated(CUSTOM_AUTH_HEADER, "Bearer test", engine,
@@ -424,9 +427,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
         List<HeaderSource> headerSources = new ArrayList<>(JwtHttpConstants.DEFAULT_HEADER_SOURCES);
         headerSources.add(new HeaderSource(CUSTOM_AUTH_HEADER, JwtHttpConstants.AUTH_SCHEME_BEARER));
 
-        JwtAuthenticationEngine<TRequest, TResponse> engine =
-                createEngine(headerSources, realm, usernameClaim != null ? List.of(usernameClaim) : null);
-        return engine;
+        return createEngine(headerSources, realm, usernameClaim != null ? List.of(usernameClaim) : null);
     }
 
     protected void verifyChallenge(String authHeader, JwtVerifier verifier, int expectedStatus,
@@ -502,7 +503,7 @@ public abstract class AbstractHeaderBasedEngineTests<TRequest, TResponse> extend
 
     public JwtAuthenticationEngine<TRequest, TResponse> createMultiClaimEngine(String... usernameClaims) {
         return createEngine((List<HeaderSource>) JwtHttpConstants.DEFAULT_HEADER_SOURCES, null,
-                            Arrays.stream(usernameClaims).map(ClaimPath::topLevel).collect(Collectors.toList()));
+                            Arrays.stream(usernameClaims).map(ClaimPath::topLevel).toList());
     }
 
     @Test

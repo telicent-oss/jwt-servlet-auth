@@ -44,8 +44,10 @@ public class TestFakeFilter {
 
     @Test(expectedExceptions = AuthenticationConfigurationError.class)
     public void no_engine() {
-        FakeFilter filter = new FakeFilter(null);
-        filter.doFilter(new FakeRequest(), new FakeResponse(), Collections.emptyList(), null, new Object());
+        // NB - Deliberately NOT the shared this.filter fixture; this case needs a filter with a null engine and must
+        //      not disturb the instance reset by @BeforeMethod for the sibling tests
+        FakeFilter nullEngineFilter = new FakeFilter(null);
+        nullEngineFilter.doFilter(new FakeRequest(), new FakeResponse(), Collections.emptyList(), null, new Object());
     }
 
     @Test(expectedExceptions = AuthenticationConfigurationError.class)

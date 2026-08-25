@@ -18,7 +18,6 @@ package io.telicent.servlet.auth.jwt.roles;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
-import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -28,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
@@ -44,7 +44,7 @@ public class TestRolesHelper {
     @Test
     public void givenTokenAndNullRolesClaim_whenUsingHelper_thenUserNotInAnyRoles() {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
+        Jws<Claims> jwt = mock(Jws.class);
 
         // When
         RolesHelper helper = new RolesHelper(jwt, null);
@@ -56,7 +56,7 @@ public class TestRolesHelper {
     @Test
     public void givenTokenAndEmptyRolesClaim_whenUsingHelper_thenUserNotInAnyRoles() {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
+        Jws<Claims> jwt = mock(Jws.class);
 
         // When
         RolesHelper helper = new RolesHelper(jwt, ClaimPath.EMPTY);
@@ -68,7 +68,7 @@ public class TestRolesHelper {
     @Test
     public void givenEmptyTokenAndRolesClaim_whenUsingHelper_thenUserNotInAnyRoles() {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
+        Jws<Claims> jwt = mock(Jws.class);
         ClaimPath rolesClaim = ClaimPath.topLevel("roles");
 
         // When
@@ -113,8 +113,8 @@ public class TestRolesHelper {
     @Test(dataProvider = "supportedRolesFormats")
     public void givenTokenWithRoles_whenUsingHelper_thenUserInDeclaredRoles(Object rolesValue, String[] expected) {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("roles")).thenReturn(rolesValue);
         when(jwt.getPayload()).thenReturn(claims);
 
@@ -132,8 +132,8 @@ public class TestRolesHelper {
     public void givenTokenWithNestedRoles_whenUsingHelper_thenUserInDeclaredRoles(Object rolesValue,
                                                                                   String[] expected) {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("details")).thenReturn(Map.of("roles", rolesValue));
         when(jwt.getPayload()).thenReturn(claims);
 
@@ -151,8 +151,8 @@ public class TestRolesHelper {
     public void givenTokenWithDeeplyNestedRoles_whenUsingHelper_thenUserInDeclaredRoles(Object rolesValue,
                                                                                         String[] expected) {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("some")).thenReturn(Map.of("deep", Map.of("path", rolesValue)));
         when(jwt.getPayload()).thenReturn(claims);
 
@@ -170,8 +170,8 @@ public class TestRolesHelper {
     public void givenTokenWithDeeplyNestedRolesAtWrongPath_whenUsingHelper_thenUserNotInDeclaredRoles(Object rolesValue,
                                                                                                       String[] expected) {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("some")).thenReturn(Map.of("other", Map.of("path", rolesValue)));
         when(jwt.getPayload()).thenReturn(claims);
 
@@ -190,8 +190,8 @@ public class TestRolesHelper {
             Object rolesValue,
             String[] expected) {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("some")).thenReturn(Map.of("deep", List.of(Map.of("path", rolesValue))));
         when(jwt.getPayload()).thenReturn(claims);
 
@@ -220,8 +220,8 @@ public class TestRolesHelper {
     @Test(dataProvider = "unsupportedRolesFormats")
     public void givenTokenWithUnsupportedRolesData_whenUsingHelper_thenUserNotInAnyRoles(Object unsupportedRolesValue) {
         // Given
-        Jws<Claims> jwt = Mockito.mock(Jws.class);
-        Claims claims = Mockito.mock(Claims.class);
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
         when(claims.get("roles")).thenReturn(unsupportedRolesValue);
         when(jwt.getPayload()).thenReturn(claims);
 
@@ -230,5 +230,21 @@ public class TestRolesHelper {
 
         // Then
         Assert.assertFalse(helper.isUserInRole("test"));
+    }
+
+    @Test
+    public void givenTokenWithRolesClaimOfOnlySeparators_whenUsingHelper_thenUserNotInAnyRoles() {
+        // Given
+        Jws<Claims> jwt = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("roles")).thenReturn(",,");
+        when(jwt.getPayload()).thenReturn(claims);
+
+        // When
+        RolesHelper helper = new RolesHelper(jwt, ClaimPath.topLevel("roles"));
+
+        // Then
+        Assert.assertFalse(helper.isUserInRole("user"));
+        Assert.assertFalse(helper.isUserInRole(""));
     }
 }

@@ -19,19 +19,21 @@ import io.telicent.servlet.auth.jwt.JwtHttpConstants;
 import io.telicent.servlet.auth.jwt.JwtAuthenticationEngine;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * An abstract base class for use by concrete {@link EngineProvider} implementations
  */
 public abstract class AbstractHeaderBasedEngineProvider implements EngineProvider {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHeaderBasedEngineProvider.class);
 
     /**
      * Tries to configure the header sources
@@ -39,11 +41,18 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Header sources, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected List<HeaderSource> configureHeaders(Function<String, String> paramSupplier) {
         List<HeaderSource> sources = new ArrayList<>();
 
-        if (Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS),
-                                 Boolean::parseBoolean, false)) {
+        if (Boolean.TRUE.equals(
+                Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS),
+                                     Boolean::parseBoolean, false))) {
             sources.addAll(JwtHttpConstants.DEFAULT_HEADER_SOURCES);
         }
         List<String> headers = Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_HEADER_NAMES),
@@ -67,6 +76,16 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Username claims, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    // Sonar S1168 - null is a documented, load-bearing sentinel here, not an oversight.  It distinguishes "no
+    // configuration supplied" from "configuration supplied but empty", which are different states: configure()
+    // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
+    // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
+    @SuppressWarnings({"java:S1168", "java:S4276"})
     protected List<ClaimPath> configureUsernameClaims(Function<String, String> paramSupplier) {
         List<String> rawClaims =
                 Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_USERNAME_CLAIMS),
@@ -74,7 +93,7 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
         if (rawClaims == null) {
             return null;
         }
-        return rawClaims.stream().map(AbstractHeaderBasedEngineProvider::parseClaimPath).collect(Collectors.toList());
+        return rawClaims.stream().map(AbstractHeaderBasedEngineProvider::parseClaimPath).toList();
     }
 
     /**
@@ -83,6 +102,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Realm, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected String configureRealm(Function<String, String> paramSupplier) {
         return paramSupplier.apply(ConfigurationParameters.PARAM_REALM);
     }
@@ -93,6 +118,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param paramSupplier Parameter supplier
      * @return Roles claim, or {@code null} if no configuration provided
      */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     protected ClaimPath configureRolesClaim(Function<String, String> paramSupplier) {
         return Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_ROLES_CLAIM),
                                     AbstractHeaderBasedEngineProvider::parseClaimPath, null);
@@ -121,6 +152,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param value Dot separated path
      * @return Path array
      */
+    // Sonar S1168 - null is a documented, load-bearing sentinel here, not an oversight.  It distinguishes "no
+    // configuration supplied" from "configuration supplied but empty", which are different states: configure()
+    // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
+    // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
+    @SuppressWarnings("java:S1168")
     protected static List<String> parseDottedPath(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
@@ -130,7 +166,7 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
         return Arrays.stream(value.split("\\."))
                      .filter(StringUtils::isNotBlank)
                      .map(StringUtils::strip)
-                     .collect(Collectors.toList());
+                     .toList();
     }
 
     /**
@@ -139,6 +175,11 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
      * @param value Comma-separated string.
      * @return A List of values
      */
+    // Sonar S1168 - null is a documented, load-bearing sentinel here, not an oversight.  It distinguishes "no
+    // configuration supplied" from "configuration supplied but empty", which are different states: configure()
+    // treats null header sources as "decline to configure" and returns false, and a null roles claim means the
+    // claim is unconfigured rather than configured-and-empty.  Every caller null checks.
+    @SuppressWarnings("java:S1168")
     protected static List<String> parseList(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
@@ -150,6 +191,12 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     }
 
     @Override
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
+    // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
+    // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
+    // rather than the reverse, so narrowing the declared type would break external implementations at compile time
+    // and pre-compiled ones with AbstractMethodError.
+    @SuppressWarnings("java:S4276")
     public <TRequest, TResponse> boolean configure(Function<String, String> paramSupplier,
                                                    Consumer<JwtAuthenticationEngine<TRequest, TResponse>> jwtAuthenticationEngineConsumer) {
         List<HeaderSource> headerSources = this.configureHeaders(paramSupplier);
@@ -168,7 +215,9 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
             }
             jwtAuthenticationEngineConsumer.accept(engine);
             return true;
-        } catch (Throwable e) {
+        } catch (Exception e) {
+            // NB - Previously this failure was entirely silent, which made a broken engine provider invisible
+            LOGGER.warn("Failed to create a JWT authentication engine: {}", e.getMessage(), e);
             return false;
         }
     }

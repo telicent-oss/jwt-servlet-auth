@@ -17,7 +17,6 @@ package io.telicent.servlet.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.RequiredTypeException;
 import io.telicent.servlet.auth.jwt.configuration.ClaimPath;
 import io.telicent.servlet.auth.jwt.configuration.Utils;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
@@ -67,7 +66,7 @@ public abstract class HeaderBasedJwtAuthenticationEngine<TRequest, TResponse>
      *                       claim contains the roles information, a longer array would indicate that a nested claim
      *                       contains the roles information.
      */
-    public HeaderBasedJwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
+    protected HeaderBasedJwtAuthenticationEngine(Collection<HeaderSource> headers, String realm,
                                               Collection<ClaimPath> usernameClaims, ClaimPath rolesClaim) {
         Objects.requireNonNull(headers, "Header sources cannot be null");
         if (headers.isEmpty()) {

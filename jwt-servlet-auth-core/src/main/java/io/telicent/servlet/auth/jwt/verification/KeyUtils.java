@@ -81,7 +81,7 @@ public class KeyUtils {
             KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
             return keyFactory.generatePublic(keySpec);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new KeyLoadException(e);
         }
     }
@@ -248,8 +248,11 @@ public class KeyUtils {
             throw new KeyLoadException(
                     "JWKS URI " + jwksURI + " could not be read successfully: " + e.getMessage());
         } catch (InterruptedException e) {
+            // NB - Restore the interrupt flag so that the interrupt is not lost, otherwise a thread being drained
+            //      during shutdown would carry on serving requests as if nothing had happened
+            Thread.currentThread().interrupt();
             throw new KeyLoadException(
-                    "Interrupted while attempting to read from JWKS URI " + jwksURI);
+                    "Interrupted while attempting to read from JWKS URI " + jwksURI, e);
         }
     }
 

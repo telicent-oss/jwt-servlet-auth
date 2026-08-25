@@ -47,7 +47,7 @@ public class AutomatedConfiguration {
 
         // Configure the JWT Verifier
         if (adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER) == null || allowMultiple) {
-            VerificationFactory.configure(x -> adaptor.getParameter(x),
+            VerificationFactory.configure(adaptor::getParameter,
                                           v -> adaptor.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER, v));
         } else {
             LOGGER.warn("JWT Verifier already configured, skipping additional attempt to automatically configure.");
@@ -67,7 +67,7 @@ public class AutomatedConfiguration {
 
         // Configure the Authentication Engine
         if (adaptor.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE) == null || allowMultiple) {
-            EngineFactory.configure(x -> adaptor.getParameter(x),
+            EngineFactory.configure(adaptor::getParameter,
                                     e -> adaptor.setAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE, e));
         } else {
             LOGGER.warn(

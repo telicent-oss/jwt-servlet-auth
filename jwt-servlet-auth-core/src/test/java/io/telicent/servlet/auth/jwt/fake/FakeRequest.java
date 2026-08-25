@@ -40,7 +40,7 @@ public class FakeRequest {
 
     public FakeRequest(Map<String, String> headers, String url) {
         headers.forEach((key, value) -> {
-            this.headers.computeIfAbsent(key, _key -> new ArrayList<>()).add(value);
+            this.headers.computeIfAbsent(key, k -> new ArrayList<>()).add(value);
         });
         this.requestUrl = url;
     }

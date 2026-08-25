@@ -49,7 +49,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
 
         // When
-        VerificationFactory.configure(NULL_PARAM_SUPPLIER, x -> configured.set(x));
+        VerificationFactory.configure(NULL_PARAM_SUPPLIER, configured::set);
 
         // Then
         Assert.assertNull(configured.get());
@@ -72,8 +72,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
     }
 
     @Test
-    public void givenNoKeyConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() throws
-            IOException {
+    public void givenNoKeyConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() {
         // Given
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_ALLOWED_CLOCK_SKEW, "10");
@@ -269,7 +268,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
     }
 
     @Test
-    public void givenBadJwksConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() throws IOException {
+    public void givenBadJwksConfiguration_whenConfiguringVerifier_thenNothingIsConfigured() {
         // Given
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "not a valid URL");
@@ -282,8 +281,7 @@ public class TestVerificationFactory extends AbstractFactoryTests {
     }
 
     @Test
-    public void givenBadJwksConfigurationUsingPlainFilename_whenConfiguringVerifier_thenNothingIsConfigured() throws
-            IOException {
+    public void givenBadJwksConfigurationUsingPlainFilename_whenConfiguringVerifier_thenNothingIsConfigured() {
         // Given
         AtomicReference<JwtVerifier> configured = new AtomicReference<>();
         Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "no-such-file.json");
@@ -293,5 +291,34 @@ public class TestVerificationFactory extends AbstractFactoryTests {
 
         // Then
         Assert.assertNull(configured.get());
+    }
+
+    @Test
+    public void givenParameterArray_whenPreparingParameters_thenPresentValuesAreCollected() {
+        // Given
+        Map<String, String> config = Map.of(ConfigurationParameters.PARAM_JWKS_URL, "https://example.org/jwks.json");
+        String[] allowed =
+                new String[] { ConfigurationParameters.PARAM_JWKS_URL, ConfigurationParameters.PARAM_SECRET_KEY };
+
+        // When
+        Map<String, String> prepared = DefaultVerificationProvider.prepareParameters(supplierForMap(config), allowed);
+
+        // Then
+        Assert.assertEquals(prepared.size(), 1, "Parameters with no value should be omitted");
+        Assert.assertEquals(prepared.get(ConfigurationParameters.PARAM_JWKS_URL), "https://example.org/jwks.json");
+    }
+
+    @Test
+    public void givenPlainExistingFilename_whenConvertingToUri_thenAFileUriIsReturned() throws Exception {
+        // Given
+        File existing = new File("src/test/resources" + TestKeyUtils.TEST_RSA_KEY_RESOURCE);
+        Assert.assertTrue(existing.exists(), "Test resource is expected to exist: " + existing.getPath());
+
+        // When
+        URI uri = DefaultVerificationProvider.asURI(existing.getPath());
+
+        // Then
+        Assert.assertEquals(uri.getScheme(), "file", "A scheme-less filename should resolve to a file URI");
+        Assert.assertTrue(Strings.CS.contains(uri.getPath(), "test-rsa-key.pem"));
     }
 }

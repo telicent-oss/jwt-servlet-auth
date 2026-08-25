@@ -121,6 +121,7 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
      * @param onSuccess Function that is called upon successful authentication (or authentication being determined to be
      *                  unnecessary)
      */
+    @SuppressWarnings("java:S2629")
     public final void doFilter(TRequest request, TResponse response, BiConsumer<TRequest, TResponse> onSuccess) {
         this.lastAuthenticatedRequest = null;
         MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
@@ -162,6 +163,7 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
             this.lastAuthenticatedRequest = authenticatedRequest;
             onSuccess.accept(authenticatedRequest, response);
         } else {
+            // Sonar S2629 - authentication rejection path only, not the hot success path, and at WARN level
             LOGGER.warn("Request to {} rejected as unauthenticated with HTTP {}",
                         this.config.getEngine().getRequestUrl(request), getStatus(response));
         }

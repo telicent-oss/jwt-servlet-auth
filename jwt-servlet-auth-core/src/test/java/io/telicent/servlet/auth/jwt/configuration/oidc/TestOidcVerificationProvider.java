@@ -31,6 +31,7 @@ import org.testng.Assert;
 import org.testng.annotations.*;
 
 import java.net.URI;
+import java.time.Duration;
 import java.security.Key;
 import java.util.Map;
 import java.util.Objects;
@@ -226,8 +227,39 @@ public class TestOidcVerificationProvider extends AbstractFactoryTests {
             // Expected, ignore
         }
         server.start();
-        Thread.sleep(1500);
-        verifyCorrectlySignedJwt(verifier);
+        // NB - The locator gates re-discovery on the 1 second wall-clock retry interval configured above, so poll
+        //      until verification succeeds rather than sleeping for a fixed period.  The previous Thread.sleep(1500)
+        //      left only a 500ms margin against that gate, which is one GC pause or one loaded CI runner away from
+        //      failing, and cost a flat 1.5s even on success.
+        awaitSuccessfulVerification(verifier, Duration.ofSeconds(10));
+    }
+
+    /**
+     * Polls until the given verifier can successfully verify a correctly signed JWT, or the timeout expires
+     *
+     * @param verifier Verifier under test
+     * @param timeout  Maximum time to wait
+     */
+    // Sonar S2925 - the remaining sleep is a short poll interval inside a bounded wait loop, not a fixed guess at
+    // how long the condition takes.  Awaitility would express this more neatly but is not currently a dependency of
+    // this project.
+    @SuppressWarnings("java:S2925")
+    private void awaitSuccessfulVerification(JwtVerifier verifier, Duration timeout) throws InterruptedException {
+        long deadlineNanos = System.nanoTime() + timeout.toNanos();
+        RuntimeException lastError = null;
+        while (System.nanoTime() < deadlineNanos) {
+            try {
+                verifyCorrectlySignedJwt(verifier);
+                return;
+            } catch (InvalidKeyException e) {
+                lastError = e;
+                Thread.sleep(100);
+            }
+        }
+        throw new AssertionError(
+                "JWT verification did not succeed within " + timeout + ", last error: " + (lastError != null ?
+                                                                                           lastError.getMessage() :
+                                                                                           "none"), lastError);
     }
 
     @Test

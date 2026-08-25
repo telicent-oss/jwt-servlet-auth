@@ -29,7 +29,6 @@ import org.apache.commons.lang3.Strings;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, FakeResponse> {
 
@@ -49,7 +48,7 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
     @Override
     protected boolean hasRequiredParameters(FakeRequest fakeRequest) {
         String[] allowedHeaders =
-                this.headers.stream().map(HeaderSource::getHeader).collect(Collectors.toList()).toArray(new String[0]);
+                this.headers.stream().map(HeaderSource::getHeader).toList().toArray(new String[0]);
         return fakeRequest.headers.keySet()
                                   .stream()
                                   .anyMatch(key -> Strings.CI.equalsAny(key, allowedHeaders));
@@ -65,7 +64,7 @@ public class FakeEngine extends HeaderBasedJwtAuthenticationEngine<FakeRequest, 
                                                             .flatMap(e -> e.getValue()
                                                                            .stream()
                                                                            .map(v -> new TokenCandidate(h, v))))
-                           .collect(Collectors.toList());
+                           .toList();
 
     }
 

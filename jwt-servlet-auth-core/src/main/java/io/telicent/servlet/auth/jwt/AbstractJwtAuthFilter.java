@@ -31,6 +31,11 @@ import java.util.List;
  * @param <TRequest>  Request type
  * @param <TResponse> Response type
  */
+// Sonar S2326 - the type parameters are not referenced in this class body, but they exist to type the published
+// hierarchy below it: AbstractConfigurableJwtAuthFilter<TRequest, TResponse> uses both, and jaxrs3's JwtAuthFilter
+// extends AbstractJwtAuthFilter<ContainerRequestContext, ContainerResponseContext>.  Removing them would turn every
+// downstream AbstractJwtAuthFilter<X, Y> reference into a wrong-arity compile error.
+@SuppressWarnings("java:S2326")
 public class AbstractJwtAuthFilter<TRequest, TResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJwtAuthFilter.class);
@@ -75,15 +80,13 @@ public class AbstractJwtAuthFilter<TRequest, TResponse> {
         }
 
         boolean excluded = exclusions.stream().anyMatch(e -> e.matches(path));
-        if (excluded) {
-            // Use a cache to prevent these warnings being spammed endlessly, this is especially true when something
-            // like a health status endpoint is excluded from authentication and being regularly hit by automated
-            // monitoring tools
-            if (EXCLUSION_WARNINGS_CACHE.getIfPresent(path) == null) {
-                LOGGER.warn("Request to path {} is excluded from JWT Authentication filtering by filter configuration",
-                            path);
-                EXCLUSION_WARNINGS_CACHE.put(path, Boolean.TRUE);
-            }
+        // Use a cache to prevent these warnings being spammed endlessly, this is especially true when something
+        // like a health status endpoint is excluded from authentication and being regularly hit by automated
+        // monitoring tools
+        if (excluded && EXCLUSION_WARNINGS_CACHE.getIfPresent(path) == null) {
+            LOGGER.warn("Request to path {} is excluded from JWT Authentication filtering by filter configuration",
+                        path);
+            EXCLUSION_WARNINGS_CACHE.put(path, Boolean.TRUE);
         }
         return excluded;
     }

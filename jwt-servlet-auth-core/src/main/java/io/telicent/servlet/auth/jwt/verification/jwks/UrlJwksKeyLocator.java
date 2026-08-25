@@ -16,11 +16,10 @@
 package io.telicent.servlet.auth.jwt.verification.jwks;
 
 import io.jsonwebtoken.security.JwkSet;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Strings;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -44,7 +43,7 @@ public class UrlJwksKeyLocator extends AbstractJwksLocator {
     /**
      * Supported URI schemes for retrieving a JWKS resource
      */
-    public static final String[] SUPPORTED_SCHEMES = { "http", "https", "file" };
+    public static final List<String> SUPPORTED_SCHEMES = List.of("http", "https", "file");
 
     /**
      * The configured JWKS URI
@@ -71,7 +70,7 @@ public class UrlJwksKeyLocator extends AbstractJwksLocator {
         this.jwksURI = Objects.requireNonNull(jwksURI, "JWKS URI cannot be null");
         if (!isSupportedScheme(jwksURI)) {
             throw new IllegalArgumentException(
-                    "JWKS URI does not use any of the supported schemes: " + StringUtils.join(SUPPORTED_SCHEMES, ", "));
+                    "JWKS URI does not use any of the supported schemes: " + String.join(", ", SUPPORTED_SCHEMES));
         }
     }
 
@@ -87,7 +86,9 @@ public class UrlJwksKeyLocator extends AbstractJwksLocator {
      * @return True if a supported scheme, false otherwise
      */
     protected static boolean isSupportedScheme(URI jwksURI) {
-        return Strings.CS.equalsAny(jwksURI.getScheme(), SUPPORTED_SCHEMES);
+        // NB - Explicit null check because List.of(...).contains(null) throws rather than returning false, whereas
+        //      the previous Strings.CS.equalsAny returned false for a null scheme
+        return jwksURI.getScheme() != null && SUPPORTED_SCHEMES.contains(jwksURI.getScheme());
     }
 
     @Override

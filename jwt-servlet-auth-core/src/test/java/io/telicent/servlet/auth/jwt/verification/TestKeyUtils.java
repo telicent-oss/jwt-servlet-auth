@@ -42,6 +42,11 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
+import java.net.http.HttpResponse;
+import java.net.http.HttpRequest;
 
 public class TestKeyUtils {
 
@@ -87,7 +92,7 @@ public class TestKeyUtils {
     }
 
     @Test
-    public void load_rsa_key_good_03() throws KeyLoadException, IOException {
+    public void load_rsa_key_good_03() throws KeyLoadException {
         KeyUtils.loadPublicKey(KeyUtils.RSA, new File("src/test/resources" + TEST_RSA_KEY_RESOURCE));
     }
 
@@ -109,7 +114,7 @@ public class TestKeyUtils {
     }
 
     @Test
-    public void load_ecdsa_key_good_03() throws KeyLoadException, IOException {
+    public void load_ecdsa_key_good_03() throws KeyLoadException {
         KeyUtils.loadPublicKey(KeyUtils.EC, new File("src/test/resources" + TEST_ECDSA_KEY_RESOURCE));
     }
 
@@ -195,7 +200,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenNonExistentSecretKey_whenLoadingFromFile_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenNonExistentSecretKey_whenLoadingFromFile_thenErrorIsThrown() throws KeyLoadException {
         // Given
         File keyFile = new File("no-such-file.key");
 
@@ -278,7 +283,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenNonExistentJwksFile_whenLoadingFromFile_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenNonExistentJwksFile_whenLoadingFromFile_thenErrorIsThrown() throws KeyLoadException {
         // Given
         File jwksFile = new File("no-such-file.json");
 
@@ -346,7 +351,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenUnreachableJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenUnreachableJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = URI.create("http://localhost:" + JWKS_TEST_PORT.get() + "/jwks.json");
 
@@ -355,7 +360,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenNoJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenNoJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = null;
 
@@ -364,7 +369,7 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenJwksUrlAndNullClient_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenJwksUrlAndNullClient_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = URI.create("https://example.org/jwks.json");
 
@@ -373,11 +378,36 @@ public class TestKeyUtils {
     }
 
     @Test(expectedExceptions = KeyLoadException.class)
-    public void givenUnsupportedSchemaJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws IOException, KeyLoadException {
+    public void givenUnsupportedSchemaJwksUrl_whenLoadingFromUrl_thenErrorIsThrown() throws KeyLoadException {
         // Given
         URI jwksURI = URI.create("ftp://example.org/files/jwks.json");
 
         // When and Then
         KeyUtils.loadJwks(jwksURI, HTTP_CLIENT);
+    }
+
+    @Test
+    public void givenInterruptedHttpClient_whenLoadingJwksFromUrl_thenKeyLoadException_andInterruptFlagRestored() throws
+            Exception {
+        // Given
+        HttpClient client = mock(HttpClient.class);
+        when(client.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(
+                new InterruptedException("Simulated interrupt"));
+        boolean interrupted;
+
+        // When
+        try {
+            KeyUtils.loadJwks(URI.create("https://example.org/jwks.json"), client);
+            Assert.fail("Expected a KeyLoadException");
+        } catch (KeyLoadException e) {
+            Assert.assertTrue(StringUtils.contains(e.getMessage(), "Interrupted"));
+            Assert.assertNotNull(e.getCause(), "Expected the InterruptedException to be carried as the cause");
+        } finally {
+            // NB - Thread.interrupted() also clears the flag so that it cannot leak into subsequent tests
+            interrupted = Thread.interrupted();
+        }
+
+        // Then
+        Assert.assertTrue(interrupted, "Expected the interrupt flag to have been restored on the current thread");
     }
 }

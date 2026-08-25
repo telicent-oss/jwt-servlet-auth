@@ -63,6 +63,44 @@
 
         <!-- SonarQube analysis, invoked from CI via mvn sonar:sonar -->
         <sonar.projectKey>telicent-oss_jwt-auth</sonar.projectKey>
+        <!--
+        The benchmarks module contains JMH harness code that is never published as a release artifact.  Production
+        rules (e.g. S1192 on duplicated string literals) produce findings there that say nothing about the quality of
+        the shipped libraries, so it is excluded from analysis to keep the quality gate meaningful.
+        -->
+        <!--
+        The integration test modules are likewise not published (they set maven.deploy.skip), and their example
+        servlets trip production rules such as S1989 for propagating the IOException that the servlet spec mandates.
+        -->
+        <sonar.exclusions>jwt-servlet-auth-benchmarks/**/*,jwt-servlet-auth-integration-tests/**/*</sonar.exclusions>
+
+        <!--
+        Per-rule, per-path issue exclusions.  SonarQube cannot bind a separate quality profile to test code, so rules
+        that are appropriate for src/main but not for tests have to be scoped here instead.  Note that resourceKey
+        takes a path glob despite its name, and that every index below must appear in the multicriteria list or the
+        block is silently ignored.
+        -->
+        <sonar.issue.ignore.multicriteria>s119,t1,t2,t3</sonar.issue.ignore.multicriteria>
+        <!--
+        S119: this project uses a deliberate two-tier type parameter convention - plain <T> where the parameter is
+        opaque (ClaimPath.find, Utils.parseParameter) and T-prefixed PascalCase for the co-varying request/response
+        pair threaded through the engine and filter hierarchies.  Single letters would lose the ordering cue in
+        FrozenFilterConfiguration<TRequest, TResponse> and collide with the JDK's "R means result" convention, and
+        these names are part of the published Javadoc surface.  PREFERRED FIX: widen the rule's own `format`
+        parameter in the quality profile to ^(T[A-Z][a-zA-Z0-9]*|[A-Z][0-9]?)$ and delete this block, which keeps
+        the rule enforcing the convention instead of disabling it repo-wide.
+        -->
+        <sonar.issue.ignore.multicriteria.s119.ruleKey>java:S119</sonar.issue.ignore.multicriteria.s119.ruleKey>
+        <sonar.issue.ignore.multicriteria.s119.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.s119.resourceKey>
+        <!-- S8924: static import style for Mockito members is not a convention we enforce in tests -->
+        <sonar.issue.ignore.multicriteria.t1.ruleKey>java:S8924</sonar.issue.ignore.multicriteria.t1.ruleKey>
+        <sonar.issue.ignore.multicriteria.t1.resourceKey>**/src/test/java/**/*</sonar.issue.ignore.multicriteria.t1.resourceKey>
+        <!-- S1130: defensive throws clauses on @Test methods are harmless and regrow whenever tests are copy-pasted -->
+        <sonar.issue.ignore.multicriteria.t2.ruleKey>java:S1130</sonar.issue.ignore.multicriteria.t2.ruleKey>
+        <sonar.issue.ignore.multicriteria.t2.resourceKey>**/src/test/java/**/*</sonar.issue.ignore.multicriteria.t2.resourceKey>
+        <!-- S5976: descriptive given/when/then test names are preferred over parameterisation in this codebase -->
+        <sonar.issue.ignore.multicriteria.t3.ruleKey>java:S5976</sonar.issue.ignore.multicriteria.t3.ruleKey>
+        <sonar.issue.ignore.multicriteria.t3.resourceKey>**/src/test/java/**/*</sonar.issue.ignore.multicriteria.t3.resourceKey>
 
         <!-- License Plugin Configuration -->
         <!--
@@ -263,14 +301,12 @@
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-core</artifactId>
                 <version>${dependency.jmh}</version>
-                <!--                <scope>test</scope>-->
             </dependency>
 
             <dependency>
                 <groupId>org.openjdk.jmh</groupId>
                 <artifactId>jmh-generator-annprocess</artifactId>
                 <version>${dependency.jmh}</version>
-                <!--                <scope>test</scope>-->
             </dependency>
         </dependencies>
 

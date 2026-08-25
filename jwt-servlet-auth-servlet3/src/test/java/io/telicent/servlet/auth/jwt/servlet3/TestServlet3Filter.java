@@ -21,7 +21,6 @@ import io.telicent.servlet.auth.jwt.configuration.RuntimeConfigurationAdaptor;
 import io.telicent.servlet.auth.jwt.sources.HeaderSource;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.testng.Assert;
 
 import javax.servlet.FilterChain;
@@ -39,6 +38,8 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import org.testng.annotations.Test;
+import io.telicent.servlet.auth.jwt.verification.FakeTokenVerifier;
 
 public class TestServlet3Filter extends
         AbstractConfigurableFilterTests<HttpServletRequest, HttpServletResponse, JwtAuthFilter> {
@@ -54,9 +55,11 @@ public class TestServlet3Filter extends
     @Override
     protected HttpServletRequest createMockRequest(FilterConfigAdaptorWrapper config, Map<String, String> headers) {
         HttpServletRequest request = TestServlet3Engine.mockRequest(null, headers);
-        ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(any())).thenAnswer(a -> config.getAttribute(a.getArgument(0, String.class)));
-        when(request.getServletContext()).thenReturn(context);
+        // NB - Deliberately NOT published to this.context; this overload wires the request to the supplied
+        //      FilterConfigAdaptorWrapper instead, and assigning the field would break that test path
+        ServletContext configContext = mock(ServletContext.class);
+        when(configContext.getAttribute(any())).thenAnswer(a -> config.getAttribute(a.getArgument(0, String.class)));
+        when(request.getServletContext()).thenReturn(configContext);
         return request;
     }
 
@@ -64,11 +67,11 @@ public class TestServlet3Filter extends
     protected JwtAuthFilter createFilter(JwtAuthenticationEngine<HttpServletRequest, HttpServletResponse> engine,
                                          JwtVerifier verifier, List<PathExclusion> exclusions) {
         this.context = null;
-        ServletContext context = mock(ServletContext.class);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_ENGINE))).thenReturn(engine);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER))).thenReturn(verifier);
-        when(context.getAttribute(eq(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS))).thenReturn(exclusions);
-        this.context = context;
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_ENGINE)).thenReturn(engine);
+        when(servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_JWT_VERIFIER)).thenReturn(verifier);
+        when(servletContext.getAttribute(JwtServletConstants.ATTRIBUTE_PATH_EXCLUSIONS)).thenReturn(exclusions);
+        this.context = servletContext;
 
         return new JwtAuthFilter();
     }
@@ -173,7 +176,7 @@ public class TestServlet3Filter extends
 
             @Override
             public ServletContext getServletContext() {
-                return Mockito.mock(ServletContext.class);
+                return mock(ServletContext.class);
             }
 
             @Override
@@ -200,5 +203,25 @@ public class TestServlet3Filter extends
         Object value = captor.getValue();
         Assert.assertNotNull(value, "Attribute " + attribute + " value unexpectedly null");
         return value;
+    }
+
+    @Test
+    public void givenFilterChainThrowingIOException_whenFiltering_thenWrappedInARuntimeException() throws Exception {
+        // Given
+        JwtAuthFilter filter = createFilter(createEngine(), new FakeTokenVerifier(), null);
+        HttpServletRequest request = createMockRequest(Map.of(JwtHttpConstants.HEADER_AUTHORIZATION, "Bearer test"));
+        HttpServletResponse response = createMockResponse();
+        FilterChain chain = mock(FilterChain.class);
+        IOException downstream = new IOException("Simulated downstream failure");
+        doThrow(downstream).when(chain).doFilter(any(), any());
+
+        // When and Then
+        try {
+            filter.doFilter(request, response, chain);
+            Assert.fail("Expected the checked IOException to be wrapped in a RuntimeException");
+        } catch (RuntimeException e) {
+            Assert.assertSame(e.getCause(), downstream,
+                              "The original IOException should be carried through as the cause");
+        }
     }
 }

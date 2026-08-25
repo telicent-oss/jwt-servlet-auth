@@ -76,4 +76,39 @@ public class TestBadEngineProvider {
         Assert.assertFalse(configured);
         Assert.assertFalse(called.get());
     }
+
+    /**
+     * A parameter supplier that configures the default header sources, so that {@code configure()} gets far enough to
+     * actually call {@code createEngine()} rather than declining at the no-headers guard.
+     */
+    private static final Function<String, String> DEFAULT_HEADERS_SUPPLIER =
+            x -> ConfigurationParameters.PARAM_USE_DEFAULT_HEADERS.equals(x) ? "true" : null;
+
+    @Test
+    public void givenThrowingEngineProviderAndConfiguredHeaders_whenCreatingEngine_thenNotConfigured() {
+        // Given
+        EngineProvider provider = new ThrowingEngineProvider();
+        AtomicBoolean called = new AtomicBoolean(false);
+
+        // When
+        boolean configured = provider.configure(DEFAULT_HEADERS_SUPPLIER, x -> called.set(true));
+
+        // Then
+        Assert.assertFalse(configured, "A provider whose createEngine throws must not report success");
+        Assert.assertFalse(called.get(), "The engine consumer must not be invoked when createEngine throws");
+    }
+
+    @Test
+    public void givenNullEngineProviderAndConfiguredHeaders_whenCreatingEngine_thenNotConfigured() {
+        // Given
+        EngineProvider provider = new NullEngineProvider();
+        AtomicBoolean called = new AtomicBoolean(false);
+
+        // When
+        boolean configured = provider.configure(DEFAULT_HEADERS_SUPPLIER, x -> called.set(true));
+
+        // Then
+        Assert.assertFalse(configured);
+        Assert.assertFalse(called.get());
+    }
 }

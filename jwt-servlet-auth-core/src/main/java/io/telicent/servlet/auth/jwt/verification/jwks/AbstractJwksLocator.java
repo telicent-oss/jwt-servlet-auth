@@ -48,7 +48,7 @@ public abstract class AbstractJwksLocator extends LocatorAdapter<Key> {
      *
      * @param client HTTP Client to use
      */
-    public AbstractJwksLocator(HttpClient client) {
+    protected AbstractJwksLocator(HttpClient client) {
         this.client = Objects.requireNonNull(client, "HTTP Client cannot be null");
     }
 
@@ -142,6 +142,10 @@ public abstract class AbstractJwksLocator extends LocatorAdapter<Key> {
      * @param keyId Key ID
      * @return Key, or {@code null} if no such key is present
      */
+    // Sonar S1452 - the wildcard is imposed by the upstream jjwt API.  JwkSet.getKeys() returns Set<Jwk<?>> and a
+    // JWKS is heterogeneous by definition, so the concrete key type is not knowable here.  Making this method
+    // generic would be an unchecked assertion rather than a genuine improvement.  See the note below re jjwt#919.
+    @SuppressWarnings("java:S1452")
     protected Jwk<?> locateKey(JwkSet jwks, String keyId) {
         // This is a bit hacky, would be nice if there was a simpler way to just call get() on the JwkSet and get the
         // associated key back directly.  But this isn't happening per https://github.com/jwtk/jjwt/issues/919 so have

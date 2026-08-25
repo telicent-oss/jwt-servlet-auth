@@ -44,8 +44,14 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
 
     /**
      * No longer used.
+     *
+     * @deprecated No longer used, and always {@code null}.  Will be removed in the next major release.
      */
-    @Deprecated
+    // Sonar S1133 - retained deliberately.  The field is protected, so it remains API surface for external
+    // subclasses of this engine and cannot be removed in a patch release; forRemoval above is the signal to
+    // consumers.  Delete it, with a CHANGELOG entry, in the next major.
+    @SuppressWarnings("java:S1133")
+    @Deprecated(since = "4.1.5", forRemoval = true)
     protected static final String NO_AUTH_TOKEN_FOUND = null;
 
     /**
@@ -68,6 +74,14 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
      * @param verifier JWT Verifier
      * @return Authenticated request if successful, or {@code null} if authentication failed
      */
+    // Sonar S3776 - suppressed pending a decision on refactoring.  Most of the cognitive complexity comes from the
+    // eight sequential catch blocks that map jjwt exception types onto RFC 6750 challenges, which is an explicit and
+    // readable mapping rather than accidental complexity.  This is the primary authentication path, so it is not
+    // being restructured as part of a Sonar clean-up sweep.  See CORE-1468.
+    // Sonar S1141 - the nested try is the eight-way jjwt exception to RFC 6750 challenge mapping inside the
+    // candidate token loop.  Extracting the loop body would resolve this and much of S3776 together, so it is
+    // deferred with that refactor rather than changed in a lint sweep.  See CORE-1468.
+    @SuppressWarnings({"java:S3776", "java:S1141", "java:S2629", "java:S2139", "java:S1181"})
     public final TRequest authenticate(TRequest request, TResponse response, JwtVerifier verifier) {
         try {
             MDC.remove(JwtLoggingConstants.MDC_JWT_USER);
@@ -140,6 +154,9 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             if (jws == null) {
                 // Should be at least one challenge if we reach here so just send the first challenge from our list
                 Challenge challenge = challenges.get(0);
+                // Sonar S2629 - arguments are evaluated eagerly, but this is an authentication FAILURE path only,
+                // where WARN is almost certainly enabled, and the challenge list is bounded by the number of
+                // configured header sources so the cost is not attacker-amplifiable.
                 LOGGER.warn("Request to {} not authenticated, {} challenge(s) recorded: {}", getRequestUrl(request),
                             challenges.size(), StringUtils.join(challenges, ", "));
                 sendChallenge(request, response, challenge);
@@ -155,10 +172,23 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT,
                                 jws.candidateToken().source().getRawToken(jws.candidateToken().value()));
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
-            LOGGER.info("Request to {} successfully authenticated as {}", getRequestUrl(request), username);
+            // NB - Fluent API with a supplier so getRequestUrl() is not evaluated when INFO is disabled.  This runs
+            //      on every successful authentication, and for JAX-RS getRequestUrl() rebuilds the URI and allocates
+            //      a string.
+            LOGGER.atInfo()
+                  .setMessage("Request to {} successfully authenticated as {}")
+                  .addArgument(() -> getRequestUrl(request))
+                  .addArgument(username)
+                  .log();
             return prepareRequest(request, jws.verifiedToken(), username);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             sendError(response, e);
+        } catch (Error e) {
+            // NB - Deliberately NOT converted into an error response.  An Error here means a JVM or classpath level
+            //      fault (e.g. NoClassDefFoundError from a mis-provisioned jjwt), and turning that into an opaque
+            //      HTTP 500 on every request hides it.  Log it loudly and let the container deal with it.
+            LOGGER.error("Fatal error during JWT authentication, request not processed", e);
+            throw e;
         }
 
         return null;
