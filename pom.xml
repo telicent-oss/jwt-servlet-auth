@@ -138,7 +138,7 @@
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.3.1</plugin.release>
         <plugin.shade>3.2.4</plugin.shade>
-        <plugin.sonar>5.7.0.6970</plugin.sonar>
+        <plugin.sonar>5.8.0.7211</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.6.0</plugin.surefire>
         <plugin.versions>2.21.0</plugin.versions>
