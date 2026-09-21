@@ -141,7 +141,7 @@
         <plugin.sonar>5.8.0.7211</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.6.0</plugin.surefire>
-        <plugin.versions>2.21.0</plugin.versions>
+        <plugin.versions>2.22.0</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
