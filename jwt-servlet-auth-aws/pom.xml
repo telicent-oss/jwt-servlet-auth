@@ -52,6 +52,13 @@
             <version>${dependency.jetty12}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Same test logging provider as the other library modules, otherwise SLF4J warns that it has no provider -->
+        <dependency>
+            <groupId>com.github.valfirst</groupId>
+            <artifactId>slf4j-test</artifactId>
+            <version>${dependency.slf4j-test}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
