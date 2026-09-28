@@ -74,7 +74,6 @@
             <groupId>io.telicent.public</groupId>
             <artifactId>jwt-servlet-auth-common-integration-tests</artifactId>
             <version>${project.version}</version>
-            <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>

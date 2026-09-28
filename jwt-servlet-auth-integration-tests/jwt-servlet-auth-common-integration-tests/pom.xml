@@ -12,7 +12,6 @@
 
     <properties>
         <license.header.path>${project.parent.parent.basedir}</license.header.path>
-        <skip.testJars>false</skip.testJars>
     </properties>
 
     <dependencies>
@@ -22,11 +21,11 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Test Dependencies -->
+        <!-- Shared test helpers are the main artifact of this unpublished module. -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -44,7 +43,12 @@
             <artifactId>jwt-servlet-auth-core</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>
-            <scope>test</scope>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>
