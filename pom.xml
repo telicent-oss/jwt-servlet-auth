@@ -137,7 +137,7 @@
         <plugin.license>5.1.2</plugin.license>
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.3.1</plugin.release>
-        <plugin.shade>3.2.4</plugin.shade>
+        <plugin.shade>3.6.2</plugin.shade>
         <plugin.sonar>5.8.0.7211</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.6.0</plugin.surefire>
@@ -359,6 +359,7 @@
                                 <exclude>NOTICE</exclude>
                                 <exclude>**/pom.xml</exclude>
                                 <exclude>.github/**/*</exclude>
+                                <exclude>.mvn/maven.config</exclude>
                                 <exclude>**/*.key</exclude>
                                 <exclude>**/*.pem</exclude>
                                 <exclude>.trivy/**</exclude>
@@ -387,9 +388,15 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${plugin.compiler}</version>
                 <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
+                    <!-- release supersedes source/target -->
                     <release>${jdk.version}</release>
+                    <!-- Report each deprecation/unchecked warning with its file and line, rather than a single
+                         "uses or overrides a deprecated API" note per module -->
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Xlint:deprecation</arg>
+                        <arg>-Xlint:unchecked</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 

@@ -21,6 +21,8 @@
         <cyclonedx.skip>true</cyclonedx.skip>
         <skipPublishing>true</skipPublishing>
         <gpg.skip>true</gpg.skip>
+        <!-- Internal benchmarks include generated JMH sources and do not publish API documentation. -->
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <dependencies>
@@ -65,6 +67,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>${plugin.shade}</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

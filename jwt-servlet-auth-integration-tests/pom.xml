@@ -18,6 +18,8 @@
         <cyclonedx.skip>true</cyclonedx.skip>
         <skipPublishing>true</skipPublishing>
         <gpg.skip>true</gpg.skip>
+        <!-- Example/test applications only, no API documentation to publish -->
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <modules>
