@@ -25,6 +25,8 @@ import io.telicent.servlet.auth.jwt.verification.jwks.JwksServer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BrokenInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
+import org.mockito.ArgumentMatchers;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -391,7 +393,7 @@ public class TestKeyUtils {
             Exception {
         // Given
         HttpClient client = mock(HttpClient.class);
-        when(client.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(
+        when(client.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<InputStream>>any())).thenThrow(
                 new InterruptedException("Simulated interrupt"));
         boolean interrupted;
 
@@ -400,7 +402,7 @@ public class TestKeyUtils {
             KeyUtils.loadJwks(URI.create("https://example.org/jwks.json"), client);
             Assert.fail("Expected a KeyLoadException");
         } catch (KeyLoadException e) {
-            Assert.assertTrue(StringUtils.contains(e.getMessage(), "Interrupted"));
+            Assert.assertTrue(Strings.CS.contains(e.getMessage(), "Interrupted"));
             Assert.assertNotNull(e.getCause(), "Expected the InterruptedException to be carried as the cause");
         } finally {
             // NB - Thread.interrupted() also clears the flag so that it cannot leak into subsequent tests

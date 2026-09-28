@@ -140,7 +140,7 @@ public class PathExclusion {
             return false;
         } else if (this.wildcard) {
             if (this.prefix != null) {
-                return StringUtils.startsWith(path, this.prefix);
+                return Strings.CS.startsWith(path, this.prefix);
             }
             return this.regex.matcher(path).matches();
         } else {
