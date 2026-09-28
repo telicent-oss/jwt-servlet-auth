@@ -34,6 +34,11 @@ public final class JwtParsers {
     private JwtParsers() {
     }
 
+    /**
+     * Creates a parser builder using the shared JSON deserializer.
+     *
+     * @return A new builder that callers can configure independently
+     */
     public static JwtParserBuilder builder() {
         JwtParserBuilder builder = Jwts.parser();
         builder.json(DESERIALIZER);

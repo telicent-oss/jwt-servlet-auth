@@ -24,6 +24,14 @@ import java.util.Set;
  * A toy JAX-RS application without the JWT Auth Filter included for integration testing
  */
 public class InsecureHelloWorldApplication extends Application {
+
+    /**
+     * Creates the hello-world application without JWT authentication.
+     */
+    public InsecureHelloWorldApplication() {
+        // No initialization is required.
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new LinkedHashSet<>();

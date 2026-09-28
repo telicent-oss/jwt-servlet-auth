@@ -26,6 +26,13 @@ import java.util.List;
  * A provider for automated configuration of {@link Servlet5JwtAuthenticationEngine}
  */
 public class Servlet5EngineProvider extends AbstractHeaderBasedEngineProvider {
+    /**
+     * Creates a new provider, normally instantiated via {@link java.util.ServiceLoader}
+     */
+    public Servlet5EngineProvider() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(

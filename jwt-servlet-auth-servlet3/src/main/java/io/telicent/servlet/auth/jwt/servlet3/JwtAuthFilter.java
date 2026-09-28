@@ -35,6 +35,13 @@ public class JwtAuthFilter extends AbstractConfigurableJwtAuthFilter<HttpServlet
      */
     protected static final Servlet3JwtAuthenticationEngine DEFAULT_ENGINE = new Servlet3JwtAuthenticationEngine();
 
+    /**
+     * Creates a new filter, which is configured by {@link #init(FilterConfig)} when the servlet container initialises it
+     */
+    public JwtAuthFilter() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
     @Override
     public void init(FilterConfig filterConfig) {
         this.configure(new Servlet3FilterConfigAdaptor(filterConfig));

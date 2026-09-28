@@ -71,6 +71,13 @@ public class DefaultVerificationProvider implements VerificationProvider {
     public DefaultVerificationProvider() {
     }
 
+    /**
+     * Collects the values of the allowed configuration parameters.
+     *
+     * @param paramSupplier Supplier of values for parameter names
+     * @param allowedParameters Allowed parameter names
+     * @return Parameter names and values, omitting parameters with no value
+     */
     // Sonar S4276 - deliberately NOT UnaryOperator<String>.  This maps a parameter NAME to a parameter VALUE, so it is
     // not an operation within a single domain; that both are String is coincidental and UnaryOperator would mislead
     // implementors.  These are also advertised ServiceLoader extension points, and UnaryOperator extends Function
@@ -166,6 +173,13 @@ public class DefaultVerificationProvider implements VerificationProvider {
 
     }
 
+    /**
+     * Resolves a JWKS URL or an existing local file path to a URI.
+     *
+     * @param jwksUrl JWKS URL or local file path
+     * @return URI identifying the JWKS
+     * @throws KeyLoadException If the value cannot be resolved to a valid URI
+     */
     protected static URI asURI(String jwksUrl) throws KeyLoadException {
         try {
             URI uri = URI.create(jwksUrl);
@@ -189,6 +203,14 @@ public class DefaultVerificationProvider implements VerificationProvider {
         return new KeyLoadException("Parameter " + ConfigurationParameters.PARAM_JWKS_URL + " is not a valid URL", e);
     }
 
+    /**
+     * Creates a signed JWT verifier with the configured clock skew.
+     *
+     * @param parameters Verification configuration parameters
+     * @param builder Parser builder already configured with its verification key or locator
+     * @param debugString Description of the verification key for diagnostics
+     * @return Configured verifier
+     */
     // Sonar S1135 - the TODO below records a real outstanding gap (issuer/audience validation is not currently
     // configurable) and is more useful kept in the code than deleted.  Suppressed rather than removed.
     @SuppressWarnings("java:S1135")

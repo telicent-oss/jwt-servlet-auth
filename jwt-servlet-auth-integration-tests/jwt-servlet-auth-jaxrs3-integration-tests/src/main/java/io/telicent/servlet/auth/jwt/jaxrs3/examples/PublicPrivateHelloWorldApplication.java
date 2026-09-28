@@ -25,6 +25,14 @@ import java.util.Set;
  * A toy JAX-RS application for integration testing
  */
 public class PublicPrivateHelloWorldApplication extends Application {
+
+    /**
+     * Creates the application containing public and protected endpoints.
+     */
+    public PublicPrivateHelloWorldApplication() {
+        // No initialization is required.
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new LinkedHashSet<>();

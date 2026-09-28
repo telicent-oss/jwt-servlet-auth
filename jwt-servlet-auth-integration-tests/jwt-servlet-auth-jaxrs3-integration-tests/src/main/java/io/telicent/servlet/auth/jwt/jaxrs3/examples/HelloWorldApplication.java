@@ -25,6 +25,14 @@ import java.util.Set;
  * A toy JAX-RS application for integration testing
  */
 public class HelloWorldApplication extends Application {
+
+    /**
+     * Creates the hello-world application with JWT authentication.
+     */
+    public HelloWorldApplication() {
+        // No initialization is required.
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new LinkedHashSet<>();

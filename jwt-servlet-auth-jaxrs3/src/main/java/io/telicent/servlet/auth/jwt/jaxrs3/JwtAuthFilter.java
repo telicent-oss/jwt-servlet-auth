@@ -50,6 +50,13 @@ public class JwtAuthFilter extends AbstractJwtAuthFilter<ContainerRequestContext
     private ServletContext servletContext;
 
     /**
+     * Creates a new filter, normally instantiated by the JAX-RS runtime which also injects the servlet context
+     */
+    public JwtAuthFilter() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * Used by unit tests to set the context for testing purposes, usually the context is injected by the JAX-RS server
      * runtime
      *

@@ -103,11 +103,13 @@ public record ClaimPath(String[] path) {
     }
 
     /**
-     * {@inheritDoc}
+     * Gets a defensive copy of the claim path elements.
      * <p>
      * Overridden to return a copy so that a caller cannot mutate this instance's path elements, which would
      * otherwise change its {@code equals()} and {@code hashCode()} results.
      * </p>
+     *
+     * @return A copy of the path elements, or {@code null} if no path was supplied
      */
     @Override
     public String[] path() {

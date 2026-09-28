@@ -22,6 +22,14 @@ import jakarta.ws.rs.core.Response;
  * Abstract test resource
  */
 public abstract class AbstractResource {
+
+    /**
+     * Creates a base resource for the integration-test endpoints.
+     */
+    public AbstractResource() {
+        // No initialization is required.
+    }
+
     /**
      * Returns a simple {@code text/plain} response containing the text {@code Hello World!}
      * @return Response

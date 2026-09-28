@@ -39,6 +39,7 @@ public class AuthenticatedHttpServletRequest extends HttpServletRequestWrapper {
      * @param request Original request
      * @param jws Verified JWT
      * @param username Username extracted from the JWT
+     * @param rolesClaim Path to the claim containing the user's roles
      */
     public AuthenticatedHttpServletRequest(HttpServletRequest request, Jws<Claims> jws, String username,
                                            ClaimPath rolesClaim) {

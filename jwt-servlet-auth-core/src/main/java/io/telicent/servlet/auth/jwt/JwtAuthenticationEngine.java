@@ -43,6 +43,13 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationEngine.class);
 
     /**
+     * Creates a new authentication engine
+     */
+    protected JwtAuthenticationEngine() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * No longer used.
      *
      * @deprecated No longer used, and always {@code null}.  Will be removed in the next major release.
