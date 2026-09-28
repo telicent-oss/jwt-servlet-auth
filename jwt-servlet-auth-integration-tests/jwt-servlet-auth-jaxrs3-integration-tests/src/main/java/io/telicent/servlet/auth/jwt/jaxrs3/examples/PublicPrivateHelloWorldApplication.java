@@ -19,6 +19,7 @@ import io.telicent.servlet.auth.jwt.jaxrs3.JwtAuthFilter;
 import jakarta.ws.rs.core.Application;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,5 +41,10 @@ public class PublicPrivateHelloWorldApplication extends Application {
         // Add the JWT Auth Filter to our application
         classes.add(JwtAuthFilter.class);
         return classes;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return ExampleApplicationProperties.get();
     }
 }

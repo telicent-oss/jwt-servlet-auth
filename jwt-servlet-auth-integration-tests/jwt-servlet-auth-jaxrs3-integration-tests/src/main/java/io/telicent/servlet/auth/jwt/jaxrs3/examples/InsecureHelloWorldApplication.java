@@ -18,6 +18,7 @@ package io.telicent.servlet.auth.jwt.jaxrs3.examples;
 import jakarta.ws.rs.core.Application;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -37,5 +38,10 @@ public class InsecureHelloWorldApplication extends Application {
         Set<Class<?>> classes = new LinkedHashSet<>();
         classes.add(PublicPrivateHelloWorldResource.class);
         return classes;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return ExampleApplicationProperties.get();
     }
 }
