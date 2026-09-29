@@ -70,6 +70,7 @@ public class AwsElbKeyUrlRegistry {
     /**
      * Gets the Key URL format for an AWS region
      *
+     * @param region AWS region whose key endpoint should be used
      * @return Key URL Format
      */
     public static String lookupUrlFormat(String region) {

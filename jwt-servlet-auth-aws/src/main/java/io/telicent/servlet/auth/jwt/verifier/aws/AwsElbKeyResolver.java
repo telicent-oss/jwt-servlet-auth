@@ -22,6 +22,7 @@ import io.telicent.servlet.auth.jwt.verification.KeyUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.Key;
@@ -54,7 +55,7 @@ public class AwsElbKeyResolver extends LocatorAdapter<Key> {
 
         String rawKeyUrl = AwsElbKeyUrlRegistry.prepareKeyUrl(this.region, header.getKeyId());
         try {
-            URL keyUrl = new URL(rawKeyUrl);
+            URL keyUrl = URI.create(rawKeyUrl).toURL();
             URLConnection connection = keyUrl.openConnection();
             try (InputStream input = connection.getInputStream()) {
                 return KeyUtils.loadPublicKey(KeyUtils.EC, input);

@@ -23,6 +23,13 @@ import jakarta.servlet.ServletContextListener;
  * A servlet context listener that provides automated JWT Auth configuration when used
  */
 public class JaxRs3AutomatedAuthConfigurationListener implements ServletContextListener {
+    /**
+     * Creates a new listener, normally instantiated by the servlet container from its {@code web.xml} registration
+     */
+    public JaxRs3AutomatedAuthConfigurationListener() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         AutomatedConfiguration.configure(new JaxRs3ConfigAdaptor(sce.getServletContext()));

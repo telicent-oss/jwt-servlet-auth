@@ -19,12 +19,21 @@ import io.telicent.servlet.auth.jwt.jaxrs3.JwtAuthFilter;
 import jakarta.ws.rs.core.Application;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * A toy JAX-RS application for integration testing
  */
 public class HelloWorldApplication extends Application {
+
+    /**
+     * Creates the hello-world application with JWT authentication.
+     */
+    public HelloWorldApplication() {
+        // No initialization is required.
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new LinkedHashSet<>();
@@ -32,5 +41,10 @@ public class HelloWorldApplication extends Application {
         // Add the JWT Auth Filter to our application
         classes.add(JwtAuthFilter.class);
         return classes;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return ExampleApplicationProperties.get();
     }
 }

@@ -36,6 +36,13 @@ public abstract class AbstractHeaderBasedEngineProvider implements EngineProvide
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHeaderBasedEngineProvider.class);
 
     /**
+     * Creates a new engine provider
+     */
+    protected AbstractHeaderBasedEngineProvider() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * Tries to configure the header sources
      *
      * @param paramSupplier Parameter supplier

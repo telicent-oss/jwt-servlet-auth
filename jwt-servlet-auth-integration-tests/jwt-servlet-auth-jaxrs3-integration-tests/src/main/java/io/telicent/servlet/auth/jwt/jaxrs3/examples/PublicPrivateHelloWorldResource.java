@@ -28,6 +28,14 @@ import jakarta.ws.rs.core.Response;
 public class PublicPrivateHelloWorldResource extends AbstractResource{
 
     /**
+     * Creates a resource containing public and protected endpoints.
+     */
+    public PublicPrivateHelloWorldResource() {
+        // No initialization is required.
+    }
+
+
+    /**
      * Produces a hello world response
      * @return Response
      */

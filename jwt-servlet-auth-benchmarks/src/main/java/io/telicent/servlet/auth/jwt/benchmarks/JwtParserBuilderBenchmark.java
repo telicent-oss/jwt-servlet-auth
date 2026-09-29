@@ -16,7 +16,6 @@
 package io.telicent.servlet.auth.jwt.benchmarks;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import io.telicent.servlet.auth.jwt.verification.JwtParsers;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.infra.Blackhole;
@@ -40,7 +39,7 @@ public class JwtParserBuilderBenchmark {
 
         @Setup(Level.Trial)
         public void setup() {
-            this.secret = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
+            this.secret = Jwts.SIG.HS256.key().build();
         }
     }
 

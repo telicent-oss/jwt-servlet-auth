@@ -18,16 +18,30 @@ package io.telicent.servlet.auth.jwt.jaxrs3.examples;
 import jakarta.ws.rs.core.Application;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * A toy JAX-RS application without the JWT Auth Filter included for integration testing
  */
 public class InsecureHelloWorldApplication extends Application {
+
+    /**
+     * Creates the hello-world application without JWT authentication.
+     */
+    public InsecureHelloWorldApplication() {
+        // No initialization is required.
+    }
+
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new LinkedHashSet<>();
         classes.add(PublicPrivateHelloWorldResource.class);
         return classes;
+    }
+
+    @Override
+    public Map<String, Object> getProperties() {
+        return ExampleApplicationProperties.get();
     }
 }

@@ -28,6 +28,14 @@ import jakarta.ws.rs.core.Response;
 public class HelloWorldResource extends AbstractResource {
 
     /**
+     * Creates a resource for the hello-world endpoint.
+     */
+    public HelloWorldResource() {
+        // No initialization is required.
+    }
+
+
+    /**
      * Produces a simple Hello World response
      * @return Response
      */

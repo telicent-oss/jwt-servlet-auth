@@ -43,6 +43,13 @@ public class OidcVerificationProvider extends DefaultVerificationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(OidcVerificationProvider.class);
 
     /**
+     * Creates a new provider, normally instantiated via {@link java.util.ServiceLoader}
+     */
+    public OidcVerificationProvider() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * The {@code /.well-known/} path that is used for some automatic configuration patterns
      */
     // Sonar S1075 - this is the path segment mandated by RFC 8615 and OpenID Connect Discovery, i.e. a protocol

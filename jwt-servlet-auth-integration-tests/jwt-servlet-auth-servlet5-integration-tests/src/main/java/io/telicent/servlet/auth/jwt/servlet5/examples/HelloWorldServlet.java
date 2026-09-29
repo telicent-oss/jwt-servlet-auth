@@ -26,6 +26,14 @@ import java.io.IOException;
  * A toy Servlet 5.x servlet for integration testing
  */
 public class HelloWorldServlet extends HttpServlet {
+
+    /**
+     * Creates a servlet for the hello-world integration tests.
+     */
+    public HelloWorldServlet() {
+        // No initialization is required.
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/plain");

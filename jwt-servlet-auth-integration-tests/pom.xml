@@ -18,6 +18,8 @@
         <cyclonedx.skip>true</cyclonedx.skip>
         <skipPublishing>true</skipPublishing>
         <gpg.skip>true</gpg.skip>
+        <!-- Example/test applications only, no API documentation to publish -->
+        <maven.javadoc.skip>true</maven.javadoc.skip>
     </properties>
 
     <modules>
@@ -27,5 +29,22 @@
         <module>jwt-servlet-auth-jaxrs3-integration-tests</module>
         <module>jwt-servlet-auth-integration-tests-report</module>
     </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>report</id>
+                            <phase>none</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>

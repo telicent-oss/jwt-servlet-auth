@@ -58,6 +58,12 @@ public class CachedJwksKeyLocator extends AbstractJwksLocator {
         this(new UrlJwksKeyLocator(jwksURI, client), cacheKeysFor);
     }
 
+    /**
+     * Wraps a JWKS locator with a cache of resolved keys.
+     *
+     * @param jwksLocator Locator used when a key is not cached
+     * @param cacheKeysFor How long keys remain cached after their last access
+     */
     public CachedJwksKeyLocator(AbstractJwksLocator jwksLocator, Duration cacheKeysFor) {
         super(jwksLocator.client);
         this.jwksLocator = jwksLocator;

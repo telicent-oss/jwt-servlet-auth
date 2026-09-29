@@ -37,6 +37,13 @@ public final class FrozenFilterConfiguration<TRequest, TResponse> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FrozenFilterConfiguration.class);
 
+    /**
+     * Creates a new, not yet configured, filter configuration
+     */
+    public FrozenFilterConfiguration() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
     // These fields are intentionally null, they will be populated once configure() has been called and tried to
     // autoconfigure these, or the first time they are successfully read from the runtime configuration if the user is
     // doing the configuration another way e.g. via a ServletContextListener

@@ -26,6 +26,13 @@ import java.util.List;
  * A provider for automatically configuring {@link JaxRs3JwtAuthenticationEngine}
  */
 public class JaxRs3EngineProvider extends AbstractHeaderBasedEngineProvider {
+    /**
+     * Creates a new provider, normally instantiated via {@link java.util.ServiceLoader}
+     */
+    public JaxRs3EngineProvider() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     protected <TRequest, TResponse> JwtAuthenticationEngine<TRequest, TResponse> createEngine(

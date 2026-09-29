@@ -41,6 +41,13 @@ public class AbstractJwtAuthFilter<TRequest, TResponse> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJwtAuthFilter.class);
 
     /**
+     * Creates a new filter
+     */
+    public AbstractJwtAuthFilter() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * Default size of the exclusion warnings cache
      */
     protected static final int EXCLUSIONS_CACHE_SIZE = 10;

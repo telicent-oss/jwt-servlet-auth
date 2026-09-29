@@ -15,9 +15,11 @@
  */
 package io.telicent.servlet.auth.jwt.configuration.oidc;
 
+import org.mockito.ArgumentMatchers;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -42,7 +44,7 @@ public class TestOidcConfigurationLoader {
             Exception {
         // Given
         HttpClient client = mock(HttpClient.class);
-        when(client.send(any(HttpRequest.class), any(HttpResponse.BodyHandler.class))).thenThrow(
+        when(client.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<InputStream>>any())).thenThrow(
                 new InterruptedException("Simulated interrupt"));
         OidcConfigurationLoader loader = new OidcConfigurationLoader(client);
 

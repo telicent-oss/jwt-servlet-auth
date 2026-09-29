@@ -26,6 +26,13 @@ import java.util.Map;
  * Represents discovered OpenID Connect configuration
  */
 public class OidcConfiguration {
+    /**
+     * Creates a new, empty, configuration, normally populated by Jackson from an OIDC discovery document
+     */
+    public OidcConfiguration() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
 
     @JsonProperty("jwks_uri")
     private String jwksUri;

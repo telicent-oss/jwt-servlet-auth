@@ -38,6 +38,13 @@ public abstract class AbstractConfigurableJwtAuthFilter<TRequest, TResponse>
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractConfigurableJwtAuthFilter.class);
 
     /**
+     * Creates a new filter, subclasses supply the runtime specific configuration handling
+     */
+    protected AbstractConfigurableJwtAuthFilter() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * A filter configuration holder
      */
     protected FrozenFilterConfiguration<TRequest, TResponse> config = new FrozenFilterConfiguration<>();

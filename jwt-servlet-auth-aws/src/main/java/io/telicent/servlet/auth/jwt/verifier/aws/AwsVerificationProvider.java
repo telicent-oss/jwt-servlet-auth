@@ -32,6 +32,13 @@ public class AwsVerificationProvider implements VerificationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(AwsVerificationProvider.class);
 
     /**
+     * Creates a new provider, normally instantiated via {@link java.util.ServiceLoader}
+     */
+    public AwsVerificationProvider() {
+        // Nothing to do, explicit constructor exists to provide Javadoc
+    }
+
+    /**
      * Parameter used to configure the AWS region from which public keys should be obtained for JWT verification
      */
     public static final String PARAM_AWS_REGION = "jwt.aws.region";
