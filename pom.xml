@@ -147,7 +147,7 @@
         <dependency.annotations2>3.0.0</dependency.annotations2>
         <dependency.caffeine>3.3.0</dependency.caffeine>
         <dependency.commons-io>2.22.0</dependency.commons-io>
-        <dependency.commons-lang>3.20.0</dependency.commons-lang>
+        <dependency.commons-lang>3.21.0</dependency.commons-lang>
         <dependency.jackson>2.22.3</dependency.jackson>
         <dependency.jackson-annotations>2.22</dependency.jackson-annotations>
         <dependency.jaxrs3>3.0.0</dependency.jaxrs3>
