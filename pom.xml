@@ -55,6 +55,7 @@
     </scm>
 
     <properties>
+	<foo>bar</foo>
         <!--
         Compiler Configuration
         -->
