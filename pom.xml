@@ -157,7 +157,7 @@
         <dependency.jetty12>12.1.13</dependency.jetty12>
         <dependency.jmh>1.37</dependency.jmh>
         <dependency.mockito>5.24.0</dependency.mockito>
-        <dependency.servlet3>3.1.0</dependency.servlet3>
+        <dependency.servlet3>4.0.0</dependency.servlet3>
         <dependency.servlet5>5.0.0</dependency.servlet5>
         <dependency.slf4j>2.0.20</dependency.slf4j>
         <dependency.slf4j-test>3.0.3</dependency.slf4j-test>
