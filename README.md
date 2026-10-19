@@ -440,7 +440,7 @@ OpenID Connect compliant provider, including the JWKS URL that provides the actu
 ### Caching Verified Tokens
 
 A client typically presents the same JWT on every request until it expires, and verifying its signature can be the most
-expensive part of authenticating a request, particularly for elliptic curve signatures such as `ES256`.  From `4.1.5`
+expensive part of authenticating a request, particularly for elliptic curve signatures such as `ES256`.  From `5.0.0`
 onwards a `CachingJwtVerifier` can wrap any other `JwtVerifier` to remember successfully verified tokens for a short
 while:
 
@@ -552,8 +552,8 @@ and frameworks may choose to intentionally disable some parameters!
 | `jwt.aws.region`             | N/A     | An AWS region, e.g. `eu-west-1`, that matches the AWS region your application is deployed in and uses [AWS ELB Verification](#aws-integration) | `0.8.0` onwards |
 | `jwt.jwks.cache.minutes`     | `60`    | How long in minutes to cache retrieved [JWKS](#jwks-verification) for.  Note that if an unknown Key ID is encountered then the cache is always bypassed and the JWKS retrieved again. | `0.8.0` onwards |
 | `jwt.allowed.clock.skew`     | N/A     | How long in seconds of clock skew to permit when evaluating validity period for JWT. | `0.8.0` onwards |
-| `jwt.verified.cache.seconds` | `60`    | How long in seconds to remember a successfully verified JWT so that it isn't verified again when presented on later requests, never beyond the JWT's own expiry, see [Caching Verified Tokens](#caching-verified-tokens).  `0` disables the cache. | `4.1.5` onwards |
-| `jwt.verified.cache.size`    | `1000`  | The maximum number of verified JWTs to remember, see [Caching Verified Tokens](#caching-verified-tokens).  `0` disables the cache. | `4.1.5` onwards |
+| `jwt.verified.cache.seconds` | `60`    | How long in seconds to remember a successfully verified JWT so that it isn't verified again when presented on later requests, never beyond the JWT's own expiry, see [Caching Verified Tokens](#caching-verified-tokens).  `0` disables the cache. | `5.0.0` onwards |
+| `jwt.verified.cache.size`    | `1000`  | The maximum number of verified JWTs to remember, see [Caching Verified Tokens](#caching-verified-tokens).  `0` disables the cache. | `5.0.0` onwards |
 | `jwt.oidc.provider.url`      | N/A     | A URL from which [OpenID Connect configuration discovery](#openid-connect-verification) can be used to discover the JWKS URL. | `4.1.0` onwards |
 | `jwt.oidc.retry.interval`    | `15`    | Retry interval in seconds used to avoid retrying requesting OpenID Connect configuration too frequently if the configured URL does not return a successful response. | `4.1.0` onwards |
 

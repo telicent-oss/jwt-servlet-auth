@@ -58,7 +58,7 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
     // subclasses of this engine and cannot be removed in a patch release; forRemoval above is the signal to
     // consumers.  Delete it, with a CHANGELOG entry, in the next major.
     @SuppressWarnings("java:S1133")
-    @Deprecated(since = "4.1.5", forRemoval = true)
+    @Deprecated(since = "5.0.0", forRemoval = true)
     protected static final String NO_AUTH_TOKEN_FOUND = null;
 
     /**

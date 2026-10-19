@@ -1,6 +1,6 @@
 # CHANGE LOG
 
-# 4.1.5
+# 5.0.0 
 
 - Verification improvements:
     - New `CachingJwtVerifier` remembers successfully verified tokens for a short while, so a client presenting the
