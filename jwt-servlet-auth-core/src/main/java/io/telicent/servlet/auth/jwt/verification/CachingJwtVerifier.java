@@ -65,7 +65,6 @@ import java.util.*;
  * that.  JWTs cannot be revoked individually, so no other validity information is lost by caching.
  * </p>
  */
-@SuppressWarnings("java:S2143")
 public class CachingJwtVerifier implements JwtVerifier {
 
     /**
@@ -81,12 +80,13 @@ public class CachingJwtVerifier implements JwtVerifier {
                              Instant expiresAt) {
         @Override
         public boolean equals(Object other) {
-            return other instanceof CachedJws that
-                   && Objects.equals(this.header, that.header)
-                   && Objects.equals(this.claims, that.claims)
-                   && Objects.equals(this.signature, that.signature)
-                   && Arrays.equals(this.digest, that.digest)
-                   && Objects.equals(this.expiresAt, that.expiresAt);
+            return other instanceof CachedJws(var otherHeader, var otherClaims, var otherSignature, var otherDigest,
+                                                var otherExpiresAt)
+                   && Objects.equals(this.header, otherHeader)
+                   && Objects.equals(this.claims, otherClaims)
+                   && Objects.equals(this.signature, otherSignature)
+                   && Arrays.equals(this.digest, otherDigest)
+                   && Objects.equals(this.expiresAt, otherExpiresAt);
         }
 
         @Override
@@ -114,11 +114,11 @@ public class CachingJwtVerifier implements JwtVerifier {
     private record CopiedJws(JwsHeader header, Claims claims, String signature, byte[] digest) implements Jws<Claims> {
         @Override
         public boolean equals(Object other) {
-            return other instanceof CopiedJws that
-                   && Objects.equals(this.header, that.header)
-                   && Objects.equals(this.claims, that.claims)
-                   && Objects.equals(this.signature, that.signature)
-                   && Arrays.equals(this.digest, that.digest);
+            return other instanceof CopiedJws(var otherHeader, var otherClaims, var otherSignature, var otherDigest)
+                   && Objects.equals(this.header, otherHeader)
+                   && Objects.equals(this.claims, otherClaims)
+                   && Objects.equals(this.signature, otherSignature)
+                   && Arrays.equals(this.digest, otherDigest);
         }
 
         @Override
