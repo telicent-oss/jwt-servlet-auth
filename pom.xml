@@ -4,7 +4,7 @@
 
     <groupId>io.telicent.public</groupId>
     <artifactId>jwt-servlet-auth-parent</artifactId>
-    <version>4.1.5-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <modules>
         <module>jwt-servlet-auth-core</module>
         <module>jwt-servlet-auth-jaxrs3</module>
@@ -80,7 +80,10 @@
         takes a path glob despite its name, and that every index below must appear in the multicriteria list or the
         block is silently ignored.
         -->
-        <sonar.issue.ignore.multicriteria>s119,t1,t2,t3</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria>s119,t1,t2,t3,s2143</sonar.issue.ignore.multicriteria>
+        <!-- S2143: CachingJwtVerifier must preserve JJWT's Date-valued claims and defensively copy mutable dates. -->
+        <sonar.issue.ignore.multicriteria.s2143.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.s2143.ruleKey>
+        <sonar.issue.ignore.multicriteria.s2143.resourceKey>**/verification/CachingJwtVerifier.java</sonar.issue.ignore.multicriteria.s2143.resourceKey>
         <!--
         S119: this project uses a deliberate two-tier type parameter convention - plain <T> where the parameter is
         opaque (ClaimPath.find, Utils.parseParameter) and T-prefixed PascalCase for the co-varying request/response
@@ -125,7 +128,7 @@
         <skip.testJars>true</skip.testJars>
 
         <!-- Plugin Versions -->
-        <plugin.central>0.11.0</plugin.central>
+        <plugin.central>0.12.0</plugin.central>
         <plugin.clean>3.1.0</plugin.clean>
         <plugin.compiler>3.16.0</plugin.compiler>
         <plugin.cyclonedx>2.9.3</plugin.cyclonedx>
@@ -141,11 +144,11 @@
         <plugin.sonar>5.8.0.7211</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.6.0</plugin.surefire>
-        <plugin.versions>2.22.0</plugin.versions>
+        <plugin.versions>2.23.0</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
-        <dependency.caffeine>3.3.0</dependency.caffeine>
+        <dependency.caffeine>3.3.1</dependency.caffeine>
         <dependency.commons-io>2.22.0</dependency.commons-io>
         <dependency.commons-lang>3.21.0</dependency.commons-lang>
         <dependency.jackson>2.22.3</dependency.jackson>
