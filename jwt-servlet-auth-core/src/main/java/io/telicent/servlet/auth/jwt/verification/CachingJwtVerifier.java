@@ -65,6 +65,7 @@ import java.util.*;
  * that.  JWTs cannot be revoked individually, so no other validity information is lost by caching.
  * </p>
  */
+@SuppressWarnings("java:S2143")
 public class CachingJwtVerifier implements JwtVerifier {
 
     /**
@@ -78,6 +79,27 @@ public class CachingJwtVerifier implements JwtVerifier {
      */
     private record CachedJws(Map<String, Object> header, Map<String, Object> claims, String signature, byte[] digest,
                              Instant expiresAt) {
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof CachedJws that
+                   && Objects.equals(this.header, that.header)
+                   && Objects.equals(this.claims, that.claims)
+                   && Objects.equals(this.signature, that.signature)
+                   && Arrays.equals(this.digest, that.digest)
+                   && Objects.equals(this.expiresAt, that.expiresAt);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * Objects.hash(this.header, this.claims, this.signature, this.expiresAt)
+                   + Arrays.hashCode(this.digest);
+        }
+
+        @Override
+        public String toString() {
+            return "CachedJws[header=" + this.header + ", claims=" + this.claims + ", signature=" + this.signature
+                   + ", digest=" + Arrays.toString(this.digest) + ", expiresAt=" + this.expiresAt + "]";
+        }
     }
 
     /**
@@ -90,6 +112,20 @@ public class CachingJwtVerifier implements JwtVerifier {
      * @param digest    Caller's copy of the digest
      */
     private record CopiedJws(JwsHeader header, Claims claims, String signature, byte[] digest) implements Jws<Claims> {
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof CopiedJws that
+                   && Objects.equals(this.header, that.header)
+                   && Objects.equals(this.claims, that.claims)
+                   && Objects.equals(this.signature, that.signature)
+                   && Arrays.equals(this.digest, that.digest);
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * Objects.hash(this.header, this.claims, this.signature) + Arrays.hashCode(this.digest);
+        }
+
         @Override
         public JwsHeader getHeader() {
             return this.header;
@@ -186,22 +222,25 @@ public class CachingJwtVerifier implements JwtVerifier {
 
         // Not cached, or no longer usable, so verify it for real.  Any exception propagates without caching anything.
         Jws<Claims> jws = this.delegate.verify(rawJwt);
-        if (jws != null) {
-            Instant expiresAt = now.plus(this.maxAge);
-            Date expiration = jws.getPayload() != null ? jws.getPayload().getExpiration() : null;
-            if (expiration != null && expiration.toInstant().isBefore(expiresAt)) {
-                expiresAt = expiration.toInstant();
-            }
-            if (now.isBefore(expiresAt) && jws.getPayload() != null && jws.getHeader() != null) {
-                // NB - Cache private deep copies rather than the result we return, so this caller modifying its result
-                //      can't affect later requests
-                byte[] digest = jws.getDigest();
-                this.cache.put(key, new CachedJws(deepCopyMap(jws.getHeader()), deepCopyMap(jws.getPayload()),
-                                                  jws.getSignature(), digest != null ? digest.clone() : null,
-                                                  expiresAt));
-            }
-        }
+        cacheVerified(key, jws, now);
         return jws;
+    }
+
+    private void cacheVerified(String key, Jws<Claims> jws, Instant now) {
+        if (jws == null || jws.getPayload() == null || jws.getHeader() == null) {
+            return;
+        }
+        Instant expiresAt = now.plus(this.maxAge);
+        Date expiration = jws.getPayload().getExpiration();
+        if (expiration != null && expiration.toInstant().isBefore(expiresAt)) {
+            expiresAt = expiration.toInstant();
+        }
+        if (now.isBefore(expiresAt)) {
+            // Cache private deep copies so the caller modifying its result can't affect later requests.
+            byte[] digest = jws.getDigest();
+            this.cache.put(key, new CachedJws(deepCopyMap(jws.getHeader()), deepCopyMap(jws.getPayload()),
+                                              jws.getSignature(), digest != null ? digest.clone() : null, expiresAt));
+        }
     }
 
     /**

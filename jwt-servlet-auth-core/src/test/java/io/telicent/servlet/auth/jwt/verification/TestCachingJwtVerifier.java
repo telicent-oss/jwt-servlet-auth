@@ -554,4 +554,24 @@ public class TestCachingJwtVerifier {
         Assert.assertEquals((int[]) third.getPayload().get("ints"), new int[] { 10, 20, 30 });
         Assert.assertEquals(delegate.calls.get(), 1);
     }
+
+    @Test
+    public void givenIndependentCaches_whenReturningTheSameToken_thenResultsHaveEqualContentAndHashCodes() {
+        CachingJwtVerifier firstVerifier = new CachingJwtVerifier(counting(), 10, Duration.ofMinutes(1));
+        CachingJwtVerifier secondVerifier = new CachingJwtVerifier(counting(), 10, Duration.ofMinutes(1));
+        String jwt = tokenWithNestedClaims();
+        firstVerifier.verify(jwt);
+        secondVerifier.verify(jwt);
+
+        Jws<Claims> first = firstVerifier.verify(jwt);
+        Jws<Claims> second = secondVerifier.verify(jwt);
+
+        Assert.assertNotSame(first, second);
+        Assert.assertEquals(first, second);
+        Assert.assertEquals(second, first);
+        Assert.assertEquals(first.hashCode(), second.hashCode());
+        Assert.assertNotEquals(first, null);
+        Assert.assertNotEquals(first, "not a JWT");
+    }
+
 }
