@@ -128,7 +128,7 @@
         <skip.testJars>true</skip.testJars>
 
         <!-- Plugin Versions -->
-        <plugin.central>0.11.0</plugin.central>
+        <plugin.central>0.12.0</plugin.central>
         <plugin.clean>3.1.0</plugin.clean>
         <plugin.compiler>3.16.0</plugin.compiler>
         <plugin.cyclonedx>2.9.3</plugin.cyclonedx>
@@ -144,11 +144,11 @@
         <plugin.sonar>5.8.0.7211</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.6.0</plugin.surefire>
-        <plugin.versions>2.22.0</plugin.versions>
+        <plugin.versions>2.23.0</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
-        <dependency.caffeine>3.3.0</dependency.caffeine>
+        <dependency.caffeine>3.3.1</dependency.caffeine>
         <dependency.commons-io>2.22.0</dependency.commons-io>
         <dependency.commons-lang>3.21.0</dependency.commons-lang>
         <dependency.jackson>2.22.3</dependency.jackson>
