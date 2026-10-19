@@ -1,5 +1,12 @@
 # CHANGE LOG
 
+# 4.1.5
+
+- Logging improvements:
+    - The `Request to ... successfully authenticated as ...` message, logged on every successfully authenticated
+      request, is now logged at `DEBUG` rather than `INFO`, as it dominated application logs.  Failed authentication
+      is still logged as before.
+
 # 4.1.4
 
 - Build improvements:

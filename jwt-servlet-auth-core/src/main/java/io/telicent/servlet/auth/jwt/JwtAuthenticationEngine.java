@@ -179,10 +179,11 @@ public abstract class JwtAuthenticationEngine<TRequest, TResponse> {
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_RAW_JWT,
                                 jws.candidateToken().source().getRawToken(jws.candidateToken().value()));
             setRequestAttribute(request, JwtServletConstants.REQUEST_ATTRIBUTE_VERIFIED_JWT, jws.verifiedToken());
-            // NB - Fluent API with a supplier so getRequestUrl() is not evaluated when INFO is disabled.  This runs
-            //      on every successful authentication, and for JAX-RS getRequestUrl() rebuilds the URI and allocates
-            //      a string.
-            LOGGER.atInfo()
+            // NB - Logged at DEBUG as this runs on every successful authentication, i.e. on nearly every request, so at
+            //      INFO it dominated application logs.  Failed authentication is still logged as before.
+            //      Fluent API with a supplier so getRequestUrl() is not evaluated when DEBUG is disabled, for JAX-RS
+            //      getRequestUrl() rebuilds the URI and allocates a string.
+            LOGGER.atDebug()
                   .setMessage("Request to {} successfully authenticated as {}")
                   .addArgument(() -> getRequestUrl(request))
                   .addArgument(username)
