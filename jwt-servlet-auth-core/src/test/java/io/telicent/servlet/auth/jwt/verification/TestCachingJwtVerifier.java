@@ -27,6 +27,9 @@ import io.jsonwebtoken.security.PublicJwk;
 import io.jsonwebtoken.security.SignatureException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.testng.annotations.DataProvider;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -572,6 +575,104 @@ public class TestCachingJwtVerifier {
         Assert.assertEquals(first.hashCode(), second.hashCode());
         Assert.assertNotEquals(first, null);
         Assert.assertNotEquals(first, "not a JWT");
+    }
+
+    @DataProvider(name = "invalidCacheArguments")
+    public Object[][] invalidCacheArguments() {
+        return new Object[][] {
+                { -1L, Duration.ofSeconds(1), Clock.systemUTC(), IllegalArgumentException.class },
+                { 1L, Duration.ofSeconds(-1), Clock.systemUTC(), IllegalArgumentException.class },
+                { 1L, null, Clock.systemUTC(), NullPointerException.class },
+                { 1L, Duration.ofSeconds(1), null, NullPointerException.class }
+        };
+    }
+
+    @Test(dataProvider = "invalidCacheArguments")
+    public void givenInvalidArguments_whenCreatingCache_thenRejected(long size, Duration age, Clock clock,
+                                                                    Class<? extends Throwable> expected) {
+        Assert.assertThrows(expected, () -> new CachingJwtVerifier(counting(), size, age, clock));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void givenIncompleteVerificationResult_whenVerified_thenReturnedWithoutCaching() {
+        Jws<Claims> noClaims = mock(Jws.class);
+        Jws<Claims> noHeader = mock(Jws.class);
+        when(noHeader.getPayload()).thenReturn(Jwts.claims().subject("alice").build());
+        for (Jws<Claims> result : List.of(noClaims, noHeader)) {
+            AtomicInteger calls = new AtomicInteger();
+            CachingJwtVerifier verifier = new CachingJwtVerifier(raw -> {
+                calls.incrementAndGet();
+                return result;
+            }, 10, Duration.ofMinutes(1));
+            Assert.assertSame(verifier.verify("token"), result);
+            Assert.assertSame(verifier.verify("token"), result);
+            Assert.assertEquals(calls.get(), 2);
+            Assert.assertEquals(verifier.cachedTokens(), 0);
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void givenCustomClaimContainers_whenResultsAreModified_thenSnapshotRemainsIsolated() {
+        Date date = new Date(123456789L);
+        Map<String, Object> nested = new LinkedHashMap<>();
+        nested.put("nullable", null);
+        nested.put("date", date);
+        nested.put("groups", new LinkedHashSet<>(List.of("reader")));
+        nested.put("array", new Object[] { new ArrayList<>(List.of("signed")), new int[] { 1, 2 } });
+        Jws<Claims> result = mock(Jws.class);
+        when(result.getHeader()).thenReturn(new SignedJwtVerifier(this.key)
+                .verify(token(this.key, "alice", null)).getHeader());
+        when(result.getPayload()).thenReturn(Jwts.claims().subject("alice").add("nested", nested).build());
+        AtomicInteger calls = new AtomicInteger();
+        CachingJwtVerifier verifier = new CachingJwtVerifier(raw -> {
+            calls.incrementAndGet();
+            return result;
+        }, 10, Duration.ofMinutes(1));
+        verifier.verify("custom");
+        date.setTime(0);
+        ((Set<String>) nested.get("groups")).add("admin");
+        Map<String, Object> first = (Map<String, Object>) verifier.verify("custom").getPayload().get("nested");
+        Assert.assertEquals(first.get("date"), new Date(123456789L));
+        Assert.assertEquals(first.get("groups"), Set.of("reader"));
+        Assert.assertTrue(first.containsKey("nullable"));
+        Assert.assertNull(first.get("nullable"));
+        ((Date) first.get("date")).setTime(0);
+        ((Set<String>) first.get("groups")).add("admin");
+        Object[] array = (Object[]) first.get("array");
+        ((List<String>) array[0]).add("tampered");
+        ((int[]) array[1])[0] = 99;
+        Map<String, Object> later = (Map<String, Object>) verifier.verify("custom").getPayload().get("nested");
+        Assert.assertEquals(later.get("date"), new Date(123456789L));
+        Assert.assertEquals(later.get("groups"), Set.of("reader"));
+        Object[] laterArray = (Object[]) later.get("array");
+        Assert.assertEquals(laterArray[0], List.of("signed"));
+        Assert.assertEquals((int[]) laterArray[1], new int[] { 1, 2 });
+        Assert.assertNull(verifier.verify("custom").getDigest());
+        Assert.assertEquals(verifier.verify("custom").getBody().getSubject(), "alice");
+        Assert.assertEquals(calls.get(), 1);
+    }
+
+    @Test
+    public void givenDifferentSignedTokens_whenCached_thenResultsAreUnequal() {
+        CachingJwtVerifier firstVerifier = new CachingJwtVerifier(new SignedJwtVerifier(this.key), 10,
+                                                                 Duration.ofMinutes(1));
+        CachingJwtVerifier secondVerifier = new CachingJwtVerifier(new SignedJwtVerifier(this.anotherKey), 10,
+                                                                  Duration.ofMinutes(1));
+        String original = token(this.key, "alice", null);
+        String differentClaims = token(this.key, "bob", null);
+        String differentHeader = Jwts.builder().header().keyId("other").and().subject("alice")
+                                     .signWith(this.key).compact();
+        String differentSignature = token(this.anotherKey, "alice", null);
+        for (String token : List.of(original, differentClaims, differentHeader)) {
+            firstVerifier.verify(token);
+        }
+        secondVerifier.verify(differentSignature);
+        Jws<Claims> cached = firstVerifier.verify(original);
+        Assert.assertNotEquals(cached, firstVerifier.verify(differentClaims));
+        Assert.assertNotEquals(cached, firstVerifier.verify(differentHeader));
+        Assert.assertNotEquals(cached, secondVerifier.verify(differentSignature));
     }
 
 }
