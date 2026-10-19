@@ -15,6 +15,7 @@
  */
 package io.telicent.servlet.auth.jwt.verifier.aws;
 
+import io.telicent.servlet.auth.jwt.verification.CachingJwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import io.telicent.servlet.auth.jwt.configuration.VerificationFactory;
 import org.testng.Assert;
@@ -53,6 +54,8 @@ public class TestAwsVerificationProvider {
 
         // Then
         Assert.assertNotNull(verifier.get());
-        Assert.assertTrue(verifier.get() instanceof AwsElbJwtVerifier);
+        // The factory wraps whichever verifier is configured in a cache of verified tokens
+        Assert.assertTrue(verifier.get() instanceof CachingJwtVerifier);
+        Assert.assertTrue(((CachingJwtVerifier) verifier.get()).getDelegate() instanceof AwsElbJwtVerifier);
     }
 }

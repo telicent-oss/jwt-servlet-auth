@@ -1,5 +1,16 @@
 # CHANGE LOG
 
+# 4.1.5
+
+- Verification improvements:
+    - New `CachingJwtVerifier` remembers successfully verified tokens for a short while, so a client presenting the
+      same token on many requests doesn't pay for verifying its signature every time.  Tokens are remembered for at
+      most `jwt.verified.cache.seconds` (default `60`), never beyond their own expiry, and at most
+      `jwt.verified.cache.size` (default `1000`) tokens are kept.  Failed verifications are never cached.  Verifiers
+      configured via `VerificationFactory` (i.e. automatic configuration) are wrapped by default; set either parameter
+      to `0` to disable.  Each caller gets its own copy of the cached header and claims.  For `ES256` signed tokens a
+      cached verification is around 400 times faster.
+
 # 4.1.4
 
 - Build improvements:

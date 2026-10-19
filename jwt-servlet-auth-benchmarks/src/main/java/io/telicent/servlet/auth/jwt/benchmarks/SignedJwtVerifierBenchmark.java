@@ -20,10 +20,13 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
+import io.telicent.servlet.auth.jwt.verification.CachingJwtVerifier;
+import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.SignedJwtVerifier;
 import org.openjdk.jmh.annotations.*;
 
 import javax.crypto.SecretKey;
+import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -31,7 +34,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmarks JWT verification throughput using SignedJwtVerifier.
+ * Benchmarks JWT verification throughput using SignedJwtVerifier, for HS256 and ES256 signed tokens, and with
+ * CachingJwtVerifier in front of it (as configured by default), where a client presents the same token repeatedly.
  */
 @BenchmarkMode(Mode.Throughput)
 @OutputTimeUnit(TimeUnit.SECONDS)
@@ -46,6 +50,10 @@ public class SignedJwtVerifierBenchmark {
         SecretKey key;
         SignedJwtVerifier verifier;
         String token;
+        JwtVerifier cachingVerifier;
+        SignedJwtVerifier es256Verifier;
+        JwtVerifier cachingEs256Verifier;
+        String es256Token;
 
         @Setup(Level.Trial)
         public void setup() {
@@ -66,6 +74,13 @@ public class SignedJwtVerifierBenchmark {
                     .compact();
 
             this.verifier = new SignedJwtVerifier(this.key);
+            this.cachingVerifier = new CachingJwtVerifier(this.verifier, 1000, Duration.ofMinutes(1));
+
+            // ES256, as typically used by identity providers, where signature verification is far more expensive
+            KeyPair es256 = Jwts.SIG.ES256.keyPair().build();
+            this.es256Token = builder.signWith(es256.getPrivate()).compact();
+            this.es256Verifier = new SignedJwtVerifier(es256.getPublic());
+            this.cachingEs256Verifier = new CachingJwtVerifier(this.es256Verifier, 1000, Duration.ofMinutes(1));
         }
     }
 
@@ -88,5 +103,29 @@ public class SignedJwtVerifierBenchmark {
                 .build();
         SignedJwtVerifier localVerifier = new SignedJwtVerifier(parser);
         return localVerifier.verify(state.token);
+    }
+
+    /**
+     * Measures verification of a repeatedly presented HS256 token through the cache of verified tokens.
+     */
+    @Benchmark
+    public Jws<Claims> verifyJwtCached(JwtState state) {
+        return state.cachingVerifier.verify(state.token);
+    }
+
+    /**
+     * Measures pure verification cost (parsing + signature verification) for an ES256 token.
+     */
+    @Benchmark
+    public Jws<Claims> verifyEs256Jwt(JwtState state) {
+        return state.es256Verifier.verify(state.es256Token);
+    }
+
+    /**
+     * Measures verification of a repeatedly presented ES256 token through the cache of verified tokens.
+     */
+    @Benchmark
+    public Jws<Claims> verifyEs256JwtCached(JwtState state) {
+        return state.cachingEs256Verifier.verify(state.es256Token);
     }
 }

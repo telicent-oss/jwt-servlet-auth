@@ -15,16 +15,23 @@
  */
 package io.telicent.servlet.auth.jwt.configuration;
 
+import io.telicent.servlet.auth.jwt.verification.CachingJwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * A factory for creating {@link JwtVerifier} from configuration
+ * <p>
+ * Whichever provider configures the verifier, it is wrapped in a {@link CachingJwtVerifier} unless that is disabled
+ * via {@link ConfigurationParameters#PARAM_VERIFIED_CACHE_SECONDS} or
+ * {@link ConfigurationParameters#PARAM_VERIFIED_CACHE_SIZE}.
+ * </p>
  */
 public class VerificationFactory {
 
@@ -62,12 +69,41 @@ public class VerificationFactory {
     // and pre-compiled ones with AbstractMethodError.
     @SuppressWarnings("java:S4276")
     public static void configure(Function<String, String> paramSupplier, Consumer<JwtVerifier> verifierConsumer) {
+        Consumer<JwtVerifier> cachingConsumer = verifier -> verifierConsumer.accept(withCaching(paramSupplier, verifier));
         for (VerificationProvider provider : PROVIDERS) {
-            if (provider.configure(paramSupplier, verifierConsumer)) {
+            if (provider.configure(paramSupplier, cachingConsumer)) {
                 return;
             }
         }
         LOGGER.warn("Failed to configure any JWT verifier from the available providers");
     }
 
+
+    /**
+     * Wraps a verifier in a {@link CachingJwtVerifier} as configured, unless caching is disabled
+     *
+     * @param paramSupplier Supplier function where configuration parameters can be obtained from
+     * @param verifier      Verifier
+     * @return Verifier to use
+     */
+    // Sonar S4276 - deliberately NOT UnaryOperator<String>, see configure() above
+    @SuppressWarnings("java:S4276")
+    static JwtVerifier withCaching(Function<String, String> paramSupplier, JwtVerifier verifier) {
+        if (verifier == null || verifier instanceof CachingJwtVerifier) {
+            return verifier;
+        }
+        int seconds = Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS),
+                                           Integer::parseInt, ConfigurationParameters.DEFAULT_VERIFIED_CACHE_SECONDS);
+        int size = Utils.parseParameter(paramSupplier.apply(ConfigurationParameters.PARAM_VERIFIED_CACHE_SIZE),
+                                        Integer::parseInt, ConfigurationParameters.DEFAULT_VERIFIED_CACHE_SIZE);
+        if (seconds <= 0 || size <= 0) {
+            LOGGER.info("Verified JWT caching is disabled ({}={}, {}={})",
+                        ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS, seconds,
+                        ConfigurationParameters.PARAM_VERIFIED_CACHE_SIZE, size);
+            return verifier;
+        }
+        LOGGER.info("Successfully verified JWTs will be remembered for up to {} seconds (at most {} tokens), set {} to 0 to "
+                    + "disable", seconds, size, ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS);
+        return new CachingJwtVerifier(verifier, size, Duration.ofSeconds(seconds));
+    }
 }

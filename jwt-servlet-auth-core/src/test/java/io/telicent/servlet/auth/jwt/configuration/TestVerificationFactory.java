@@ -21,6 +21,7 @@ import io.jsonwebtoken.security.Jwks;
 import io.jsonwebtoken.security.MacAlgorithm;
 import io.jsonwebtoken.security.PublicJwk;
 import io.jsonwebtoken.security.RsaPublicJwk;
+import io.telicent.servlet.auth.jwt.verification.CachingJwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.JwtVerifier;
 import io.telicent.servlet.auth.jwt.verification.KeyUtils;
 import io.telicent.servlet.auth.jwt.verification.TestKeyUtils;
@@ -38,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -320,5 +322,99 @@ public class TestVerificationFactory extends AbstractFactoryTests {
         // Then
         Assert.assertEquals(uri.getScheme(), "file", "A scheme-less filename should resolve to a file URI");
         Assert.assertTrue(Strings.CS.contains(uri.getPath(), "test-rsa-key.pem"));
+    }
+
+    private static Map<String, String> secretKeyConfig(Map<String, String> extra) throws IOException {
+        File secretKey = TestKeyUtils.saveKeyToFile(Jwts.SIG.HS256.key().build().getEncoded());
+        Map<String, String> config = new HashMap<>(extra);
+        config.put(ConfigurationParameters.PARAM_SECRET_KEY, secretKey.getAbsolutePath());
+        return config;
+    }
+
+    @Test
+    public void givenDefaultConfiguration_whenConfiguringVerifier_thenVerifiedTokensAreCached() throws IOException {
+        // Given
+        AtomicReference<JwtVerifier> configured = new AtomicReference<>();
+
+        // When
+        VerificationFactory.configure(supplierForMap(secretKeyConfig(Map.of())), configured::set);
+
+        // Then
+        Assert.assertTrue(configured.get() instanceof CachingJwtVerifier, String.valueOf(configured.get()));
+        String description = configured.get().toString();
+        Assert.assertTrue(description.contains("maxSize=" + ConfigurationParameters.DEFAULT_VERIFIED_CACHE_SIZE),
+                          description);
+        Assert.assertTrue(description.contains("maxAge=PT1M"), description);
+        Assert.assertTrue(description.contains("verificationMethod=SecretKey"), description);
+    }
+
+    @Test
+    public void givenCacheSettings_whenConfiguringVerifier_thenCacheConfiguredAccordingly() throws IOException {
+        // Given
+        AtomicReference<JwtVerifier> configured = new AtomicReference<>();
+        Map<String, String> config = secretKeyConfig(Map.of(ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS, "15",
+                                                            ConfigurationParameters.PARAM_VERIFIED_CACHE_SIZE, "42"));
+
+        // When
+        VerificationFactory.configure(supplierForMap(config), configured::set);
+
+        // Then
+        String description = configured.get().toString();
+        Assert.assertTrue(description.contains("maxSize=42"), description);
+        Assert.assertTrue(description.contains("maxAge=PT15S"), description);
+    }
+
+    @DataProvider(name = "disablingSettings")
+    public static Object[][] disablingSettings() {
+        return new Object[][] {
+                { ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS, "0" },
+                { ConfigurationParameters.PARAM_VERIFIED_CACHE_SIZE, "0" },
+                { ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS, "-1" }
+        };
+    }
+
+    @Test(dataProvider = "disablingSettings")
+    public void givenCacheDisabled_whenConfiguringVerifier_thenVerifierIsNotWrapped(String param, String value) throws
+            IOException {
+        // Given
+        AtomicReference<JwtVerifier> configured = new AtomicReference<>();
+
+        // When
+        VerificationFactory.configure(supplierForMap(secretKeyConfig(Map.of(param, value))), configured::set);
+
+        // Then
+        Assert.assertNotNull(configured.get());
+        Assert.assertFalse(configured.get() instanceof CachingJwtVerifier, String.valueOf(configured.get()));
+    }
+
+    @Test
+    public void givenInvalidCacheSettings_whenConfiguringVerifier_thenDefaultsUsed() throws IOException {
+        // Given
+        AtomicReference<JwtVerifier> configured = new AtomicReference<>();
+        Map<String, String> config = secretKeyConfig(Map.of(ConfigurationParameters.PARAM_VERIFIED_CACHE_SECONDS, "soon",
+                                                            ConfigurationParameters.PARAM_VERIFIED_CACHE_SIZE, "lots"));
+
+        // When
+        VerificationFactory.configure(supplierForMap(config), configured::set);
+
+        // Then
+        String description = configured.get().toString();
+        Assert.assertTrue(description.contains("maxSize=" + ConfigurationParameters.DEFAULT_VERIFIED_CACHE_SIZE),
+                          description);
+        Assert.assertTrue(description.contains("maxAge=PT1M"), description);
+    }
+
+    @Test
+    public void givenAlreadyCachingVerifier_whenWrapping_thenNotWrappedAgain() throws IOException {
+        // Given
+        AtomicReference<JwtVerifier> configured = new AtomicReference<>();
+        VerificationFactory.configure(supplierForMap(secretKeyConfig(Map.of())), configured::set);
+
+        // When
+        JwtVerifier wrapped = VerificationFactory.withCaching(NULL_PARAM_SUPPLIER, configured.get());
+
+        // Then
+        Assert.assertSame(wrapped, configured.get());
+        Assert.assertNull(VerificationFactory.withCaching(NULL_PARAM_SUPPLIER, null));
     }
 }
