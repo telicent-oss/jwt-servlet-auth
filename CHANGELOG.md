@@ -10,6 +10,7 @@
       configured via `VerificationFactory` (i.e. automatic configuration) are wrapped by default; set either parameter
       to `0` to disable.  Each caller gets its own copy of the cached header and claims.  For `ES256` signed tokens a
       cached verification is around 400 times faster.
+    - Breaking change - removal of NO_AUTH_TOKEN_FOUND field
 
 # 4.1.4
 
