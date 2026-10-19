@@ -99,6 +99,26 @@ public class ConfigurationParameters {
      */
     public static final int DEFAULT_JWKS_CACHE_KEYS_FOR = 60;
     /**
+     * Parameter that configures how long, in seconds, a successfully verified token is remembered so that it is not
+     * verified again when presented on later requests, see
+     * {@link io.telicent.servlet.auth.jwt.verification.CachingJwtVerifier}.  A token is never remembered beyond its own
+     * expiry.  {@code 0} disables the cache.
+     */
+    public static final String PARAM_VERIFIED_CACHE_SECONDS = "jwt.verified.cache.seconds";
+    /**
+     * The default for {@value #PARAM_VERIFIED_CACHE_SECONDS}
+     */
+    public static final int DEFAULT_VERIFIED_CACHE_SECONDS = 60;
+    /**
+     * Parameter that configures the maximum number of verified tokens remembered, see
+     * {@value #PARAM_VERIFIED_CACHE_SECONDS}.  {@code 0} disables the cache.
+     */
+    public static final String PARAM_VERIFIED_CACHE_SIZE = "jwt.verified.cache.size";
+    /**
+     * The default for {@value #PARAM_VERIFIED_CACHE_SIZE}
+     */
+    public static final int DEFAULT_VERIFIED_CACHE_SIZE = 1000;
+    /**
      * Parameter that configures the verification provider via OIDC discovery
      */
     public static final String PARAM_OIDC_PROVIDER_URL = "jwt.oidc.provider.url";
