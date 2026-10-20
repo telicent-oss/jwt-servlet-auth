@@ -2,6 +2,11 @@
 
 # 5.0.0 
 
+- Logging improvements:
+    - The `Request to ... successfully authenticated as ...` message, logged on every successfully authenticated
+      request, is now logged at `DEBUG` rather than `INFO`, as it dominated application logs.  Failed authentication
+      is still logged as before.
+
 - Verification improvements:
     - New `CachingJwtVerifier` remembers successfully verified tokens for a short while, so a client presenting the
       same token on many requests doesn't pay for verifying its signature every time.  Tokens are remembered for at
