@@ -133,8 +133,8 @@
         <plugin.compiler>3.16.0</plugin.compiler>
         <plugin.cyclonedx>2.9.3</plugin.cyclonedx>
         <plugin.dependency>3.11.0</plugin.dependency>
-        <plugin.enforcer>3.6.3</plugin.enforcer>
-        <plugin.jacoco>0.8.15</plugin.jacoco>
+        <plugin.enforcer>3.7.0</plugin.enforcer>
+        <plugin.jacoco>0.8.16</plugin.jacoco>
         <plugin.jar>3.5.1</plugin.jar>
         <plugin.javadoc>3.12.0</plugin.javadoc>
         <plugin.license>5.1.2</plugin.license>
