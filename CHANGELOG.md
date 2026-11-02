@@ -6,7 +6,6 @@
     - The `Request to ... successfully authenticated as ...` message, logged on every successfully authenticated
       request, is now logged at `DEBUG` rather than `INFO`, as it dominated application logs.  Failed authentication
       is still logged as before.
-
 - Verification improvements:
     - New `CachingJwtVerifier` remembers successfully verified tokens for a short while, so a client presenting the
       same token on many requests doesn't pay for verifying its signature every time.  Tokens are remembered for at
@@ -15,7 +14,13 @@
       configured via `VerificationFactory` (i.e. automatic configuration) are wrapped by default; set either parameter
       to `0` to disable.  Each caller gets its own copy of the cached header and claims.  For `ES256` signed tokens a
       cached verification is around 400 times faster.
-    - Breaking change - removal of NO_AUTH_TOKEN_FOUND field
+    - **Breaking change** - removal of deprecated `NO_AUTH_TOKEN_FOUND` field
+- Build improvements:
+    - Apache Commons Lang upgraded to 3.21.0
+    - Caffeine upgraded to 3.3.1
+    - Jackson upgraded to 2.22.4
+    - SLF4J upgraded to 2.0.20
+    - Various build and test dependencies upgraded to latest available
 
 # 4.1.4
 

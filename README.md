@@ -1,8 +1,8 @@
 # JSON Web Token (JWT) Servlet Authentication
 
-This repository provides libraries that allow adding [JSON Web Token (JWT)][Rfc7519] based [Bearer authentication][Rfc6750] into
-Java Servlet applications. Support is provided for both Servlet 3 (`javax.servlet`), Servlet 5 (`jakarta. servlet`) and
-JAX-RS 3 (`jakarta.ws.rs`) based applications.
+This repository provides libraries that allow adding [JSON Web Token (JWT)][Rfc7519] based [Bearer
+authentication][Rfc6750] into Java Servlet applications. Support is provided for both Servlet 3 (`javax.servlet`),
+Servlet 5 (`jakarta. servlet`) and JAX-RS 3 (`jakarta.ws.rs`) based applications.
 
 While some servlet containers provide integrated support for this, others don't, and even where support is provided the
 flexibility of OAuth 2 (the specification that defined Bearer auth) can still leave implementations lacking.
@@ -63,7 +63,8 @@ To depend on this library add the following to your Maven dependencies:
 
 Where `IMPLEMENTATION` is the desired implementation module for your target servlet container runtime and `X.Y.Z` is the
 desired version. The current stable version may be found via [GitHub
-Releases](https://github.com/telicent-oss/jwt-serv;et-auth/releases/latest), we do not currently publish `SNAPSHOT` builds publicly.
+Releases](https://github.com/telicent-oss/jwt-serv;et-auth/releases/latest), we do not currently publish `SNAPSHOT`
+builds publicly.
 
 We follow semantic versioning so please refer to the [CHANGELOG](CHANGELOG.md) for notes on changes, particularly any
 breaking changes that may have led to a given major version bump.
@@ -243,7 +244,8 @@ configured.  This parameter expects a comma separated list of exclusion patterns
 
 Whenever a request path matches an exclusion the filter will issue a warning like the following:
 
-> 13:28:18 WARN  AbstractJwtAuthFilter :: Request to path /$/ping is excluded from JWT Authentication filtering by filter configuration
+> 13:28:18 WARN  AbstractJwtAuthFilter :: Request to path /$/ping is excluded from JWT Authentication filtering by
+> filter configuration
 
 This is done by design to make it easy to spot misconfigured filters where the exclusions are overly broad.
 
@@ -398,8 +400,8 @@ JwtVerifier verifier =
         .verifyWith(somePublicKey));
 ```
 
-Using the [JJWT][jjwt] library allows you to configure a `JwtParser` in a wide variety of ways including requiring the JWT
-contain certain claims, allowable clock skew, signing key etc.
+Using the [JJWT][jjwt] library allows you to configure a `JwtParser` in a wide variety of ways including requiring the
+JWT contain certain claims, allowable clock skew, signing key etc.
 
 ### JWKS Verification
 
@@ -477,9 +479,9 @@ You will see some example custom implementations within our test suite **BUT** t
 
 As noted earlier part of the difficulty with Bearer auth is that it gets implemented in a variety of ways, often not
 entirely following the OAuth 2 standard.  For example AWS ELB supports an OAuth2 flow via Cognito for user
-authentication but then attaches the Bearer tokens to traffic flowing through your ELB using [custom Amazon headers][AwsElbAuth].
-It also exposes the public keys needed to verify these tokens in a non-standard way, i.e. it doesn't use [JWKS][Rfc7517],
-rather it simply serves the public keys in PEM format from a well known URL.
+authentication but then attaches the Bearer tokens to traffic flowing through your ELB using [custom Amazon
+headers][AwsElbAuth]. It also exposes the public keys needed to verify these tokens in a non-standard way, i.e. it
+doesn't use [JWKS][Rfc7517], rather it simply serves the public keys in PEM format from a well known URL.
 
 To help with AWS integration an additional `jwt-servlet-auth-aws` module is provided with AWS specific implementations
 of our abstractions.  The `AwsElbJwtVerifier` is a `JwtVerifier` that is able to verify tokens signed by the ELB, it
