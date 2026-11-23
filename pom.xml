@@ -141,10 +141,10 @@
         <plugin.nexus>1.7.0</plugin.nexus>
         <plugin.release>3.3.1</plugin.release>
         <plugin.shade>3.6.2</plugin.shade>
-        <plugin.sonar>5.8.0.7211</plugin.sonar>
+        <plugin.sonar>5.9.0.7382</plugin.sonar>
         <plugin.source>3.4.0</plugin.source>
         <plugin.surefire>3.6.1</plugin.surefire>
-        <plugin.versions>2.25.1</plugin.versions>
+        <plugin.versions>2.25.2</plugin.versions>
 
         <!-- Dependency Versions -->
         <dependency.annotations2>3.0.0</dependency.annotations2>
